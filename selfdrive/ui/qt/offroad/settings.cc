@@ -398,13 +398,18 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QPushButton *close_btn = new QPushButton(tr("← Back"));
   close_btn->setStyleSheet(R"(
     QPushButton {
-      font-size: 50px;
-      border-radius: 25px;
-      background-color: #292929;
-      font-weight: 500;
+      color: grey;
+      background-color: transparent;
+      border: none;
+      font-size: 190px;
+      font-weight: 450;
+      text-align: left;
+      padding-left: 0px;
+      padding-bottom: 20px;
     }
     QPushButton:pressed {
-      background-color: #ADADAD;
+      color: #ADADAD;
+      background-color: transparent;
     }
   )");
   close_btn->setFixedSize(300, 125);
@@ -470,6 +475,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
         background: none;
         font-size: 65px;
         font-weight: 500;
+        padding-left: 15px;
       }
       QPushButton:checked {
         color: white;
@@ -480,7 +486,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     )");
     btn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     nav_btns->addButton(btn);
-    sidebar_layout->addWidget(btn, 0, Qt::AlignRight);
+    sidebar_layout->addWidget(btn, 0, Qt::AlignLeft);
 
     const int lr_margin = name != tr("Network") ? 50 : 0;  // Network panel handles its own margins
     panel->setContentsMargins(lr_margin, 25, lr_margin, 25);
@@ -547,7 +553,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
       panel_widget->setCurrentWidget(w);
     });
   }
-  sidebar_layout->setContentsMargins(50, 50, 100, 50);
+  sidebar_layout->setContentsMargins(50, 0, 100, 50);
 
   // main settings layout, sidebar + main panel
   QHBoxLayout *main_layout = new QHBoxLayout(this);
