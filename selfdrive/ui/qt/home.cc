@@ -5,7 +5,6 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
-#include "selfdrive/ui/qt/offroad/experimental_mode.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/prime.h"
 
@@ -15,6 +14,9 @@
 
 #include "selfdrive/frogpilot/ui/qt/widgets/drive_stats.h"
 #include "selfdrive/frogpilot/ui/qt/widgets/model_reviewer.h"
+#include "selfdrive/ui/qt/widgets/driving_mode_button.h"
+#include "selfdrive/ui/qt/offroad/driving_mode_panel.h"
+#include "selfdrive/ui/qt/offroad/info_display_bar.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
 
@@ -129,7 +131,7 @@ void HomeWindow::mouseDoubleClickEvent(QMouseEvent* e) {
 
 OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   QVBoxLayout* main_layout = new QVBoxLayout(this);
-  main_layout->setContentsMargins(40, 40, 40, 40);
+  main_layout->setContentsMargins(30, 30, 30, 30);
 
   // top header
   QHBoxLayout* header_layout = new QHBoxLayout();
@@ -166,40 +168,30 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     home_layout->setContentsMargins(0, 0, 0, 0);
     home_layout->setSpacing(30);
 
-    // left: MapSettings
-    QStackedWidget *left_widget = new QStackedWidget(this);
-#ifdef ENABLE_MAPS
-    left_widget->addWidget(new MapSettings);
-#else
-    left_widget->addWidget(new QWidget);
-#endif
-    left_widget->addWidget(new DriveStats);
+    // left: InfoDisplayBar and DrivingModePanel
+    QWidget *left_widget = new QWidget(this);
+    QVBoxLayout *left_layout = new QVBoxLayout(left_widget);
+    left_layout->setContentsMargins(0, 0, 0, 0);
+    left_layout->setSpacing(30); // Spacing between InfoDisplayBar and DrivingModePanel
 
-    ModelReview *modelReview = new ModelReview(this);
-    left_widget->addWidget(modelReview);
+    InfoDisplayBar *info_display_bar = new InfoDisplayBar(this);
+    left_layout->addWidget(info_display_bar);
 
-    left_widget->setStyleSheet("border-radius: 10px;");
-    left_widget->setCurrentIndex(1);
+    DrivingModePanel *driving_mode_panel = new DrivingModePanel(this);
+    left_layout->addWidget(static_cast<QWidget*>(driving_mode_panel));
 
-    connect(modelReview, &ModelReview::driveRated, [=]() {
-      left_widget->setCurrentIndex(1);
-    });
-    connect(uiState(), &UIState::reviewModel, [=]() {
-      left_widget->setCurrentIndex(2);
-    });
+    QObject::connect(driving_mode_panel, &DrivingModePanel::modeSelected, info_display_bar, &InfoDisplayBar::showModeMessage);
+
+    left_layout->addStretch();
 
     home_layout->addWidget(left_widget, 1);
 
-    // right: ExperimentalModeButton, SetupWidget
+    // right: SetupWidget
     QWidget* right_widget = new QWidget(this);
     QVBoxLayout* right_column = new QVBoxLayout(right_widget);
     right_column->setContentsMargins(0, 0, 0, 0);
-    right_widget->setFixedWidth(750);
+    right_widget->setFixedWidth(615);
     right_column->setSpacing(30);
-
-    ExperimentalModeButton *experimental_mode = new ExperimentalModeButton(this);
-    QObject::connect(experimental_mode, &ExperimentalModeButton::openSettings, this, &OffroadHome::openSettings);
-    right_column->addWidget(experimental_mode, 1);
 
     SetupWidget *setup_widget = new SetupWidget;
     QObject::connect(setup_widget, &SetupWidget::openSettings, this, &OffroadHome::openSettings);
