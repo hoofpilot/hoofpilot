@@ -36,7 +36,10 @@ void PairingQRWidget::hideEvent(QHideEvent *event) {
 
 void PairingQRWidget::refresh() {
   QString pairToken = CommaApi::create_jwt({{"pair", true}});
-  QString qrString = "https://portal.springerelectronics.com/?pair=" + pairToken;
+  QString qrString = "https://connect.comma.ai/?pair=" + pairToken;
+  if (getenv("API_HOST") != nullptr) {
+    qrString = "https://stable.konik.ai/?pair=" + pairToken;
+  }
   this->updateQrCode(qrString);
   update();
 }

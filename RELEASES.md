@@ -1,5 +1,11 @@
 Version 0.9.7 (2024-06-13)
 ========================
+* Radar Interceptor support with a toggle
+* Torque Interceptor support with a toggle
+* Support for cars with No MRCC or Front camera with a toggle
+* Toggle to connect FrogPilot Server instead of comma server
+* Go to https://stable.konik.ai to view drives and set navigation
+* Update to the latest FrogPilot version
 * New driving model
   * Inputs the past curvature for smoother and more accurate lateral control
   * Simplified neural network architecture in the model's last layers
