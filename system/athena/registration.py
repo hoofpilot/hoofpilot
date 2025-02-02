@@ -31,7 +31,11 @@ def register(show_spinner=False) -> str | None:
   IMEI = params.get("IMEI", encoding='utf8')
   HardwareSerial = params.get("HardwareSerial", encoding='utf8')
   dongle_id: str | None = params.get("DongleId", encoding='utf8')
-  needs_registration = None in (IMEI, HardwareSerial, dongle_id)
+  springer_id: str | None = params.get("SpringerId", encoding='utf8')
+
+  needs_registration = None in (IMEI, HardwareSerial, dongle_id, springer_id)
+  if springer_id is not None and dongle_id is not None:
+    needs_registration = springer_id != dongle_id
 
   pubkey = Path(Paths.persist_root()+"/comma/id_rsa.pub")
   if not pubkey.is_file():
@@ -40,7 +44,7 @@ def register(show_spinner=False) -> str | None:
   elif needs_registration:
     if show_spinner:
       spinner = Spinner()
-      spinner.update("registering device")
+      spinner.update("Registering device in server...")
 
     # Create registration token, in the future, this key will make JWTs directly
     with open(Paths.persist_root()+"/comma/id_rsa.pub") as f1, open(Paths.persist_root()+"/comma/id_rsa") as f2:
@@ -56,11 +60,11 @@ def register(show_spinner=False) -> str | None:
       try:
         imei1, imei2 = HARDWARE.get_imei(0), HARDWARE.get_imei(1)
       except Exception:
-        cloudlog.exception("Error getting imei, trying again...")
+        cloudlog.exception("Error getting IMEI, trying again...")
         time.sleep(1)
 
       if time.monotonic() - start_time > 60 and show_spinner:
-        spinner.update(f"registering device - serial: {serial}, IMEI: ({imei1}, {imei2})")
+        spinner.update(f"Registering device in server - serial: {serial}, IMEI: ({imei1}, {imei2})")
 
     params.put("IMEI", imei1)
     params.put("HardwareSerial", serial)
@@ -84,16 +88,20 @@ def register(show_spinner=False) -> str | None:
       except Exception:
         cloudlog.exception("failed to authenticate")
         backoff = min(backoff + 1, 15)
+        if backoff == 15: # Give up if the device can't connect.
+          dongle_id = UNREGISTERED_DONGLE_ID
+          break
         time.sleep(backoff)
 
       if time.monotonic() - start_time > 60 and show_spinner:
-        spinner.update(f"registering device - serial: {serial}, IMEI: ({imei1}, {imei2})")
+        spinner.update(f"Registering device in server - serial: {serial}, IMEI: ({imei1}, {imei2})")
 
     if show_spinner:
       spinner.close()
 
   if dongle_id:
     params.put("DongleId", dongle_id)
+    params.put("SpringerId", dongle_id)
     set_offroad_alert("Offroad_UnofficialHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
   return dongle_id
 
