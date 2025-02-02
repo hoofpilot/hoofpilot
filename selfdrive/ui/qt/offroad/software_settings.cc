@@ -30,8 +30,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(versionLbl);
 
   // automatic updates toggle
-  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
-                                                       tr("FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
+  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update hoofpilot"),
+                                                       tr("hoofpilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
   connect(automaticUpdatesToggle, &ToggleControl::toggleFlipped, this, &updateFrogPilotToggles);
   addItem(automaticUpdatesToggle);
 
@@ -89,8 +89,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls."), this)) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage hoofpilot assets? This includes your toggle settings for quick reinstalls."), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure? This is 100% unrecoverable and if you reinstall hoofpilot you'll lose all your previous settings!"), this)) {
           std::system("rm -rf /persist/params");
         }
       }
