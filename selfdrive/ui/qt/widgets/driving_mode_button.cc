@@ -9,7 +9,7 @@
 
 DrivingModeButton::DrivingModeButton(const QString &text, DrivingMode mode, Params &params, QWidget *parent)
     : QPushButton(parent), mode(mode), params(params) {
-  setFixedHeight(230);
+  setFixedHeight(240);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
   setContentsMargins(10, 10, 50, 10); // 50px right padding for statusCircle
