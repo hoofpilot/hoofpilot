@@ -6,116 +6,79 @@
 #include <QPushButton>
 
 WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
+  setStyleSheet("background-color: #333333; border-radius: 25px;");
+
   stack = new QStackedLayout(this);
 
   // Setup Wi-Fi
-  QFrame *setup = new QFrame;
+  QWidget *setup = new QWidget;
   QVBoxLayout *setup_layout = new QVBoxLayout(setup);
-  setup_layout->setContentsMargins(56, 40, 56, 40);
-  setup_layout->setSpacing(20);
-  {
-    QHBoxLayout *title_layout = new QHBoxLayout;
-    title_layout->setSpacing(32);
-    {
-      QLabel *icon = new QLabel;
-      QPixmap pixmap("../assets/offroad/icon_wifi_strength_full.svg");
-      icon->setPixmap(pixmap.scaledToWidth(80, Qt::SmoothTransformation));
-      title_layout->addWidget(icon);
+  setup_layout->setContentsMargins(56, 60, 56, 40);
+  setup_layout->setSpacing(45);
 
-      QLabel *title = new QLabel(tr("Setup Wi-Fi"));
-      title->setStyleSheet("font-size: 64px; font-weight: 600;");
-      title_layout->addWidget(title);
-      title_layout->addStretch();
+  QLabel *setup_icon = new QLabel;
+  setup_icon->setPixmap(QPixmap("../assets/offroad/icon_wifi_setup.svg").scaledToWidth(225, Qt::SmoothTransformation));
+  setup_icon->setAlignment(Qt::AlignCenter);
+
+  QLabel *setup_desc = new QLabel(tr("Connect to Wi-Fi to upload driving data and help improve openpilot"));
+  setup_desc->setStyleSheet("font-size: 40px; font-weight: 400; padding: 0 50px;");
+  setup_desc->setWordWrap(true);
+  setup_desc->setAlignment(Qt::AlignCenter);
+
+  QPushButton *settings_btn = new QPushButton(tr("Setup Wi-Fi"));
+  settings_btn->setStyleSheet(R"(
+    QPushButton {
+      font-size: 48px;
+      font-weight: 500;
+      border-radius: 20px;
+      background-color: #465BEA;
+      padding: 32px;
     }
-    setup_layout->addLayout(title_layout);
+    QPushButton:pressed {
+      background-color: #3049F4;
+    }
+  )");
+  connect(settings_btn, &QPushButton::clicked, [=]() { emit openSettings(1); });
 
-    QLabel *desc = new QLabel(tr("Connect to Wi-Fi to upload driving data and help improve openpilot"));
-    desc->setStyleSheet("font-size: 40px; font-weight: 400;");
-    desc->setWordWrap(true);
-    setup_layout->addWidget(desc);
+  setup_layout->addWidget(setup_icon);
+  setup_layout->addStretch();
+  setup_layout->addWidget(setup_desc);
+  setup_layout->addStretch();
+  setup_layout->addWidget(settings_btn);
 
-    QPushButton *settings_btn = new QPushButton(tr("Open Settings"));
-    connect(settings_btn, &QPushButton::clicked, [=]() { emit openSettings(1); });
-    settings_btn->setStyleSheet(R"(
-      QPushButton {
-        font-size: 48px;
-        font-weight: 500;
-        border-radius: 10px;
-        background-color: #465BEA;
-        padding: 32px;
-      }
-      QPushButton:pressed {
-        background-color: #3049F4;
-      }
-    )");
-    setup_layout->addWidget(settings_btn);
-  }
   stack->addWidget(setup);
 
   // Uploading data
   QWidget *uploading = new QWidget;
   QVBoxLayout *uploading_layout = new QVBoxLayout(uploading);
-  uploading_layout->setContentsMargins(64, 56, 64, 56);
-  uploading_layout->setSpacing(36);
-  {
-    QHBoxLayout *title_layout = new QHBoxLayout;
-    {
-      QLabel *title = new QLabel(tr("Ready to upload"));
-      title->setStyleSheet("font-size: 64px; font-weight: 600;");
-      title->setWordWrap(true);
-      title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-      title_layout->addWidget(title);
-      title_layout->addStretch();
+  uploading_layout->setContentsMargins(50, 60, 50, 60);
+  uploading_layout->setSpacing(0); // Without this WiFi and Connected labels spacing too far apart
 
-      QLabel *icon = new QLabel;
-      QPixmap pixmap("../assets/offroad/icon_wifi_uploading.svg");
-      icon->setPixmap(pixmap.scaledToWidth(120, Qt::SmoothTransformation));
-      title_layout->addWidget(icon);
-    }
-    uploading_layout->addLayout(title_layout);
+  QLabel *uploading_icon = new QLabel;
+  uploading_icon->setPixmap(QPixmap("../assets/offroad/icon_wifi_uploading.svg").scaledToWidth(200, Qt::SmoothTransformation));
+  uploading_icon->setAlignment(Qt::AlignCenter);
 
-    QLabel *desc = new QLabel(tr("Training data will be pulled periodically while your device is on Wi-Fi"));
-    desc->setStyleSheet("font-size: 48px; font-weight: 400;");
-    desc->setWordWrap(true);
-    uploading_layout->addWidget(desc);
-  }
+  QLabel *top_label = new QLabel(tr("Wi-Fi"));
+  top_label->setStyleSheet("font-size: 58px; font-weight: 400;");
+  top_label->setAlignment(Qt::AlignCenter);
+
+  QLabel *bottom_label = new QLabel(tr("Connected"));
+  bottom_label->setStyleSheet("font-size: 77px; font-weight: 600; color: #AAED70;");
+  bottom_label->setAlignment(Qt::AlignCenter);
+
+  QLabel *uploading_desc = new QLabel(tr("Training data will be pulled periodically while your device is on Wi-Fi"));
+  uploading_desc->setStyleSheet("font-size: 42px; font-weight: 400;");
+  uploading_desc->setWordWrap(true);
+  uploading_desc->setAlignment(Qt::AlignCenter);
+
+  uploading_layout->addWidget(uploading_icon);
+  uploading_layout->addStretch();
+  uploading_layout->addWidget(top_label);
+  uploading_layout->addWidget(bottom_label);
+  uploading_layout->addStretch();
+  uploading_layout->addWidget(uploading_desc);
+
   stack->addWidget(uploading);
-
-  // not uploading data
-  QWidget *notUploading = new QWidget;
-  QVBoxLayout *not_uploading_layout = new QVBoxLayout(notUploading);
-  not_uploading_layout->setContentsMargins(64, 56, 64, 56);
-  not_uploading_layout->setSpacing(36);
-  {
-    QHBoxLayout *title_layout = new QHBoxLayout;
-    {
-      QLabel *title = new QLabel(tr("Uploading disabled"));
-      title->setStyleSheet("font-size: 64px; font-weight: 600;");
-      title->setWordWrap(true);
-      title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-      title_layout->addWidget(title);
-      title_layout->addStretch();
-
-      QLabel *icon = new QLabel;
-      QPixmap pixmap("../frogpilot/assets/other_images/icon_wifi_uploading_disabled.svg");
-      icon->setPixmap(pixmap.scaledToWidth(120, Qt::SmoothTransformation));
-      title_layout->addWidget(icon);
-    }
-    not_uploading_layout->addLayout(title_layout);
-
-    QLabel *desc = new QLabel(tr("Toggle off the 'Turn Off Data Uploads' toggle to re-enable uploads."));
-    desc->setStyleSheet("font-size: 48px; font-weight: 400;");
-    desc->setWordWrap(true);
-    not_uploading_layout->addWidget(desc);
-  }
-  stack->addWidget(notUploading);
-
-  setStyleSheet(R"(
-    WiFiPromptWidget {
-      background-color: #333333;
-      border-radius: 10px;
-    }
-  )");
 
   QObject::connect(uiState(), &UIState::uiUpdate, this, &WiFiPromptWidget::updateState);
 }
@@ -128,5 +91,5 @@ void WiFiPromptWidget::updateState(const UIState &s) {
   auto network_type = sm["deviceState"].getDeviceState().getNetworkType();
   auto uploading = network_type == cereal::DeviceState::NetworkType::WIFI ||
       network_type == cereal::DeviceState::NetworkType::ETHERNET;
-  stack->setCurrentIndex(s.scene.no_uploads ? 2 : uploading ? 1 : 0);
+  stack->setCurrentIndex(uploading ? 1 : 0);
 }
