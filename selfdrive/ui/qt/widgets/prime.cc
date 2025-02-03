@@ -184,16 +184,18 @@ SetupWidget::SetupWidget(QWidget* parent) : QFrame(parent) {
   QFrame* finishRegistration = new QFrame;
   finishRegistration->setObjectName("primeWidget");
   QVBoxLayout* finishRegistationLayout = new QVBoxLayout(finishRegistration);
-  finishRegistationLayout->setSpacing(38);
-  finishRegistationLayout->setContentsMargins(64, 48, 64, 48);
+  finishRegistationLayout->setSpacing(0);
+  finishRegistationLayout->setContentsMargins(40, 60, 40, 60);
 
-  QLabel* registrationTitle = new QLabel(tr("Finish Setup"));
-  registrationTitle->setStyleSheet("font-size: 75px; font-weight: bold;");
+  QLabel* registrationTitle = new QLabel(tr("Last step to finish setup!"));
+  registrationTitle->setStyleSheet("font-size: 70px; font-weight: bold; color: #FFEB88; padding: 0 30px;");
+  registrationTitle->setFixedHeight(180);
+  registrationTitle->setWordWrap(true);
   finishRegistationLayout->addWidget(registrationTitle);
 
   QLabel* registrationDescription = new QLabel(tr("Pair your device with Konik Stable."));
   registrationDescription->setWordWrap(true);
-  registrationDescription->setStyleSheet("font-size: 50px; font-weight: light;");
+  registrationDescription->setStyleSheet("font-size: 40px; font-weight: normal; color: white; padding: 0 30px;");
   finishRegistationLayout->addWidget(registrationDescription);
 
   finishRegistationLayout->addStretch();
@@ -201,11 +203,11 @@ SetupWidget::SetupWidget(QWidget* parent) : QFrame(parent) {
   QPushButton* pair = new QPushButton(tr("Pair device"));
   pair->setStyleSheet(R"(
     QPushButton {
-      font-size: 55px;
+      font-size: 50px;
       font-weight: 500;
-      border-radius: 10px;
+      border-radius: 25px;
       background-color: #465BEA;
-      padding: 64px;
+      padding: 33px;
     }
     QPushButton:pressed {
       background-color: #3049F4;
@@ -243,7 +245,7 @@ SetupWidget::SetupWidget(QWidget* parent) : QFrame(parent) {
 
   setStyleSheet(R"(
     #primeWidget {
-      border-radius: 10px;
+      border-radius: 25px;
       background-color: #333333;
     }
   )");
