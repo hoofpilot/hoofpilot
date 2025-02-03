@@ -195,7 +195,7 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     SetupWidget *setup_widget = new SetupWidget;
     QObject::connect(setup_widget, &SetupWidget::openSettings, this, &OffroadHome::openSettings);
     right_column->addWidget(setup_widget, 1);
-
+    right_column->addStretch();
     home_layout->addWidget(right_widget, 1);
   }
   center_layout->addWidget(home_widget);

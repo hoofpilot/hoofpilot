@@ -178,7 +178,7 @@ PrimeAdWidget::PrimeAdWidget(QWidget* parent) : QFrame(parent) {
 
 SetupWidget::SetupWidget(QWidget* parent) : QFrame(parent) {
   mainLayout = new QStackedWidget;
-
+  setFixedHeight(670);
   // Unpaired, registration prompt layout
 
   QFrame* finishRegistration = new QFrame;
