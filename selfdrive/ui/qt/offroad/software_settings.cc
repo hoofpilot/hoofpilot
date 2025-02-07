@@ -86,7 +86,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(targetBranchBtn);
 
   // uninstall button
-  auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
+  auto uninstallBtn = new ButtonControl(tr("Uninstall hoofpilot").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage hoofpilot assets? This includes your toggle settings for quick reinstalls."), this)) {
