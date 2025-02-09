@@ -229,11 +229,11 @@ void Sidebar::updateState(const UIState &s) {
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
   if (last_ping == 0) {
-    connectStatus = ItemStatus{{tr("CONNECT"), tr("OFFLINE")}, warning_color};
+    connectStatus = ItemStatus{{tr("STABLE"), tr("OFFLINE")}, warning_color};
   } else {
     connectStatus = nanos_since_boot() - last_ping < 80e9
-                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, sidebar_color3}
-                        : ItemStatus{{tr("CONNECT"), tr("ERROR")}, danger_color};
+                        ? ItemStatus{{tr("STABLE"), tr("ONLINE")}, sidebar_color3}
+                        : ItemStatus{{tr("STABLE"), tr("ERROR")}, danger_color};
   }
   setProperty("connectStatus", QVariant::fromValue(connectStatus));
 
