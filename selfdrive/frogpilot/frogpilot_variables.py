@@ -51,8 +51,8 @@ DEFAULT_CLASSIC_MODEL_VERSION = "v2"
 def get_frogpilot_toggles(block=True):
   return SimpleNamespace(**json.loads(params_memory.get("FrogPilotToggles", block=block) or "{}"))
 
-def has_prime():
-  return params.get_int("PrimeType") > 0
+def has_prime(): # Currently eveyone is Prime by default
+  return True # params.get_int("PrimeType") > 0
 
 def update_frogpilot_toggles():
   params_memory.put_bool("FrogPilotTogglesUpdated", True)
