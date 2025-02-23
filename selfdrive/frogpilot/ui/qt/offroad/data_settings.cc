@@ -125,7 +125,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
   });
   addItem(screenRecordingsBtn);
 
-  FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("Manage your FrogPilot backups."), {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
+  FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("hoofpilot Backups"), tr("Manage your hoofpilot backups."), {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
   QObject::connect(frogpilotBackupBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
     QDir backupDir("/data/backups");
     QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name).filter(QRegularExpression("^(?!.*_in_progress$).*$"));
@@ -213,7 +213,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       }
 
     } else if (id == 2) {
-      if (ConfirmationDialog::confirm(tr("Are you sure you want to delete all FrogPilot backups?"), tr("Delete All"), this)) {
+      if (ConfirmationDialog::confirm(tr("Are you sure you want to delete all hoofpilot backups?"), tr("Delete All"), this)) {
         std::thread([=]() mutable {
           parent->keepScreenOn = true;
 
@@ -243,7 +243,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (id == 3) {
       QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
       if (!selection.isEmpty()) {
-        if (ConfirmationDialog::confirm(tr("Are you sure you want to restore this version of FrogPilot?"), tr("Restore"), this)) {
+        if (ConfirmationDialog::confirm(tr("Are you sure you want to restore this version of hoofpilot?"), tr("Restore"), this)) {
           std::thread([=]() {
             parent->keepScreenOn = true;
 

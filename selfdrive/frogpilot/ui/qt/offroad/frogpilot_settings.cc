@@ -67,10 +67,10 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
   };
 
   std::vector<std::tuple<QString, QString, QString>> panelInfo = {
-    {tr("Alerts and Sounds"), tr("Manage FrogPilot's alerts and sounds."), "../frogpilot/assets/toggle_icons/icon_sound.png"},
-    {tr("Driving Controls"), tr("Manage FrogPilot's features that affect acceleration, braking, and steering."), "../frogpilot/assets/toggle_icons/icon_steering.png"},
+    {tr("Alerts and Sounds"), tr("Manage hoofpilot's alerts and sounds."), "../frogpilot/assets/toggle_icons/icon_sound.png"},
+    {tr("Driving Controls"), tr("Manage hoofpilot's features that affect acceleration, braking, and steering."), "../frogpilot/assets/toggle_icons/icon_steering.png"},
     {tr("Navigation"), tr("Manage map data to be used with 'Curve Speed Control' and 'Speed Limit Controller' and setup 'Navigate On openpilot (NOO)' without a comma prime subscription."), "../frogpilot/assets/toggle_icons/icon_map.png"},
-    {tr("System Management"), tr("Manage the device's internal settings along with other tools and utilities to maintain and troubleshoot FrogPilot."), "../frogpilot/assets/toggle_icons/icon_system.png"},
+    {tr("System Management"), tr("Manage the device's internal settings along with other tools and utilities to maintain and troubleshoot hoofpilot."), "../frogpilot/assets/toggle_icons/icon_system.png"},
     {tr("Theme and Appearance"), tr("Manage openpilot's theme and onroad widgets."), "../frogpilot/assets/toggle_icons/icon_display.png"},
     {tr("Vehicle Controls"), tr("Manage vehicle-specific settings."), "../frogpilot/assets/toggle_icons/icon_vehicle.png"}
   };
@@ -153,7 +153,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   QObject::connect(togglePreset, &ButtonParamControl::disabledButtonClicked, [this](int id) {
     if (id == 3) {
       FrogPilotConfirmationDialog::toggleAlert(
-        tr("The 'Developer' preset is only available for users with either over 100 hours on FrogPilot, or 250 hours with openpilot."),
+        tr("The 'Developer' preset is only available for users with either over 100 hours on hoofpilot, or 250 hours with openpilot."),
         tr("Ok"), this
       );
     }

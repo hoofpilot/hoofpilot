@@ -440,7 +440,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       downloadStatusLabel = new LabelControl(title, "Idle");
       themeToggle = downloadStatusLabel;
     } else if (param == "StartupAlert") {
-      FrogPilotButtonsControl *startupAlertButton = new FrogPilotButtonsControl(title, desc, {tr("STOCK"), tr("FROGPILOT"), tr("CUSTOM"), tr("CLEAR")}, false, true, icon);
+      FrogPilotButtonsControl *startupAlertButton = new FrogPilotButtonsControl(title, desc, {tr("STOCK"), tr("HOOFPILOT"), tr("CUSTOM"), tr("CLEAR")}, false, true, icon);
       QObject::connect(startupAlertButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         int maxLengthTop = 35;
         int maxLengthBottom = 45;
@@ -448,8 +448,8 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
         QString stockTop = "Be ready to take over at any time";
         QString stockBottom = "Always keep hands on wheel and eyes on road";
 
-        QString frogpilotTop = "Hop in and buckle up!";
-        QString frogpilotBottom = "Human-tested, frog-approved 🐸";
+        QString frogpilotTop = "Hop on and saddle up!";
+        QString frogpilotBottom = "The ultimate companion 🐎";
 
         QString currentTop = QString::fromStdString(params.get("StartupMessageTop"));
         QString currentBottom = QString::fromStdString(params.get("StartupMessageBottom"));
