@@ -15,8 +15,6 @@ Ecu = car.CarParams.Ecu
 class CarControllerParams:
   def __init__(self, CP):
     self.STEER_STEP = 2                # how often we update the steer cmd
-    self.STEER_DELTA_UP = 50           # torque increase per refresh, 0.8s to max
-    self.STEER_DELTA_DOWN = 70         # torque decrease per refresh
     self.STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
     self.STEER_DRIVER_MULTIPLIER = 50  # weight driver torque heavily
     self.STEER_DRIVER_FACTOR = 1       # from dbc
@@ -26,11 +24,17 @@ class CarControllerParams:
       self.STEER_DELTA_UP = 40
       self.STEER_DELTA_DOWN = 40
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA_2020:
-      self.STEER_MAX = 1439
+      self.STEER_MAX = 3071
+      self.STEER_DELTA_UP = 60
+      self.STEER_DELTA_DOWN = 60
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA:
       self.STEER_MAX = 3071
+      self.STEER_DELTA_UP = 60
+      self.STEER_DELTA_DOWN = 60
     else:
       self.STEER_MAX = 2047
+      self.STEER_DELTA_UP = 30
+      self.STEER_DELTA_DOWN = 30
 
   THROTTLE_MIN = 808
   THROTTLE_MAX = 3400

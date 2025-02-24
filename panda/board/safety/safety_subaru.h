@@ -18,7 +18,7 @@
 
 
 const SteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(3071, 50, 70);
-const SteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(1000, 40, 40);
+const SteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(3071 ,50, 70); //Should theoretically apply allow new torque limits for 2020-2022 Impreza
 
 
 const LongitudinalLimits SUBARU_LONG_LIMITS = {

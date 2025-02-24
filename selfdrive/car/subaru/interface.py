@@ -34,6 +34,10 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.subaru)]
       if ret.flags & SubaruFlags.GLOBAL_GEN2:
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_SUBARU_GEN2
+      elif candidate == CAR.SUBARU_IMPREZA: #Global Crosstrek
+        ret.safetyConfigs[0].safetyParam |= Panda.FLAG_SUBARU_2018
+      elif candidate == CAR.SUBARU_IMPREZA_2020: #Global Impreza
+        ret.safetyConfigs[0].safetyParam |= Panda.FLAG_SUBARU_2018
 
     ret.steerLimitTimer = 0.4
     ret.steerActuatorDelay = 0.1
@@ -51,17 +55,19 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.0025, 0.1], [0.00025, 0.01]]
 
     elif candidate == CAR.SUBARU_IMPREZA:
-      ret.steerActuatorDelay = 0.4  # end-to-end angle controller
+      ret.steerActuatorDelay = 0.2  # end-to-end angle controller
       ret.lateralTuning.init('pid')
-      ret.lateralTuning.pid.kf = 0.00003333
+      ret.lateralTuning.pid.kf = 0.00003
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.133, 0.2], [0.0133, 0.02]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.12, 0.18], [0.012, 0.018]]
 
     elif candidate == CAR.SUBARU_IMPREZA_2020:
+      #This is a torque increase that is experiemental for Global Subaru Impreza. May be a little broken and result in EPS shutdowns
+      ret.steerActuatorDelay = 0.2
       ret.lateralTuning.init('pid')
-      ret.lateralTuning.pid.kf = 0.00005
-      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 14., 23.], [0., 14., 23.]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.045, 0.042, 0.20], [0.04, 0.035, 0.045]]
+      ret.lateralTuning.pid.kf = 0.00003
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.12, 0.18], [0.012, 0.018]]
 
     elif candidate == CAR.SUBARU_CROSSTREK_HYBRID:
       ret.steerActuatorDelay = 0.1
