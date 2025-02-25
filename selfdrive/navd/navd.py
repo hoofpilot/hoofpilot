@@ -62,7 +62,7 @@ class RouteEngine:
       self.mapbox_host = "https://api.mapbox.com"
     else:
       self.api = Api(self.params.get("DongleId", encoding='utf8'))
-      self.mapbox_host = "https://api.konik.ai"
+      self.mapbox_host = "https://maps.konik.ai"
 
     # FrogPilot variables
     self.frogpilot_toggles = get_frogpilot_toggles()
