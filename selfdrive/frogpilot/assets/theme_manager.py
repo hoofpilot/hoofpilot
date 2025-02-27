@@ -126,7 +126,7 @@ class ThemeManager:
       "new_years": date(year, 1, 1),
       "valentines": date(year, 2, 14),
       "st_patricks": date(year, 3, 17),
-      "world_frog_day": date(year, 3, 20),
+      "hoofpilot": date(year, 3, 1),
       "april_fools": date(year, 4, 1),
       "easter_week": easter.easter(year),
       "may_the_fourth": date(year, 5, 4),
