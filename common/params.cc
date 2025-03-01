@@ -192,6 +192,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"SecOCKey", PERSISTENT | DONT_LOG},
     {"SnoozeUpdate", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"SshEnabled", PERSISTENT},
+    {"SpringerId", PERSISTENT},
     {"TermsVersion", PERSISTENT},
     {"Timezone", PERSISTENT},
     {"TrainingVersion", PERSISTENT},
