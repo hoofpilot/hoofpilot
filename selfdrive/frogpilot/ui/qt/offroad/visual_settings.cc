@@ -46,7 +46,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"ShowSpeedLimits", tr("Show Speed Limits"), tr("Displays the currently detected speed limit in the top left corner of the onroad UI. Uses data from your car's dashboard (if supported) and data from 'OpenStreetMaps'."), ""},
     {"UseVienna", tr("Use Vienna-Style Speed Signs"), tr("Forces Vienna-style (EU) speed limit signs instead of MUTCD (US)."), ""},
 
-    {"CustomUI", tr("Onroad Screen Widgets"), tr("Custom FrogPilot widgets used in the onroad user interface."), "../assets/offroad/icon_road.png"},
+    {"CustomUI", tr("Onroad Screen Widgets"), tr("Custom hoofpilot widgets used in the onroad user interface."), "../assets/offroad/icon_road.png"},
     {"AccelerationPath", tr("Acceleration Path"), tr("Projects a path based on openpilot's current desired acceleration or deceleration."), ""},
     {"AdjacentPath", tr("Adjacent Lanes"), tr("Projects paths for the adjascent lanes."), ""},
     {"BlindSpotPath", tr("Blind Spot Path"), tr("Projects a red path when vehicles are detected in the blind spot for the respective lane."), ""},

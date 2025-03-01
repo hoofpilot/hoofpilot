@@ -103,12 +103,12 @@ QString storeThemeName(const QString &input, const std::string &paramKey, Params
 FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> themeToggles {
     {"PersonalizeOpenpilot", tr("Custom Theme"), tr("Custom openpilot themes."), "../frogpilot/assets/toggle_icons/frog.png"},
-    {"CustomColors", tr("Color Scheme"), tr("Changes out openpilot's color scheme.\n\nWant to submit your own color scheme? Share it in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
-    {"CustomDistanceIcons", "Distance Button", "Changes out openpilot's distance button icons.\n\nWant to submit your own icon pack? Share it in the 'custom-themes' channel on the FrogPilot Discord!", ""},
-    {"CustomIcons", tr("Icon Pack"), tr("Changes out openpilot's icon pack.\n\nWant to submit your own icons? Share them in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
-    {"CustomSounds", tr("Sound Pack"), tr("Changes out openpilot's sound effects.\n\nWant to submit your own sounds? Share them in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
+    {"CustomColors", tr("Color Scheme"), tr("Changes out openpilot's color scheme."), ""},
+    {"CustomDistanceIcons", "Distance Button", "Changes out openpilot's distance button icons.", ""},
+    {"CustomIcons", tr("Icon Pack"), tr("Changes out openpilot's icon pack."), ""},
+    {"CustomSounds", tr("Sound Pack"), tr("Changes out openpilot's sound effects."), ""},
     {"WheelIcon", tr("Steering Wheel"), tr("Enables a custom steering wheel icon in the top right of the screen."), ""},
-    {"CustomSignals", tr("Turn Signal Animation"), tr("Enables themed turn signal animations.\n\nWant to submit your own animations? Share them in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
+    {"CustomSignals", tr("Turn Signal Animation"), tr("Enables themed turn signal animations."), ""},
     {"DownloadStatusLabel", tr("Download Status"), "", ""},
 
     {"HolidayThemes", tr("Holiday Themes"), tr("Changes the openpilot theme based on the current holiday. Minor holidays last one day, while major holidays (Easter, Christmas, Halloween, etc.) last the entire week."), "../frogpilot/assets/toggle_icons/icon_calendar.png"},
@@ -440,7 +440,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       downloadStatusLabel = new LabelControl(title, "Idle");
       themeToggle = downloadStatusLabel;
     } else if (param == "StartupAlert") {
-      FrogPilotButtonsControl *startupAlertButton = new FrogPilotButtonsControl(title, desc, {tr("STOCK"), tr("FROGPILOT"), tr("CUSTOM"), tr("CLEAR")}, false, true, icon);
+      FrogPilotButtonsControl *startupAlertButton = new FrogPilotButtonsControl(title, desc, {tr("STOCK"), tr("HOOFPILOT"), tr("CUSTOM"), tr("CLEAR")}, false, true, icon);
       QObject::connect(startupAlertButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         int maxLengthTop = 35;
         int maxLengthBottom = 45;
@@ -448,8 +448,8 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
         QString stockTop = "Be ready to take over at any time";
         QString stockBottom = "Always keep hands on wheel and eyes on road";
 
-        QString frogpilotTop = "Hop in and buckle up!";
-        QString frogpilotBottom = "Human-tested, frog-approved 🐸";
+        QString frogpilotTop = "Hop on and saddle up!";
+        QString frogpilotBottom = "The ultimate companion 🐎";
 
         QString currentTop = QString::fromStdString(params.get("StartupMessageTop"));
         QString currentBottom = QString::fromStdString(params.get("StartupMessageBottom"));
