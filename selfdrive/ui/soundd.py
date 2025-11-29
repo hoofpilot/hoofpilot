@@ -30,21 +30,15 @@ AudibleAlert = car.CarControl.HUDControl.AudibleAlert
 sound_list: dict[int, tuple[str, int | None, float]] = {
   # AudibleAlert, file name, play count (None = loop)
   AudibleAlert.engage: ("engage.wav", 1, MAX_VOLUME),
-  AudibleAlert.engageConditional: ("engage_conditional.wav", 1, MAX_VOLUME),
   AudibleAlert.disengage: ("disengage.wav", 1, MAX_VOLUME),
-  AudibleAlert.disengageConditional: ("disengage_conditional.wav", 1, MAX_VOLUME),
   AudibleAlert.refuse: ("refuse.wav", 1, MAX_VOLUME),
 
   AudibleAlert.prompt: ("prompt.wav", 1, MAX_VOLUME),
-  AudibleAlert.promptQuiet: ("prompt_quiet.wav", 1, MAX_VOLUME),
   AudibleAlert.promptRepeat: ("prompt.wav", None, MAX_VOLUME),
   AudibleAlert.promptDistracted: ("prompt_distracted.wav", None, MAX_VOLUME),
 
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
-  AudibleAlert.warning: ("warning.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
-
-  AudibleAlert.notify: ("notify.wav", 1, MAX_VOLUME),
 }
 
 def check_selfdrive_timeout_alert(sm):
