@@ -36,6 +36,7 @@ class FontSizes:
 
 @dataclass(frozen=True)
 class Colors:
+<<<<<<< HEAD
   white: rl.Color = rl.WHITE
   disengaged: rl.Color = rl.Color(125, 134, 130, 255)
   override: rl.Color = rl.Color(210, 121, 76, 255)
@@ -50,6 +51,22 @@ class Colors:
   border_translucent: rl.Color = rl.Color(255, 255, 255, 75)
   header_gradient_start: rl.Color = rl.Color(0, 0, 0, 114)
   header_gradient_end: rl.Color = rl.BLANK
+=======
+  WHITE = rl.WHITE
+  DISENGAGED = rl.Color(145, 155, 149, 255)
+  OVERRIDE = rl.Color(145, 155, 149, 255)  # Added
+  ENGAGED = rl.Color(128, 216, 166, 255)
+  DISENGAGED_BG = rl.Color(0, 0, 0, 153)
+  OVERRIDE_BG = rl.Color(145, 155, 149, 204)
+  ENGAGED_BG = rl.Color(128, 216, 166, 204)
+  GREY = rl.Color(166, 166, 166, 255)
+  DARK_GREY = rl.Color(114, 114, 114, 255)
+  BLACK_TRANSLUCENT = rl.Color(0, 0, 0, 166)
+  WHITE_TRANSLUCENT = rl.Color(255, 255, 255, 200)
+  BORDER_TRANSLUCENT = rl.Color(255, 255, 255, 75)
+  HEADER_GRADIENT_START = rl.Color(0, 0, 0, 114)
+  HEADER_GRADIENT_END = rl.BLANK
+>>>>>>> sunnypilot
 
 
 UI_CONFIG = UIConfig()
@@ -115,8 +132,8 @@ class HudRenderer(Widget):
       int(rect.y),
       int(rect.width),
       UI_CONFIG.header_height,
-      COLORS.header_gradient_start,
-      COLORS.header_gradient_end,
+      COLORS.HEADER_GRADIENT_START,
+      COLORS.HEADER_GRADIENT_END,
     )
 
     # Turn signals
@@ -131,4 +148,63 @@ class HudRenderer(Widget):
     )
 
   def user_interacting(self) -> bool:
+<<<<<<< HEAD
     return self._exp_button.is_pressed
+=======
+    return self._exp_button.is_pressed
+
+  def _draw_set_speed(self, rect: rl.Rectangle) -> None:
+    """Draw the MAX speed indicator box."""
+    set_speed_width = UI_CONFIG.set_speed_width_metric if ui_state.is_metric else UI_CONFIG.set_speed_width_imperial
+    x = rect.x + 60 + (UI_CONFIG.set_speed_width_imperial - set_speed_width) // 2
+    y = rect.y + 45
+
+    set_speed_rect = rl.Rectangle(x, y, set_speed_width, UI_CONFIG.set_speed_height)
+    rl.draw_rectangle_rounded(set_speed_rect, 0.35, 10, COLORS.BLACK_TRANSLUCENT)
+    rl.draw_rectangle_rounded_lines_ex(set_speed_rect, 0.35, 10, 6, COLORS.BORDER_TRANSLUCENT)
+
+    max_color = COLORS.GREY
+    set_speed_color = COLORS.DARK_GREY
+    if self.is_cruise_set:
+      set_speed_color = COLORS.WHITE
+      if ui_state.status == UIStatus.ENGAGED:
+        max_color = COLORS.ENGAGED
+      elif ui_state.status == UIStatus.DISENGAGED:
+        max_color = COLORS.DISENGAGED
+      elif ui_state.status == UIStatus.OVERRIDE:
+        max_color = COLORS.OVERRIDE
+
+    max_text = tr("MAX")
+    max_text_width = measure_text_cached(self._font_semi_bold, max_text, FONT_SIZES.max_speed).x
+    rl.draw_text_ex(
+      self._font_semi_bold,
+      max_text,
+      rl.Vector2(x + (set_speed_width - max_text_width) / 2, y + 27),
+      FONT_SIZES.max_speed,
+      0,
+      max_color,
+    )
+
+    set_speed_text = CRUISE_DISABLED_CHAR if not self.is_cruise_set else str(round(self.set_speed))
+    speed_text_width = measure_text_cached(self._font_bold, set_speed_text, FONT_SIZES.set_speed).x
+    rl.draw_text_ex(
+      self._font_bold,
+      set_speed_text,
+      rl.Vector2(x + (set_speed_width - speed_text_width) / 2, y + 77),
+      FONT_SIZES.set_speed,
+      0,
+      set_speed_color,
+    )
+
+  def _draw_current_speed(self, rect: rl.Rectangle) -> None:
+    """Draw the current vehicle speed and unit."""
+    speed_text = str(round(self.speed))
+    speed_text_size = measure_text_cached(self._font_bold, speed_text, FONT_SIZES.current_speed)
+    speed_pos = rl.Vector2(rect.x + rect.width / 2 - speed_text_size.x / 2, 180 - speed_text_size.y / 2)
+    rl.draw_text_ex(self._font_bold, speed_text, speed_pos, FONT_SIZES.current_speed, 0, COLORS.WHITE)
+
+    unit_text = tr("km/h") if ui_state.is_metric else tr("mph")
+    unit_text_size = measure_text_cached(self._font_medium, unit_text, FONT_SIZES.speed_unit)
+    unit_pos = rl.Vector2(rect.x + rect.width / 2 - unit_text_size.x / 2, 290 - unit_text_size.y / 2)
+    rl.draw_text_ex(self._font_medium, unit_text, unit_pos, FONT_SIZES.speed_unit, 0, COLORS.WHITE_TRANSLUCENT)
+>>>>>>> sunnypilot

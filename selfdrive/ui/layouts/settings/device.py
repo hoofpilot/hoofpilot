@@ -25,6 +25,9 @@ from openpilot.system.ui.widgets.slider import SmallSlider
 if gui_app.sunnypilot_ui():
   from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp as button_item
 
+if gui_app.sunnypilot_ui():
+  from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp as button_item
+
 # Description constants
 DESCRIPTIONS = {
   'pair_device': tr_noop("Pair your device with Konik Stable (stable.konik.ai)."),
