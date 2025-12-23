@@ -11,17 +11,11 @@ from openpilot.common.params import Params
 from openpilot.system.ui.lib.application import gui_app, MousePos, FontWeight
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.sunnypilot.widgets.toggle import ToggleSP
-<<<<<<< HEAD
-from openpilot.system.ui.widgets.label import gui_label
-from openpilot.system.ui.widgets.list_view import ListItem, ToggleAction, ItemAction, MultipleButtonAction, ButtonAction, \
-                                                  _resolve_value, BUTTON_WIDTH, BUTTON_HEIGHT, TEXT_PADDING
-=======
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
 from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.widgets.list_view import ListItem, ToggleAction, ItemAction, MultipleButtonAction, ButtonAction, \
                                                   _resolve_value, BUTTON_WIDTH, BUTTON_HEIGHT, TEXT_PADDING, DualButtonAction
 from openpilot.system.ui.widgets.scroller_tici import LineSeparator, LINE_COLOR, LINE_PADDING
->>>>>>> sunnypilot
 from openpilot.system.ui.sunnypilot.lib.styles import style
 from openpilot.system.ui.sunnypilot.widgets.option_control import OptionControlSP, LABEL_WIDTH
 
@@ -33,10 +27,6 @@ class ToggleActionSP(ToggleAction):
     self.toggle = ToggleSP(initial_state=initial_state, callback=callback, param=param)
 
 
-<<<<<<< HEAD
-class ButtonActionSP(ButtonAction):
-  def __init__(self, text: str | Callable[[], str], width: int = style.BUTTON_WIDTH, enabled: bool | Callable[[], bool] = True):
-=======
 class ButtonSP(Button):
   def _update_state(self):
     super()._update_state()
@@ -68,7 +58,6 @@ class SimpleButtonActionSP(ItemAction):
 
 class ButtonActionSP(ButtonAction):
   def __init__(self, text: str | Callable[[], str], width: int = style.BUTTON_ACTION_WIDTH, enabled: bool | Callable[[], bool] = True):
->>>>>>> sunnypilot
     super().__init__(text=text, width=width, enabled=enabled)
     self._value_color: rl.Color = style.ITEM_TEXT_VALUE_COLOR
 
@@ -95,8 +84,6 @@ class ButtonActionSP(ButtonAction):
     return pressed
 
 
-<<<<<<< HEAD
-=======
 class DualButtonActionSP(DualButtonAction):
   def __init__(self, left_text: str | Callable[[], str], right_text: str | Callable[[], str], left_callback: Callable = None,
                right_callback: Callable = None, enabled: bool | Callable[[], bool] = True, border_radius: int = 15):
@@ -124,7 +111,6 @@ class DualButtonActionSP(DualButtonAction):
     self.right_button.render(right_rect)
 
 
->>>>>>> sunnypilot
 class MultipleButtonActionSP(MultipleButtonAction):
   def __init__(self, buttons: list[str | Callable[[], str]], button_width: int, selected_index: int = 0, callback: Callable = None,
                param: str | None = None):
@@ -232,15 +218,10 @@ class ListItemSP(ListItem):
     content_width = item_rect.width - (style.ITEM_PADDING * 2)
     title_width = measure_text_cached(self._font, self.title, style.ITEM_TEXT_FONT_SIZE).x
     right_width = min(content_width - title_width, right_width)
-<<<<<<< HEAD
-
-    action_x = item_rect.x + item_rect.width - right_width
-=======
     if isinstance(self.action_item, ToggleAction) or isinstance(self.action_item, SimpleButtonActionSP):
       action_x = item_rect.x
     else:
       action_x = item_rect.x + item_rect.width - right_width
->>>>>>> sunnypilot
     action_y = item_rect.y
     return rl.Rectangle(action_x, action_y, right_width, style.ITEM_BASE_HEIGHT)
 
@@ -347,19 +328,13 @@ def option_item_sp(title: str | Callable[[], str], param: str,
     param, min_value, max_value, value_change_step,
     enabled, on_value_changed, value_map, label_width, use_float_scaling, label_callback
   )
-<<<<<<< HEAD
-  return ListItemSP(title=title, description=description, action_item=action, icon=icon)
-=======
   return ListItemSP(title=title, description=description, action_item=action, icon=icon, inline=inline)
->>>>>>> sunnypilot
 
 
 def button_item_sp(title: str | Callable[[], str], button_text: str | Callable[[], str], description: str | Callable[[], str] | None = None,
                    callback: Callable | None = None, enabled: bool | Callable[[], bool] = True) -> ListItemSP:
   action = ButtonActionSP(text=button_text, enabled=enabled)
   return ListItemSP(title=title, description=description, action_item=action, callback=callback)
-<<<<<<< HEAD
-=======
 
 
 def dual_button_item_sp(left_text: str | Callable[[], str], right_text: str | Callable[[], str], left_callback: Callable = None,
@@ -379,4 +354,3 @@ class LineSeparatorSP(LineSeparator):
     rl.draw_line(int(self._rect.x) + LINE_PADDING, line_y,
                  int(self._rect.x + self._rect.width) - LINE_PADDING, line_y,
                  LINE_COLOR)
->>>>>>> sunnypilot
