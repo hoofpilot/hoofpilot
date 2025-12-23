@@ -100,8 +100,6 @@ class TreeOptionDialog(MultiOptionDialog):
     self.search_subtitle = search_subtitle
     self.search_dialog = None
     self._search_pressed = False
-<<<<<<< HEAD
-=======
 
     self.selection_node = None
     # Try to match by ref, by display text, or fall back to "Default" when no ref is set
@@ -119,7 +117,6 @@ class TreeOptionDialog(MultiOptionDialog):
           break
       if self.selection_node is not None:
         break
->>>>>>> sunnypilot
 
     self._build_visible_items()
 

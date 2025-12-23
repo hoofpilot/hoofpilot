@@ -246,12 +246,7 @@ class MiciOffroadAlerts(Widget):
 
     if update_alert_data:
       if update_available:
-<<<<<<< HEAD
-        # Default text
-        update_alert_data.text = "update available."
-=======
         version_string = ""
->>>>>>> sunnypilot
 
         # Get new version description and parse version and date
         new_desc = self.params.get("UpdaterNewDescription") or ""
@@ -260,13 +255,9 @@ class MiciOffroadAlerts(Widget):
           parts = new_desc.split(" / ")
           if len(parts) > 3:
             version, date = parts[0], parts[3]
-<<<<<<< HEAD
-            update_alert_data.text = f"update available\n hoofpilot {version}, {date}."
-=======
-            version_string = f"\nsunnypilot {version}, {date}\n"
->>>>>>> sunnypilot
+            version_string = f"\nhoofpilot {version}, {date}\n"
 
-        update_alert_data.text = f"Update available {version_string}. Click to update. Read the release notes at blog.comma.ai."
+        update_alert_data.text = f"Update available {version_string}. Click to update."
         update_alert_data.visible = True
         active_count += 1
       else:
