@@ -7,7 +7,6 @@ import string
 from dataclasses import dataclass
 from cereal import messaging, log, car
 from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.common.filter_simple import BounceFilter, FirstOrderFilter
 from openpilot.system.hardware import TICI
 from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.widgets import Widget
@@ -99,13 +98,7 @@ class AlertRenderer(Widget):
     self._text_gen_time = 0
     self._alert_text2_gen = ''
 
-    # animation filters
-    # TODO: use 0.1 but with proper alert height calculation
-    self._alert_y_filter = BounceFilter(0, 0.1, 1 / gui_app.target_fps)
-    self._alpha_filter = FirstOrderFilter(0, 0.05, 1 / gui_app.target_fps)
-
     self._turn_signal_timer = 0.0
-    self._turn_signal_alpha_filter = FirstOrderFilter(0.0, 0.3, 1 / gui_app.target_fps)
     self._last_icon_side: IconSide | None = None
 
     self._load_icons()
@@ -208,7 +201,7 @@ class AlertRenderer(Widget):
 
     text_rect = rl.Rectangle(
       text_x,
-      self._alert_y_filter.x,
+      self._rect.y,
       text_width,
       self._rect.height,
     )
@@ -217,18 +210,9 @@ class AlertRenderer(Widget):
 
   def _render(self, rect: rl.Rectangle) -> bool:
     alert = self.get_alert(ui_state.sm)
-
-    # Animate fade and slide in/out
-    self._alert_y_filter.update(self._rect.y - 50 if alert is None else self._rect.y)
-    self._alpha_filter.update(0 if alert is None else 1)
-
     if alert is None:
-      # If still animating out, keep the previous alert
-      if self._alpha_filter.x > 0.01 and self._prev_alert is not None:
-        alert = self._prev_alert
-      else:
-        self._prev_alert = None
-        return False
+      self._prev_alert = None
+      return False
 
     self._draw_background(alert)
 
@@ -242,30 +226,19 @@ class AlertRenderer(Widget):
     if alert_layout.icon is None:
       return
 
-    if time.monotonic() - self._turn_signal_timer > TURN_SIGNAL_BLINK_PERIOD:
-      self._turn_signal_timer = time.monotonic()
-      self._turn_signal_alpha_filter.x = 255 * 2
-    else:
-      self._turn_signal_alpha_filter.update(255 * 0.2)
-
     if alert_layout.icon.side == 'left':
       pos_x = int(self._rect.x + alert_layout.icon.margin_x)
     else:
       pos_x = int(self._rect.x + self._rect.width - alert_layout.icon.margin_x - alert_layout.icon.texture.width)
 
-    if alert_layout.icon.texture not in (self._txt_turn_signal_left, self._txt_turn_signal_right):
-      icon_alpha = 255
-    else:
-      icon_alpha = int(min(self._turn_signal_alpha_filter.x, 255))
-
     rl.draw_texture(alert_layout.icon.texture, pos_x, int(self._rect.y + alert_layout.icon.margin_y),
-                    rl.Color(255, 255, 255, int(icon_alpha * self._alpha_filter.x)))
+                    rl.Color(255, 255, 255, 255))
 
   def _draw_background(self, alert: Alert) -> None:
     # draw top gradient for alert text at top
     color = ALERT_COLORS.get(alert.status, ALERT_COLORS[AlertStatus.normal])
-    color = rl.Color(color.r, color.g, color.b, int(255 * 0.90 * self._alpha_filter.x))
-    translucent_color = rl.Color(color.r, color.g, color.b, int(0 * self._alpha_filter.x))
+    color = rl.Color(color.r, color.g, color.b, int(255 * 0.90))
+    translucent_color = rl.Color(color.r, color.g, color.b, 0)
 
     small_alert_height = round(self._rect.height * 0.583) # 140px at mici height
     medium_alert_height = round(self._rect.height * 0.833) # 200px at mici height
@@ -309,7 +282,7 @@ class AlertRenderer(Widget):
     if icon_side is not None:
       font_size -= 10
 
-    color = rl.Color(255, 255, 255, int(255 * 0.9 * self._alpha_filter.x))
+    color = rl.Color(255, 255, 255, int(255 * 0.9))
 
     text1_y_offset = 11 if font_size >= 70 else 4
     text_rect1 = rl.Rectangle(
@@ -348,7 +321,7 @@ class AlertRenderer(Widget):
         alert_layout.text_rect.width,
         alert_layout.text_rect.height - last_line_h
       )
-      color = rl.Color(255, 255, 255, int(255 * 0.65 * self._alpha_filter.x))
+      color = rl.Color(255, 255, 255, int(255 * 0.65))
 
       self._alert_text2_label.set_text(alert_text2)
       self._alert_text2_label.set_text_color(color)

@@ -2,6 +2,15 @@ import time
 import pyray as rl
 
 
+def _animations_disabled() -> bool:
+  """Check global toggle to short-circuit animations (used when onroad)."""
+  try:
+    from openpilot.system.ui.lib.application import gui_app
+    return bool(getattr(gui_app, "disable_animations", False))
+  except Exception:
+    return False
+
+
 def clamp01(value: float) -> float:
   """Clamp a float to the [0, 1] range."""
   return max(0.0, min(1.0, value))
@@ -98,12 +107,23 @@ class LinearAnimation:
 
   def start(self, direction: str):
     self.direction = 1.0 if direction == 'in' else -1.0
+    if _animations_disabled():
+      self.active = False
+      self.progress = 1.0 if self.direction > 0 else 0.0
+      self.last_time = None
+      return
+
     self.active = True
     self.last_time = None
     self.progress = 0.0 if self.direction > 0 else 1.0
 
   def step(self, now: float | None = None) -> float:
     """Advance animation; returns current progress."""
+    if _animations_disabled():
+      self.progress = 1.0 if self.direction > 0 else 0.0
+      self.active = False
+      return self.progress
+
     if not self.active:
       return self.progress
 

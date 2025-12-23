@@ -173,6 +173,9 @@ class UIState(UIStateSP):
         self.started_frame = self.sm.frame
         self.started_time = time.monotonic()
 
+      # Disable animations while onroad to save resources
+      gui_app.disable_animations = self.started
+
       for callback in self._offroad_transition_callbacks:
         callback()
 

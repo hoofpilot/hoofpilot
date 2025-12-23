@@ -242,6 +242,9 @@ class GuiApplication(GuiApplicationExt):
     self._render_profiler = None
     self._render_profile_start_time = None
 
+    # Animation toggle; can be disabled onroad to save resources
+    self.disable_animations: bool = False
+
     GuiApplicationExt.__init__(self)
 
   @property
