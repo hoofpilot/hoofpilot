@@ -38,7 +38,7 @@ std::string get_str(std::string const s) {
 // Leave some extra space for the fork installer
 std::string GIT_URL = get_str("https://github.com/commaai/openpilot.git" "?                                                                ");
 const std::string BRANCH_STR = get_str(BRANCH "?                                                                ");
-const std::string FORK_LIST_URL = "https://gist.githubusercontent.com/ChosenCypher/6f34c27ea47ce2b52d20813fa8d1784a/raw";
+const std::string FORK_LIST_URL = "https://gist.githubusercontent.com/amoghmunikote/73bacb1596b3b3b60a98fd0e963037c4/raw";
 
 #define GIT_SSH_URL "git@github.com:commaai/openpilot.git"
 #define CONTINUE_PATH "/data/continue.sh"
