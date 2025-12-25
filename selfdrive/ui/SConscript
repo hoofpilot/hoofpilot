@@ -38,7 +38,7 @@ if GetOption('extras'):
     raylib_env['LIBPATH'] += [f'#third_party/raylib/{arch}/']
     raylib_env['LINKFLAGS'].append('-Wl,-strip-debug')
 
-    raylib_libs = common + ["raylib"]
+    raylib_libs = common + ["raylib", "curl"]
     if arch == "larch64":
       raylib_libs += ["GLESv2", "EGL", "gbm", "drm"]
     else:
