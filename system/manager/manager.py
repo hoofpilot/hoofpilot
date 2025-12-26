@@ -6,7 +6,6 @@ import sys
 import time
 import traceback
 
-from cereal import log
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
 from openpilot.common.utils import atomic_write
@@ -20,6 +19,7 @@ from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_I
 from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata
 from openpilot.system.hardware.hw import Paths
+from openpilot.system.hardware.ignition_state import ignition_state
 
 
 def manager_init() -> None:
@@ -143,7 +143,7 @@ def manager_thread() -> None:
     elif not started and started_prev:
       params.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
 
-    ignition = any(ps.ignitionLine or ps.ignitionCan for ps in sm['pandaStates'] if ps.pandaType != log.PandaState.PandaType.unknown)
+    ignition = ignition_state.update(sm['pandaStates'])
     if ignition and not ignition_prev:
       params.clear_all(ParamKeyFlag.CLEAR_ON_IGNITION_ON)
 
