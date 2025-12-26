@@ -58,24 +58,24 @@ class HomeLayout(Widget):
     self._net_type = NetworkType.none
     self._net_strength = 0
 
-    self._settings_icon = gui_app.texture("icons_mici/settings.png", 180, 180)
+    self._settings_icon = gui_app.texture("icons/settings.png", 180, 180)
     self._wifi_icons = {
-      "slash": gui_app.texture("icons_mici/settings/network/wifi_strength_slash.png", 210, 180),
-      "none": gui_app.texture("icons_mici/settings/network/wifi_strength_none.png", 210, 180),
-      "low": gui_app.texture("icons_mici/settings/network/wifi_strength_low.png", 210, 180),
-      "medium": gui_app.texture("icons_mici/settings/network/wifi_strength_medium.png", 210, 180),
-      "full": gui_app.texture("icons_mici/settings/network/wifi_strength_full.png", 210, 180),
+      "slash": gui_app.texture("icons/circled_slash.png", 210, 180),
+      "none": gui_app.texture("icons/wifi_strength_low.png", 210, 180),
+      "low": gui_app.texture("icons/wifi_strength_medium.png", 210, 180),
+      "medium": gui_app.texture("icons/wifi_strength_high.png", 210, 180),
+      "full": gui_app.texture("icons/wifi_strength_full.png", 210, 180),
     }
     self._cell_icons = {
-      "none": gui_app.texture("icons_mici/settings/network/cell_strength_none.png", 200, 160),
-      "low": gui_app.texture("icons_mici/settings/network/cell_strength_low.png", 200, 160),
-      "medium": gui_app.texture("icons_mici/settings/network/cell_strength_medium.png", 200, 160),
-      "high": gui_app.texture("icons_mici/settings/network/cell_strength_high.png", 200, 160),
-      "full": gui_app.texture("icons_mici/settings/network/cell_strength_full.png", 200, 160),
+      "none": gui_app.texture("icons/wifi_strength_low.png", 200, 160),
+      "low": gui_app.texture("icons/wifi_strength_medium.png", 200, 160),
+      "medium": gui_app.texture("icons/wifi_strength_high.png", 200, 160),
+      "high": gui_app.texture("icons/wifi_strength_full.png", 200, 160),
+      "full": gui_app.texture("icons/wifi_strength_full.png", 200, 160),
     }
     self._mode_icons = {
-      "exp": gui_app.texture("icons_mici/experimental_mode.png", 200, 200),
-      "wheel": gui_app.texture("icons_mici/wheel.png", 200, 200),
+      "exp": gui_app.texture("icons/experimental.png", 200, 200),
+      "wheel": gui_app.texture("icons/chffr_wheel.png", 200, 200),
     }
 
     self._font_brand = gui_app.font(FontWeight.SEMI_BOLD)
