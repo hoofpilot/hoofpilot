@@ -22,6 +22,14 @@ def ease_out_cubic(t: float) -> float:
   return 1 - pow(1 - t, 3)
 
 
+def ease_out_back(t: float, overshoot: float = 1.70158) -> float:
+  """Cubic ease-out with a slight overshoot for bouncy motion."""
+  t = clamp01(t)
+  c1 = overshoot
+  c3 = c1 + 1
+  return 1 + c3 * pow(t - 1, 3) + c1 * pow(t - 1, 2)
+
+
 def elapsed_progress(start_time: float, duration: float, now: float | None = None) -> float:
   """
   Convert a start timestamp and duration into a 0..1 progress value.
