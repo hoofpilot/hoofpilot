@@ -21,7 +21,7 @@ PADDING = 48
 ICON_MARGIN = 60
 SWIPE_THRESHOLD = 120
 SWIPE_EDGE = 80
-WIFI_Y_OFFSET = -15
+WIFI_Y_OFFSET = 10
 MODE_Y_OFFSET = 10
 MODE_SCALE_FACTOR = 0.9
 ALERT_ANIM_DURATION = 0.25
@@ -336,3 +336,4 @@ class HomeLayout(Widget):
         self._set_state(HomeLayoutState.ALERTS)
       elif direction < 0 and progress <= 0.0:
         self._set_state(HomeLayoutState.HOME)
+
