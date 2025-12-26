@@ -36,7 +36,7 @@ class HtmlModalSP(HtmlModal):
 
     def _draw():
       nonlocal result
-      result = super()._render(rect)
+      result = super(HtmlModalSP, self)._render(rect)
 
     scale_from_center(rect, 0.96 + 0.04 * progress, _draw)
     return result
