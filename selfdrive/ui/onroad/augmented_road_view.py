@@ -18,8 +18,6 @@ from openpilot.selfdrive.ui.onroad.cameraview import CameraView
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCameraConfig, view_frame_from_device_frame
 from openpilot.common.transformations.orientation import rot_from_euler
-from openpilot.selfdrive.ui.layouts.sidebar import SIDEBAR_WIDTH
-
 if gui_app.sunnypilot_ui():
   from openpilot.selfdrive.ui.sunnypilot.onroad.hud_renderer import HudRendererSP as HudRenderer
 

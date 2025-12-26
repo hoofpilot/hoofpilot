@@ -26,8 +26,8 @@ from openpilot.system.ui.widgets.mici_keyboard import (
 
 
 # ========= TIZI SCALING CONSTANTS (2160×1080) =========
-PILL_W = 2000     # shortened overall keyboard width by ~60px
-PILL_H = 600      # was 375
+PILL_W = 1690     # match keyboard background asset width
+PILL_H = 500      # match keyboard background asset height
 KEY_FONT_SIZE = 88     # final key letter size (larger keys)
 ROW_SPACING = 1
 KEY_SPACING = 1
@@ -205,10 +205,7 @@ class Keyboard(Widget):
     # override pill background EXACTLY
     try:
       self._mici_keyboard._txt_bg = gui_app.texture(
-        "icons_mici/settings/keyboard/keyboard_background.png",
-        PILL_W,
-        PILL_H,
-        keep_aspect_ratio=False,
+        "icons/keyboard_background.png",
       )
     except Exception as e:
       print("Pill BG override failed:", e)
@@ -419,3 +416,4 @@ class Keyboard(Widget):
 
     if self._dismissing and not self._anim.active and self._pending_return_status is not None:
       self._render_return_status = self._pending_return_status
+
