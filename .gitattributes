@@ -1,5 +1,7 @@
 * text=auto
 
+# to move existing files into LFS:
+# git add --renormalize .
 *.svg filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
 *.gif filter=lfs diff=lfs merge=lfs -text
@@ -18,8 +20,11 @@ selfdrive/modeld/models/**        -filter -diff -merge
 third_party/**/lib/**             -filter -diff -merge
 third_party/**/bin/**             -filter -diff -merge
 third_party/acados/**             -filter -diff -merge
+third_party/acados/*/t_renderer   -filter -diff -merge
 
-selfdrive/car/tests/test_models_segs.txt text
-system/hardware/tici/updater_weston text
-system/hardware/tici/updater_magic text
-third_party/catch2/include/catch2/catch.hpp text
+
+selfdrive/car/tests/test_models_segs.txt filter=lfs diff=lfs merge=lfs -text
+system/hardware/tici/updater_weston filter=lfs diff=lfs merge=lfs -text
+system/hardware/tici/updater_magic filter=lfs diff=lfs merge=lfs -text
+third_party/catch2/include/catch2/catch.hpp filter=lfs diff=lfs merge=lfs -text
+selfdrive/car/tests/test_models_segs.txt filter=lfs diff=lfs merge=lfs -text
