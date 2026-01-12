@@ -43,9 +43,7 @@ class DriverCameraDialog(CameraView):
       return -1
 
     self._draw_face_detection(rect)
-    # Do not render the driver monitoring icon in device "Preview Driver Camera".
-    # The driver monitoring overlay is useful onroad, but for the device preview
-    # we only want to show the raw camera and face detection box.
+    self.driver_state_renderer.render(rect)
 
     return -1
 

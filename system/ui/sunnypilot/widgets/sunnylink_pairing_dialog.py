@@ -55,44 +55,39 @@ class SunnylinkPairingDialog(PairingDialog):
 
     self._check_qr_refresh()
 
-    progress = ease_out_cubic(self._anim.step())
     margin = 70
     content_rect = rl.Rectangle(rect.x + margin, rect.y + margin, rect.width - 2 * margin, rect.height - 2 * margin)
+    y = content_rect.y
 
-    def _draw_content():
-      y = content_rect.y
+    # Close button
+    close_size = 80
+    pad = 20
+    close_rect = rl.Rectangle(content_rect.x - pad, y - pad, close_size + pad * 2, close_size + pad * 2)
+    self._close_btn.render(close_rect)
 
-      # Close button
-      close_size = 80
-      pad = 20
-      close_rect = rl.Rectangle(content_rect.x - pad, y - pad, close_size + pad * 2, close_size + pad * 2)
-      self._close_btn.render(close_rect)
+    y += close_size + 40
 
-      y += close_size + 40
+    # Title
+    title = tr("Pair your GitHub account") if self._sponsor_pairing else tr("Early Access: Become a sunnypilot Sponsor")
+    title_font = gui_app.font(FontWeight.NORMAL)
+    left_width = int(content_rect.width * 0.5 - 15)
 
-      # Title
-      title = tr("Pair your GitHub account") if self._sponsor_pairing else tr("Early Access: Become a sunnypilot Sponsor")
-      title_font = gui_app.font(FontWeight.NORMAL)
-      left_width = int(content_rect.width * 0.5 - 15)
+    title_wrapped = wrap_text(title_font, title, 75, left_width)
+    rl.draw_text_ex(title_font, "\n".join(title_wrapped), rl.Vector2(content_rect.x, y), 75, 0.0, rl.BLACK)
+    y += len(title_wrapped) * 75 + 60
 
-      title_wrapped = wrap_text(title_font, title, 75, left_width)
-      rl.draw_text_ex(title_font, "\n".join(title_wrapped), rl.Vector2(content_rect.x, y), 75, 0.0, rl.BLACK)
-      y += len(title_wrapped) * 75 + 60
+    # Two columns: instructions and QR code
+    remaining_height = content_rect.height - (y - content_rect.y)
+    right_width = content_rect.width // 2 - 20
 
-      # Two columns: instructions and QR code
-      remaining_height = content_rect.height - (y - content_rect.y)
-      right_width = content_rect.width // 2 - 20
+    # Instructions
+    self._render_instructions(rl.Rectangle(content_rect.x, y, left_width, remaining_height))
 
-      # Instructions
-      self._render_instructions(rl.Rectangle(content_rect.x, y, left_width, remaining_height))
-
-      # QR code
-      qr_size = min(right_width, content_rect.height) - 40
-      qr_x = content_rect.x + left_width + 40 + (right_width - qr_size) // 2
-      qr_y = content_rect.y
-      self._render_qr_code(rl.Rectangle(qr_x, qr_y, qr_size, qr_size))
-
-    scale_from_center(content_rect, 0.96 + 0.04 * progress, _draw_content)
+    # QR code
+    qr_size = min(right_width, content_rect.height) - 40
+    qr_x = content_rect.x + left_width + 40 + (right_width - qr_size) // 2
+    qr_y = content_rect.y
+    self._render_qr_code(rl.Rectangle(qr_x, qr_y, qr_size, qr_size))
 
     return -1
 
