@@ -197,11 +197,11 @@ class AlertRenderer(Widget):
           self._pending_alert = alert
           self._pending_alert_time = now
           return self._last_alert
-        if (now - self._pending_alert_time) < 0.6:
+        if (now - self._pending_alert_time) < 1.0:
           return self._last_alert
         self._pending_alert = None
       if self._startup_alert_until <= now:
-        self._startup_alert_until = now + 1.0
+        self._startup_alert_until = now + 2.0
       self._last_alert = alert
       self._last_alert_time = now
       return alert
@@ -209,7 +209,7 @@ class AlertRenderer(Widget):
     if alert is None:
       if self._startup_alert_until > now:
         return self._last_alert
-      if self._last_alert and (now - self._last_alert_time) < 0.5:
+      if self._last_alert and (now - self._last_alert_time) < 1.0:
         return self._last_alert
       self._last_alert = None
       self._pending_alert = None
