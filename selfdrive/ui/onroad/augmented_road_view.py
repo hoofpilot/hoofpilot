@@ -114,8 +114,8 @@ class AugmentedRoadView(CameraView):
     offset = UI_BORDER_SIZE + BTN_SIZE / 2
     center_x = rect.x + (rect.width - offset if is_rhd else offset)
     center_y = rect.y + rect.height - offset
-    icon_x = center_x - self._settings_icon.width / 2 + 27
-    icon_y = center_y - BTN_SIZE / 2 - self._settings_icon.height - 16
+    icon_x = center_x - self._settings_icon.width / 2 + 30
+    icon_y = center_y - BTN_SIZE / 2 - self._settings_icon.height - 24
     self._settings_rect = rl.Rectangle(icon_x, icon_y, self._settings_icon.width, self._settings_icon.height)
     rl.draw_texture_ex(self._settings_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 

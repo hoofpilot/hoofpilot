@@ -59,10 +59,13 @@ class GuiScrollPanel:
       above_bounds, below_bounds = self._check_bounds(bounds, content)
 
       # Decay velocity when idle
-      if abs(self._velocity_filter_y.x) > MIN_VELOCITY:
-        # Faster decay if bouncing back from out of bounds
-        friction = math.exp(-BOUNCE_RETURN_RATE * 1 / gui_app.target_fps)
-        self._velocity_filter_y.x *= friction ** 2 if (above_bounds or below_bounds) else friction
+      if not self._stable_mode:
+        if abs(self._velocity_filter_y.x) > MIN_VELOCITY:
+          # Faster decay if bouncing back from out of bounds
+          friction = math.exp(-BOUNCE_RETURN_RATE * 1 / gui_app.target_fps)
+          self._velocity_filter_y.x *= friction ** 2 if (above_bounds or below_bounds) else friction
+        else:
+          self._velocity_filter_y.x = 0.0
       else:
         self._velocity_filter_y.x = 0.0
 
@@ -72,7 +75,8 @@ class GuiScrollPanel:
         else:
           self._offset_filter_y.update(-max_scroll_distance)
 
-      self._offset_filter_y.x += self._velocity_filter_y.x / gui_app.target_fps
+      if not self._stable_mode:
+        self._offset_filter_y.x += self._velocity_filter_y.x / gui_app.target_fps
 
     elif self._scroll_state == ScrollState.DRAGGING_CONTENT:
       # Mouse not moving, decay velocity
@@ -114,6 +118,8 @@ class GuiScrollPanel:
     elif self._scroll_state == ScrollState.DRAGGING_CONTENT:
       if mouse_event.left_released:
         self._scroll_state = ScrollState.IDLE
+        if self._stable_mode:
+          self._velocity_filter_y.x = 0.0
       else:
         delta_y = mouse_event.pos.y - self._last_mouse_y
         above_bounds, below_bounds = self._check_bounds(bounds, content)

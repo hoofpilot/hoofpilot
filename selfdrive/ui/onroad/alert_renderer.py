@@ -80,6 +80,8 @@ class AlertRenderer(Widget):
     self._pending_alert_time = 0.0
     self._startup_alert_until = 0.0
     self._startup_latch_until = 0.0
+    self._startup_pending_active = False
+    self._startup_pending_clear_after = 0.0
 
     # font size is set dynamically
     self._full_text1_label = Label("", font_size=0, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER,
@@ -99,6 +101,8 @@ class AlertRenderer(Widget):
       # 1. Never received selfdriveState since going onroad
       waiting_for_startup = recv_frame < ui_state.started_frame
       if waiting_for_startup and time_since_onroad > 5:
+        # Latch startup pending until we have a stable selfdriveState update.
+        self._startup_pending_active = True
         return ALERT_STARTUP_PENDING
 
       # 2. Lost communication with selfdriveState after receiving it
@@ -108,6 +112,17 @@ class AlertRenderer(Widget):
           if ss.enabled and (ss_missing - SELFDRIVE_STATE_TIMEOUT) < SELFDRIVE_UNRESPONSIVE_TIMEOUT:
             return ALERT_CRITICAL_TIMEOUT
           return ALERT_CRITICAL_REBOOT
+
+    # Clear startup pending after a stable selfdriveState update.
+    if self._startup_pending_active and sm.updated['selfdriveState'] and recv_frame >= ui_state.started_frame:
+      if self._startup_pending_clear_after == 0.0:
+        self._startup_pending_clear_after = time.monotonic() + 1.0
+      elif time.monotonic() >= self._startup_pending_clear_after:
+        self._startup_pending_active = False
+        self._startup_pending_clear_after = 0.0
+
+    if self._startup_pending_active:
+      return ALERT_STARTUP_PENDING
 
     # No alert if size is none
     if ss.alertSize == 0:
