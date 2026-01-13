@@ -192,6 +192,8 @@ class AlertRenderer(Widget):
       return alert
 
     if alert and alert.text1 == ALERT_STARTUP_PENDING.text1 and alert.text2 == ALERT_STARTUP_PENDING.text2:
+      if (now - ui_state.started_time) < 2.0:
+        return None
       # Keep the startup pending alert stable to avoid entry flicker.
       if self._last_alert != alert:
         if self._pending_alert != alert:
