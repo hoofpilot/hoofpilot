@@ -48,7 +48,7 @@ class Alert:
 
 # Pre-defined alert instances
 ALERT_STARTUP_PENDING = Alert(
-  text1=tr("sunnypilot Unavailable"),
+  text1=tr("hoofpilot Unavailable"),
   text2=tr("Waiting to start"),
   size=AlertSize.mid,
   status=AlertStatus.normal,
@@ -79,6 +79,7 @@ class AlertRenderer(Widget):
     self._pending_alert: Alert | None = None
     self._pending_alert_time = 0.0
     self._startup_alert_until = 0.0
+    self._startup_latch_until = 0.0
 
     # font size is set dynamically
     self._full_text1_label = Label("", font_size=0, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER,
@@ -202,11 +203,15 @@ class AlertRenderer(Widget):
         self._pending_alert = None
       if self._startup_alert_until <= now:
         self._startup_alert_until = now + 2.0
+      if self._startup_latch_until <= now:
+        self._startup_latch_until = now + 5.0
       self._last_alert = alert
       self._last_alert_time = now
       return alert
 
     if alert is None:
+      if self._startup_latch_until > now and self._last_alert == ALERT_STARTUP_PENDING:
+        return self._last_alert
       if self._startup_alert_until > now:
         return self._last_alert
       if self._last_alert and (now - self._last_alert_time) < 1.0:
