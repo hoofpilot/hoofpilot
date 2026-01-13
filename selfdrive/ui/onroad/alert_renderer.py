@@ -204,7 +204,7 @@ class AlertRenderer(Widget):
       if self._startup_alert_until <= now:
         self._startup_alert_until = now + 2.0
       if self._startup_latch_until <= now:
-        self._startup_latch_until = now + 5.0
+        self._startup_latch_until = now + 8.0
       self._last_alert = alert
       self._last_alert_time = now
       return alert

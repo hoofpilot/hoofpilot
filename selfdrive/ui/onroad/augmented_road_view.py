@@ -114,8 +114,8 @@ class AugmentedRoadView(CameraView):
     offset = UI_BORDER_SIZE + BTN_SIZE / 2
     center_x = rect.x + (rect.width - offset if is_rhd else offset)
     center_y = rect.y + rect.height - offset
-    icon_x = center_x - self._settings_icon.width / 2 - 6
-    icon_y = center_y - BTN_SIZE / 2 - self._settings_icon.height - 16 + 15
+    icon_x = center_x - self._settings_icon.width / 2 + 7
+    icon_y = center_y - BTN_SIZE / 2 - self._settings_icon.height - 16 + 10
     self._settings_rect = rl.Rectangle(icon_x, icon_y, self._settings_icon.width, self._settings_icon.height)
     rl.draw_texture_ex(self._settings_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 
@@ -139,7 +139,7 @@ class AugmentedRoadView(CameraView):
     now = time.monotonic()
     if (self._settings_cb is not None and now >= self._settings_cooldown_until and
         rl.check_collision_point_rec(mouse_pos, self._settings_rect)):
-      self._settings_cooldown_until = now + 1.0
+      self._settings_cooldown_until = now + 2.0
       self._settings_cb()
       return
     if not self._hud_renderer.user_interacting() and self._click_callback is not None:
