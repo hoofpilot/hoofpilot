@@ -4,6 +4,7 @@ from openpilot.common.params import Params
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.application import gui_app, FontWeight, FONT_SCALE
 from openpilot.system.ui.lib.multilang import tr
+from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 
 PARAM_KEY = "ApiCache_DriveStats"
@@ -64,13 +65,17 @@ class DriveStatsWidget(Widget):
     units = [tr("Drives"), tr("KM") if self._metric else tr("Miles"), tr("Hours")]
 
     for idx, value in enumerate(values):
-      value_x = x + col_width * idx
+      cell_x = x + col_width * idx
+      text_size = measure_text_cached(self._font_medium, value, NUMBER_FONT_SIZE)
+      value_x = cell_x + (col_width - text_size.x) / 2
       rl.draw_text_ex(self._font_medium, value, rl.Vector2(value_x, y), NUMBER_FONT_SIZE, 0, rl.WHITE)
 
     y += int(NUMBER_FONT_SIZE * FONT_SCALE) + 10
 
     for idx, unit in enumerate(units):
-      unit_x = x + col_width * idx
+      cell_x = x + col_width * idx
+      unit_size = measure_text_cached(self._font_regular, unit, UNIT_FONT_SIZE)
+      unit_x = cell_x + (col_width - unit_size.x) / 2
       rl.draw_text_ex(self._font_regular, unit, rl.Vector2(unit_x, y), UNIT_FONT_SIZE, 0, UNIT_COLOR)
 
     y += int(UNIT_FONT_SIZE * FONT_SCALE) + 20
