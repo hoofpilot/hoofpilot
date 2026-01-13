@@ -27,6 +27,22 @@ class DriveStatsWidget(Widget):
     self._metric = ui_state.is_metric
     self._set_defaults()
 
+  def set_parent_rect(self, parent_rect: rl.Rectangle) -> None:
+    super().set_parent_rect(parent_rect)
+    self._rect.width = parent_rect.width
+    self._rect.height = self._compute_height()
+
+  def _compute_height(self) -> float:
+    section_height = (
+      TITLE_FONT_SIZE * FONT_SCALE +
+      30 +
+      NUMBER_FONT_SIZE * FONT_SCALE +
+      10 +
+      UNIT_FONT_SIZE * FONT_SCALE +
+      20
+    )
+    return 30 + 50 + section_height + 40 + section_height + 50 + 30
+
   def _set_defaults(self):
     self._stats["all"] = {"routes": 0, "distance": 0.0, "minutes": 0.0}
     self._stats["week"] = {"routes": 0, "distance": 0.0, "minutes": 0.0}
