@@ -8,7 +8,7 @@ from openpilot.selfdrive.ui import UI_BORDER_SIZE
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.onroad.alert_renderer import AlertRenderer
 from openpilot.selfdrive.ui.onroad.driver_state import DriverStateRenderer
-from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer
+from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer, UI_CONFIG
 from openpilot.selfdrive.ui.onroad.model_renderer import ModelRenderer
 from openpilot.selfdrive.ui.onroad.cameraview import CameraView
 from openpilot.system.ui.lib.application import gui_app, MousePos
@@ -108,9 +108,12 @@ class AugmentedRoadView(CameraView):
     # End clipping region
     rl.end_scissor_mode()
 
-    # Draw settings icon centered under the speed area
-    icon_x = rect.x + (rect.width - self._settings_icon.width) / 2
-    icon_y = rect.y + UI_BORDER_SIZE + 240
+    # Draw settings icon centered under the set speed box
+    set_speed_width = UI_CONFIG.set_speed_width_metric if ui_state.is_metric else UI_CONFIG.set_speed_width_imperial
+    set_speed_x = rect.x + 60 + (UI_CONFIG.set_speed_width_imperial - set_speed_width) // 2
+    set_speed_y = rect.y + 45
+    icon_x = set_speed_x + (set_speed_width - self._settings_icon.width) / 2
+    icon_y = set_speed_y + UI_CONFIG.set_speed_height + 16
     self._settings_rect = rl.Rectangle(icon_x, icon_y, self._settings_icon.width, self._settings_icon.height)
     rl.draw_texture_ex(self._settings_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 

@@ -30,7 +30,7 @@ class Scroller(Widget):
     self._line_separator = LineSeparator() if line_separator else None
     self._pad_end = pad_end
 
-    self.scroll_panel = GuiScrollPanel()
+    self.scroll_panel = GuiScrollPanel(allow_overscroll=False)
 
     for item in items:
       self.add_widget(item)

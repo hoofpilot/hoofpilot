@@ -20,7 +20,8 @@ class ScrollState(IntEnum):
 
 
 class GuiScrollPanel:
-  def __init__(self):
+  def __init__(self, allow_overscroll: bool = True):
+    self._allow_overscroll = allow_overscroll
     self._scroll_state: ScrollState = ScrollState.IDLE
     self._last_mouse_y: float = 0.0
     self._start_mouse_y: float = 0.0  # Track the initial mouse position for drag detection
@@ -74,6 +75,14 @@ class GuiScrollPanel:
         self._velocity_filter_y.update(0.0)
 
     # Settle to exact bounds
+    if not self._allow_overscroll:
+      if self._offset_filter_y.x > 0:
+        self._offset_filter_y.x = 0.0
+        self._velocity_filter_y.x = 0.0
+      elif self._offset_filter_y.x < -max_scroll_distance:
+        self._offset_filter_y.x = -max_scroll_distance
+        self._velocity_filter_y.x = 0.0
+
     if abs(self._offset_filter_y.x) < 1e-2:
       self._offset_filter_y.x = 0.0
     elif abs(self._offset_filter_y.x + max_scroll_distance) < 1e-2:
@@ -103,9 +112,12 @@ class GuiScrollPanel:
       else:
         delta_y = mouse_event.pos.y - self._last_mouse_y
         above_bounds, below_bounds = self._check_bounds(bounds, content)
-        # Rubber banding effect when out of bands
+        # Rubber banding effect when out of bounds
         if above_bounds or below_bounds:
-          delta_y /= 3
+          if self._allow_overscroll:
+            delta_y /= 3
+          else:
+            delta_y = 0
 
         self._offset_filter_y.x += delta_y
 

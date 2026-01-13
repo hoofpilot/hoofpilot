@@ -74,6 +74,10 @@ class AlertRenderer(Widget):
     super().__init__()
     self.font_regular: rl.Font = gui_app.font(FontWeight.NORMAL)
     self.font_bold: rl.Font = gui_app.font(FontWeight.BOLD)
+    self._last_alert: Alert | None = None
+    self._last_alert_time = 0.0
+    self._pending_alert: Alert | None = None
+    self._pending_alert_time = 0.0
 
     # font size is set dynamically
     self._full_text1_label = Label("", font_size=0, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER,
@@ -115,7 +119,7 @@ class AlertRenderer(Widget):
     return Alert(text1=ss.alertText1, text2=ss.alertText2, size=ss.alertSize.raw, status=ss.alertStatus.raw)
 
   def _render(self, rect: rl.Rectangle):
-    alert = self.get_alert(ui_state.sm)
+    alert = self._debounce_alert(self.get_alert(ui_state.sm))
     if not alert:
       return
 
@@ -176,3 +180,36 @@ class AlertRenderer(Widget):
     x = rect.x + (rect.width - text_size.x) / 2
     y = rect.y + ((rect.height - text_size.y) / 2 if center_y else 0)
     rl.draw_text_ex(font, text, rl.Vector2(x, y), font_size, 0, color)
+
+  def _debounce_alert(self, alert: Alert | None) -> Alert | None:
+    now = time.monotonic()
+    if alert and alert.status == AlertStatus.critical:
+      self._last_alert = alert
+      self._last_alert_time = now
+      self._pending_alert = None
+      return alert
+
+    if alert is None:
+      if self._last_alert and (now - self._last_alert_time) < 0.5:
+        return self._last_alert
+      self._last_alert = None
+      self._pending_alert = None
+      return None
+
+    if self._last_alert and alert == self._last_alert:
+      self._last_alert_time = now
+      self._pending_alert = None
+      return alert
+
+    if self._pending_alert != alert:
+      self._pending_alert = alert
+      self._pending_alert_time = now
+      return self._last_alert
+
+    if (now - self._pending_alert_time) >= 0.2:
+      self._last_alert = alert
+      self._last_alert_time = now
+      self._pending_alert = None
+      return alert
+
+    return self._last_alert
