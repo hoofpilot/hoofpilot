@@ -59,6 +59,7 @@ class AugmentedRoadView(CameraView):
     self._settings_cb = None
     self._settings_icon = gui_app.texture("icons_mici/settings.png", 110, 110)
     self._settings_rect = rl.Rectangle()
+    self._settings_cooldown_until = 0.0
 
     # debug
     self._pm = messaging.PubMaster(['uiDebug'])
@@ -107,9 +108,9 @@ class AugmentedRoadView(CameraView):
     # End clipping region
     rl.end_scissor_mode()
 
-    # Draw settings icon
-    icon_x = rect.x + rect.width - UI_BORDER_SIZE - self._settings_icon.width
-    icon_y = rect.y + UI_BORDER_SIZE
+    # Draw settings icon centered under the speed area
+    icon_x = rect.x + (rect.width - self._settings_icon.width) / 2
+    icon_y = rect.y + UI_BORDER_SIZE + 240
     self._settings_rect = rl.Rectangle(icon_x, icon_y, self._settings_icon.width, self._settings_icon.height)
     rl.draw_texture_ex(self._settings_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 
@@ -130,7 +131,10 @@ class AugmentedRoadView(CameraView):
     self._settings_cb = callback
 
   def _handle_mouse_press(self, mouse_pos: MousePos):
-    if self._settings_cb is not None and rl.check_collision_point_rec(mouse_pos, self._settings_rect):
+    now = time.monotonic()
+    if (self._settings_cb is not None and now >= self._settings_cooldown_until and
+        rl.check_collision_point_rec(mouse_pos, self._settings_rect)):
+      self._settings_cooldown_until = now + 0.5
       self._settings_cb()
       return
     if not self._hud_renderer.user_interacting() and self._click_callback is not None:
