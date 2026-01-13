@@ -11,7 +11,7 @@ from openpilot.selfdrive.ui.onroad.driver_state import DriverStateRenderer
 from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer
 from openpilot.selfdrive.ui.onroad.model_renderer import ModelRenderer
 from openpilot.selfdrive.ui.onroad.cameraview import CameraView
-from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.lib.application import gui_app, MousePos
 from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCameraConfig, view_frame_from_device_frame
 from openpilot.common.transformations.orientation import rot_from_euler
 
@@ -56,6 +56,9 @@ class AugmentedRoadView(CameraView):
     self._hud_renderer = HudRenderer()
     self.alert_renderer = AlertRenderer()
     self.driver_state_renderer = DriverStateRenderer()
+    self._settings_cb = None
+    self._settings_icon = gui_app.texture("icons_mici/settings.png", 110, 110)
+    self._settings_rect = rl.Rectangle()
 
     # debug
     self._pm = messaging.PubMaster(['uiDebug'])
@@ -104,6 +107,12 @@ class AugmentedRoadView(CameraView):
     # End clipping region
     rl.end_scissor_mode()
 
+    # Draw settings icon
+    icon_x = rect.x + rect.width - UI_BORDER_SIZE - self._settings_icon.width
+    icon_y = rect.y + UI_BORDER_SIZE
+    self._settings_rect = rl.Rectangle(icon_x, icon_y, self._settings_icon.width, self._settings_icon.height)
+    rl.draw_texture_ex(self._settings_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
+
     # Draw colored border based on driving state
     self._draw_border(rect)
 
@@ -117,7 +126,13 @@ class AugmentedRoadView(CameraView):
         # Disable uiDebug publishing if another publisher is active.
         self._ui_debug_enabled = False
 
-  def _handle_mouse_press(self, _):
+  def set_settings_callback(self, callback):
+    self._settings_cb = callback
+
+  def _handle_mouse_press(self, mouse_pos: MousePos):
+    if self._settings_cb is not None and rl.check_collision_point_rec(mouse_pos, self._settings_rect):
+      self._settings_cb()
+      return
     if not self._hud_renderer.user_interacting() and self._click_callback is not None:
       self._click_callback()
 
