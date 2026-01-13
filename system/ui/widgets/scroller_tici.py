@@ -54,6 +54,7 @@ class Scroller(Widget):
     if not self._pad_end:
       content_height -= self._spacing
     self.scroll_panel.set_allow_overscroll(not ui_state.started)
+    self.scroll_panel.set_stable_mode(ui_state.started)
     scroll = round(self.scroll_panel.update(self._rect, rl.Rectangle(0, 0, self._rect.width, content_height)))
 
     rl.begin_scissor_mode(int(self._rect.x), int(self._rect.y),

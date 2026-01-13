@@ -22,6 +22,7 @@ class ScrollState(IntEnum):
 class GuiScrollPanel:
   def __init__(self, allow_overscroll: bool = True):
     self._allow_overscroll = allow_overscroll
+    self._stable_mode = False
     self._scroll_state: ScrollState = ScrollState.IDLE
     self._last_mouse_y: float = 0.0
     self._start_mouse_y: float = 0.0  # Track the initial mouse position for drag detection
@@ -35,6 +36,10 @@ class GuiScrollPanel:
         self._handle_mouse_event(mouse_event, bounds, content)
 
     self._update_state(bounds, content)
+
+    if self._stable_mode and self._scroll_state == ScrollState.IDLE:
+      self._velocity_filter_y.x = 0.0
+      self._offset_filter_y.x = round(self._offset_filter_y.x)
 
     return float(self._offset_filter_y.x)
 
@@ -142,6 +147,9 @@ class GuiScrollPanel:
 
   def set_allow_overscroll(self, allow_overscroll: bool) -> None:
     self._allow_overscroll = allow_overscroll
+
+  def set_stable_mode(self, stable: bool) -> None:
+    self._stable_mode = stable
 
   def set_offset(self, position: float) -> None:
     self._offset_filter_y.x = position
