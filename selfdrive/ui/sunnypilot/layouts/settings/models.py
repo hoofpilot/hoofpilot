@@ -38,6 +38,8 @@ class ModelsLayout(Widget):
     self.prev_download_status = None
     self.model_dialog = None
     self.last_cache_calc_time = 0
+    self._model_manager_ready = False
+    self._enter_freeze_until = 0.0
 
     self._initialize_items()
 
@@ -236,7 +238,9 @@ class ModelsLayout(Widget):
 
     self._update_lagd_description(live_delay)
     self.model_manager = ui_state.sm["modelManagerSP"]
-    self._handle_bundle_download_progress()
+    if ui_state.sm.updated["modelManagerSP"] or not self._model_manager_ready:
+      self._handle_bundle_download_progress()
+      self._model_manager_ready = self.model_manager is not None
     active_name = self.model_manager.activeBundle.internalName if self.model_manager and self.model_manager.activeBundle.ref else tr("Default Model")
     self.current_model_item.action_item.set_value(active_name)
 
@@ -248,7 +252,10 @@ class ModelsLayout(Widget):
       self.current_model_item.set_description("")
 
   def _render(self, rect):
+    if time.monotonic() < self._enter_freeze_until:
+      self._scroller.scroll_panel.set_offset(0.0)
     self._scroller.render(rect)
 
   def show_event(self):
+    self._enter_freeze_until = time.monotonic() + 0.35
     self._scroller.show_event()

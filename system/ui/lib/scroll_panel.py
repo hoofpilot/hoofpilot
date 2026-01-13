@@ -140,6 +140,9 @@ class GuiScrollPanel:
   def is_touch_valid(self):
     return self._scroll_state == ScrollState.IDLE and abs(self._velocity_filter_y.x) < MIN_VELOCITY_FOR_CLICKING
 
+  def set_allow_overscroll(self, allow_overscroll: bool) -> None:
+    self._allow_overscroll = allow_overscroll
+
   def set_offset(self, position: float) -> None:
     self._offset_filter_y.x = position
     self._velocity_filter_y.x = 0.0

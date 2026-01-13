@@ -7,7 +7,7 @@ from msgq.visionipc import VisionStreamType
 from openpilot.selfdrive.ui import UI_BORDER_SIZE
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.onroad.alert_renderer import AlertRenderer
-from openpilot.selfdrive.ui.onroad.driver_state import DriverStateRenderer
+from openpilot.selfdrive.ui.onroad.driver_state import DriverStateRenderer, BTN_SIZE
 from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer, UI_CONFIG
 from openpilot.selfdrive.ui.onroad.model_renderer import ModelRenderer
 from openpilot.selfdrive.ui.onroad.cameraview import CameraView
@@ -57,7 +57,7 @@ class AugmentedRoadView(CameraView):
     self.alert_renderer = AlertRenderer()
     self.driver_state_renderer = DriverStateRenderer()
     self._settings_cb = None
-    self._settings_icon = gui_app.texture("icons_mici/settings.png", 110, 110)
+    self._settings_icon = gui_app.texture("images/button_settings.png", BTN_SIZE, BTN_SIZE)
     self._settings_rect = rl.Rectangle()
     self._settings_cooldown_until = 0.0
 
@@ -108,12 +108,12 @@ class AugmentedRoadView(CameraView):
     # End clipping region
     rl.end_scissor_mode()
 
-    # Draw settings icon centered under the set speed box
-    set_speed_width = UI_CONFIG.set_speed_width_metric if ui_state.is_metric else UI_CONFIG.set_speed_width_imperial
-    set_speed_x = rect.x + 60 + (UI_CONFIG.set_speed_width_imperial - set_speed_width) // 2
-    set_speed_y = rect.y + 45
-    icon_x = set_speed_x + (set_speed_width - self._settings_icon.width) / 2
-    icon_y = set_speed_y + UI_CONFIG.set_speed_height + 16
+    # Draw settings icon above the driver monitoring indicator
+    is_rhd = ui_state.sm["driverMonitoringState"].isRHD if ui_state.sm.updated["driverMonitoringState"] else False
+    offset = UI_BORDER_SIZE + BTN_SIZE / 2
+    center_x = rect.x + (rect.width - offset if is_rhd else offset)
+    icon_x = center_x - self._settings_icon.width / 2
+    icon_y = rect.y + rect.height - UI_BORDER_SIZE - (BTN_SIZE * 2) - 16
     self._settings_rect = rl.Rectangle(icon_x, icon_y, self._settings_icon.width, self._settings_icon.height)
     rl.draw_texture_ex(self._settings_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 
