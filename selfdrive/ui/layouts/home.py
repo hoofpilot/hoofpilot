@@ -78,7 +78,7 @@ class HomeLayout(Widget):
       "wheel": gui_app.texture("icons/chffr_wheel.png", 200, 200),
     }
 
-    self._font_brand = gui_app.font(FontWeight.SEMI_BOLD)
+    self._font_brand = gui_app.font(FontWeight.JETBRAINS)
     self._font_version = gui_app.font(FontWeight.MEDIUM)
     self._font_meta = gui_app.font(FontWeight.MEDIUM)
 
