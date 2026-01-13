@@ -55,12 +55,9 @@ class DriveStatsWidget(Widget):
     self._metric = ui_state.is_metric
 
   def _render(self, rect):
-    bg_rect = rl.Rectangle(rect.x + 30, rect.y + 30, rect.width - 60, rect.height - 60)
-    rl.draw_rectangle_rounded(bg_rect, 0.04, 10, BG_COLOR)
-
-    content_x = bg_rect.x + 50
-    content_y = bg_rect.y + 50
-    content_w = bg_rect.width - 100
+    content_x = rect.x + 50
+    content_y = rect.y + 50
+    content_w = rect.width - 100
 
     content_y = self._draw_section(tr("ALL TIME"), self._stats["all"], content_x, content_y, content_w)
     content_y += 40
