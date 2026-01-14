@@ -2,12 +2,8 @@ import asyncio
 import json
 import logging
 import os
-import fcntl
-import termios
-import pty
 import queue
 import subprocess
-from typing import Callable
 
 from aiortc import RTCPeerConnection, RTCConfiguration, RTCIceServer, RTCSessionDescription, RTCRtpCodecCapability
 from aiortc.sdp import candidate_from_sdp
@@ -37,107 +33,11 @@ def capture_pane(session_window_pane: str) -> str | None:
     return None
 
 
-class RemoteShellHandler:
-  def __init__(self, send_func: Callable[[str], None]):
-    self.send_func = send_func
-    self.shell = None
-    self.master_fd = None
-    self._output_task = None
-    self._start_shell()
-
-  def _start_shell(self) -> None:
-    self._output_task = asyncio.create_task(self._launch_shell())
-
-  async def _launch_shell(self) -> None:
-    master_fd, slave_fd = pty.openpty()
-
-    def preexec():
-      os.setsid()
-      fcntl.ioctl(slave_fd, termios.TIOCSCTTY, 0)
-
-    self.shell = await asyncio.create_subprocess_exec(
-      "/bin/bash",
-      cwd="/data/openpilot",
-      stdin=slave_fd,
-      stdout=slave_fd,
-      stderr=slave_fd,
-      close_fds=True,
-      preexec_fn=preexec,
-    )
-    os.close(slave_fd)
-    self.master_fd = master_fd
-    self._output_task = asyncio.create_task(self._stream_output(master_fd))
-
-  async def handle_message(self, msg: dict) -> bool:
-    action = msg.get("action")
-    if action == "shell_input":
-      data = msg.get("data")
-      if data is not None:
-        await self._send_input(data)
-      return True
-    if action == "shell":
-      command = msg.get("command")
-      if not command:
-        await self._send_result("No command provided.", error=True, done=True)
-        return True
-      await self._send_command(command)
-      return True
-    return False
-
-  async def _send_command(self, command: str) -> None:
-    if self.master_fd is None:
-      await self._send_result("Shell not available.", error=True, done=True)
-      return
-    try:
-      os.write(self.master_fd, (command + "\n").encode())
-    except Exception as e:
-      await self._send_result(f"Shell error: {e}", error=True, done=True)
-
-  async def _send_input(self, data: str) -> None:
-    if self.master_fd is None:
-      await self._send_result("Shell not available.", error=True, done=True)
-      return
-    try:
-      os.write(self.master_fd, data.encode())
-    except Exception as e:
-      await self._send_result(f"Shell input error: {e}", error=True, done=True)
-
-  async def _stream_output(self, master_fd: int) -> None:
-    loop = asyncio.get_event_loop()
-    try:
-      while True:
-        data = await loop.run_in_executor(None, os.read, master_fd, 1024)
-        if not data:
-          break
-        await self._send_result(data.decode(errors="replace"), error=False, done=False)
-    except Exception as e:
-      await self._send_result(f"Shell output error: {e}", error=True, done=False)
-
-  async def _send_result(self, output: str, error: bool = False, done: bool = False) -> None:
-    result = json.dumps({
-      "action": "shell_result",
-      "output": output,
-      "error": error,
-      "done": done,
-    })
-    self.send_func(result)
-
-  async def close(self) -> None:
-    if self.shell:
-      self.shell.terminate()
-      await self.shell.wait()
-    if self._output_task:
-      self._output_task.cancel()
-    if self.master_fd is not None:
-      os.close(self.master_fd)
-
-
 class Streamer:
   def __init__(self, sdp_send_queue: queue.Queue, sdp_recv_queue: queue.Queue, ice_send_queue: queue.Queue):
     self.lock = asyncio.Lock()
     self.pc: RTCPeerConnection | None = None
     self.data_channel = None
-    self.shell_handler: RemoteShellHandler | None = None
     self.sdp_send_queue = sdp_send_queue
     self.sdp_recv_queue = sdp_recv_queue
     self.ice_send_queue = ice_send_queue
@@ -181,18 +81,12 @@ class Streamer:
   def _attach_event_handlers(self) -> None:
     async def on_open() -> None:
       self.send_track_states()
-      if self.params.get_bool("RemoteSshEnabled"):
-        self.shell_handler = RemoteShellHandler(self.data_channel.send)
 
     def on_message(message: str) -> None:
       try:
         msg = json.loads(message)
         action = msg.get("action")
         track_type = msg.get("trackType")
-
-        if action in ("shell", "shell_input") and self.shell_handler is not None:
-          asyncio.create_task(self.shell_handler.handle_message(msg))
-          return
 
         if action in ("startTrack", "stopTrack") and track_type in self.tracks:
           self.tracks[track_type].paused = (action == "stopTrack")
@@ -279,9 +173,6 @@ class Streamer:
         if self.pc:
           await self.pc.close()
           self.pc = None
-        if self.shell_handler:
-          await self.shell_handler.close()
-          self.shell_handler = None
       except Exception:
         logger.exception("Error during stop")
 

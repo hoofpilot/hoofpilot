@@ -14,9 +14,6 @@ DESCRIPTIONS = {
   "LiveViewEnabled": tr_noop(
     "Allow Konik Stable to connect to Live View so you can stream the road and driver cameras."
   ),
-  "RemoteSshEnabled": tr_noop(
-    "Allow Konik Stable to open a remote shell session over Live View."
-  ),
 }
 
 
@@ -32,16 +29,8 @@ class StableLayout(Widget):
       callback=self._on_live_view_toggle,
     )
 
-    self._remote_ssh_toggle = toggle_item(
-      lambda: tr("Remote SSH"),
-      description=lambda: tr(DESCRIPTIONS["RemoteSshEnabled"]),
-      initial_state=self._params.get_bool("RemoteSshEnabled"),
-      callback=self._on_remote_ssh_toggle,
-    )
-
     self._scroller = Scroller([
       self._live_view_toggle,
-      self._remote_ssh_toggle,
     ], line_separator=True, spacing=0)
 
     ui_state.add_offroad_transition_callback(self._update_toggles)
@@ -56,10 +45,6 @@ class StableLayout(Widget):
   def _update_toggles(self):
     ui_state.update_params()
     self._live_view_toggle.action_item.set_state(self._params.get_bool("LiveViewEnabled"))
-    self._remote_ssh_toggle.action_item.set_state(self._params.get_bool("RemoteSshEnabled"))
 
   def _on_live_view_toggle(self, state: bool):
     self._params.put_bool("LiveViewEnabled", state)
-
-  def _on_remote_ssh_toggle(self, state: bool):
-    self._params.put_bool("RemoteSshEnabled", state)
