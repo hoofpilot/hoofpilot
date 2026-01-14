@@ -48,7 +48,6 @@ class Streamer:
     self._init_tracks()
 
   def _init_tracks(self) -> None:
-    self.tracks["road"] = LiveStreamVideoStreamTrack("road")
     self.tracks["wideRoad"] = LiveStreamVideoStreamTrack("wideRoad")
     if self.params.get_bool("RecordFront"):
       self.tracks["driver"] = LiveStreamVideoStreamTrack("driver")
