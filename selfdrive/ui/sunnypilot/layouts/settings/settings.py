@@ -23,6 +23,7 @@ from openpilot.selfdrive.ui.sunnypilot.layouts.settings.steering import Steering
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.trips import TripsLayout
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.vehicle import VehicleLayout
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.visuals import VisualsLayout
+from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.application import gui_app, MousePos
 from openpilot.system.ui.lib.multilang import tr_noop
 from openpilot.system.ui.lib.text_measure import measure_text_cached
@@ -101,6 +102,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
   def __init__(self):
     OP.SettingsLayout.__init__(self)
     self._nav_items: list[Widget] = []
+    self._nav_buttons: dict[IntEnum, NavButton] = {}
 
     # Create sidebar scroller
     self._sidebar_scroller = Scroller([], spacing=0, line_separator=False, pad_end=False)
@@ -166,7 +168,9 @@ class SettingsLayoutSP(OP.SettingsLayout):
         nav_button.rect.width = rect.width - 100  # Full width minus padding
         nav_button.rect.height = OP.NAV_BTN_HEIGHT
         self._nav_items.append(nav_button)
+        self._nav_buttons[panel_type] = nav_button
         self._sidebar_scroller.add_widget(nav_button)
+      self._sync_stable_visibility()
 
     # Draw navigation section with scroller
     nav_rect = rl.Rectangle(
@@ -179,6 +183,18 @@ class SettingsLayoutSP(OP.SettingsLayout):
     if self._nav_items:
       self._sidebar_scroller.render(nav_rect)
       return
+
+  def _sync_stable_visibility(self):
+    paired = ui_state.prime_state.is_paired()
+    stable_btn = self._nav_buttons.get(OP.PanelType.STABLE)
+    if stable_btn is not None:
+      stable_btn.set_visible(paired)
+    if not paired and self._current_panel == OP.PanelType.STABLE:
+      self.set_current_panel(OP.PanelType.DEVICE)
+
+  def _update_state(self):
+    super()._update_state()
+    self._sync_stable_visibility()
 
   def _handle_mouse_release(self, mouse_pos: MousePos) -> bool:
     # Check close button

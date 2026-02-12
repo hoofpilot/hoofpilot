@@ -51,4 +51,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
 
   def _update_state(self):
     super()._update_state()
-    self._stable_btn.set_visible(ui_state.prime_state.is_paired())
+    paired = ui_state.prime_state.is_paired()
+    self._stable_btn.set_visible(paired)
+    if not paired and self._current_panel == OP.PanelType.STABLE:
+      self._set_current_panel(None)
