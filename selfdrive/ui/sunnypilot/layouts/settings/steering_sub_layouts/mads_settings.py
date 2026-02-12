@@ -99,11 +99,7 @@ class MadsSettingsLayout(Widget):
     return False
 
   def _update_steering_mode_description(self, button_index: int):
-<<<<<<< HEAD
     base_desc = tr("Choose how Automatic Lane Centering (ALC) behaves after the brake pedal is manually pressed in hoofpilot.")
-=======
-    base_desc = tr("Choose how Automatic Lane Centering (ALC) behaves after the brake pedal is manually pressed in sunnypilot.")
->>>>>>> sunnypilot/master
     result = base_desc + "<br><br>"
     for opt in MADS_STEERING_MODE_OPTIONS:
       desc = "<b>" + opt[1] + "</b>" if button_index == MADS_STEERING_MODE_OPTIONS.index(opt) else opt[1]
