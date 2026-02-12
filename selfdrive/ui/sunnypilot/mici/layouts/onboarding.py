@@ -56,11 +56,7 @@ class SunnylinkConsentDisableConfirmPage(SunnylinkConsentPage):
     self._title_header = TermsHeader("disable sunnylink?",
                                      gui_app.texture("icons_mici/setup/red_warning.png", 66, 60))
 
-<<<<<<< HEAD
-    self._terms_label = UnifiedLabel("sunnylink is designed to be enabled as part of hoofpilot's core functionality. " +
-=======
     self._terms_label = UnifiedLabel("sunnylink is designed to be enabled as part of sunnypilot's core functionality. " +
->>>>>>> sunnypilot/master
                                      "If sunnylink is disabled, features such as settings management, " +
                                      "remote monitoring, real-time dashboards will be unavailable.",
                                      36, FontWeight.ROMAN)
