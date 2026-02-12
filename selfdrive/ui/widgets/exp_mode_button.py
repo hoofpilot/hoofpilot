@@ -18,10 +18,10 @@ class ExperimentalModeButton(Widget):
     self.experimental_mode = self.params.get_bool("ExperimentalMode")
     self.openpilot_enabled = self.params.get_bool("OpenpilotEnabledToggle")
     self._card_gap = 18
-    self._card_radius = 0.25
+    self._card_radius = 0.125
     self._ring_radius = 22
     self._ring_thickness = 6
-    self._text_size = 62
+    self._text_size = 75
     self._font_load_size = 150
     self._text_margin_x = 28
     self._text_margin_y = 18
@@ -104,9 +104,6 @@ class ExperimentalModeButton(Widget):
 
   def _draw_card(self, rect: rl.Rectangle, label: str, selected: bool, left_color: rl.Color, right_color: rl.Color):
     self._draw_rounded_gradient(rect, self._card_radius, left_color, right_color)
-
-    border_col = rl.Color(255, 255, 255, 45)
-    rl.draw_rectangle_rounded_lines_ex(rect, self._card_radius, 20, 3, border_col)
 
     self._ensure_mono_font()
     text_x = rect.x + self._text_margin_x
