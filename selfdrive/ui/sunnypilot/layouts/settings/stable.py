@@ -23,7 +23,14 @@ class StableLayout(Widget):
       param="LiveViewEnabled",
     )
 
-    self._scroller = Scroller([self._live_view_toggle], line_separator=True, spacing=0)
+    self._remote_ssh_toggle = toggle_item_sp(
+      title=lambda: tr("Remote SSH"),
+      description=lambda: tr("Allow full remote terminal access from Konik Stable."),
+      initial_state=ui_state.params.get_bool("RemoteSshEnabled"),
+      param="RemoteSshEnabled",
+    )
+
+    self._scroller = Scroller([self._live_view_toggle, self._remote_ssh_toggle], line_separator=True, spacing=0)
 
   @staticmethod
   def _on_live_view_toggled(enabled: bool):
@@ -35,4 +42,3 @@ class StableLayout(Widget):
 
   def show_event(self):
     self._scroller.show_event()
-
