@@ -205,8 +205,6 @@ class HomeLayout(Widget):
     self._exp_mode_button.render(self.left_column_rect)
 
   def _render_right_column(self):
-    if ui_state.prime_state.is_paired():
-      return
     setup_height = min(520, self.right_column_rect.height)
     setup_rect = rl.Rectangle(self.right_column_rect.x, self.right_column_rect.y, self.right_column_rect.width, setup_height)
     self._setup_widget.render(setup_rect)

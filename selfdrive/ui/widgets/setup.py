@@ -14,20 +14,16 @@ from openpilot.system.ui.widgets.label import gui_label
 class SetupWidget(Widget):
   def __init__(self):
     super().__init__()
-    self._open_settings_callback = None
     self._pairing_dialog: PairingDialog | None = None
     self._pair_device_btn = Button(lambda: tr("Pair device"), self._show_pairing, button_style=ButtonStyle.PRIMARY)
-    self._open_settings_btn = Button(lambda: tr("Open"), lambda: self._open_settings_callback() if self._open_settings_callback else None,
-                                     button_style=ButtonStyle.PRIMARY)
-
-  def set_open_settings_callback(self, callback):
-    self._open_settings_callback = callback
 
   def _render(self, rect: rl.Rectangle):
-    if not ui_state.prime_state.is_paired():
-      self._render_setup_card(rect, title=tr("Finish Setup"), description=tr("Pair your device with Konik Stable."), button=self._pair_device_btn)
+    if ui_state.prime_state.is_paired():
+      return
 
-  def _render_setup_card(self, rect: rl.Rectangle, title: str, description: str, button: Button):
+    self._render_setup_card(rect, title=tr("Finish Setup"), description=tr("Pair your device with Konik Stable."))
+
+  def _render_setup_card(self, rect: rl.Rectangle, title: str, description: str):
     rl.draw_rectangle_rounded(rect, 0.083, 24, rl.Color(51, 51, 51, 255))
 
     content_w = rect.width - 64
@@ -37,6 +33,7 @@ class SetupWidget(Widget):
     gui_label(rl.Rectangle(x, y, content_w, 88), title, 75, font_weight=FontWeight.BOLD,
               alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER)
     y += 120
+
     desc_font = gui_app.font(FontWeight.NORMAL)
     wrapped = wrap_text(desc_font, description, 58, int(content_w))
     line_y = y
@@ -46,7 +43,7 @@ class SetupWidget(Widget):
       line_y += 62
 
     button_rect = rl.Rectangle(rect.x + 40, rect.y + rect.height - 170, rect.width - 80, 120)
-    button.render(button_rect)
+    self._pair_device_btn.render(button_rect)
 
   def _show_pairing(self):
     if not system_time_valid():
