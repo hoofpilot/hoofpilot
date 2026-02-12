@@ -13,8 +13,6 @@ SIDEBAR_WIDTH = 300
 METRIC_HEIGHT = 126
 METRIC_WIDTH = 240
 METRIC_MARGIN = 30
-METRIC_START_Y = 340
-METRIC_GAP = 16
 FONT_SIZE = 35
 
 SETTINGS_BTN = rl.Rectangle(50, 35, 200, 117)
@@ -66,13 +64,13 @@ class MetricData:
 
 class Sidebar(Widget):
   def __init__(self):
-    Widget.__init__(self)
+    super().__init__()
     self._net_type = NETWORK_TYPES.get(NetworkType.none)
     self._net_strength = 0
 
     self._temp_status = MetricData(tr_noop("TEMP"), tr_noop("GOOD"), Colors.GOOD)
     self._panda_status = MetricData(tr_noop("VEHICLE"), tr_noop("ONLINE"), Colors.GOOD)
-    self._connect_status = MetricData(tr_noop("CONNECT"), tr_noop("OFFLINE"), Colors.WARNING)
+    self._connect_status = MetricData(tr_noop("STABLE"), tr_noop("OFFLINE"), Colors.WARNING)
     self._recording_audio = False
 
     self._home_img = gui_app.texture("images/button_home.png", HOME_BTN.width, HOME_BTN.height)
@@ -137,7 +135,7 @@ class Sidebar(Widget):
     elif time.monotonic_ns() - last_ping < 80_000_000_000:  # 80 seconds in nanoseconds
       self._connect_status.update(tr_noop("STABLE"), tr_noop("ONLINE"), Colors.GOOD)
     else:
-      self._connect_status.update(tr_noop("STABLLE"), tr_noop("ERROR"), Colors.DANGER)
+      self._connect_status.update(tr_noop("STABLE"), tr_noop("ERROR"), Colors.DANGER)
 
   def _update_panda_status(self):
     if ui_state.panda_type == log.PandaState.PandaType.unknown:
@@ -202,10 +200,10 @@ class Sidebar(Widget):
     rl.draw_text_ex(self._font_regular, tr(self._net_type), text_pos, FONT_SIZE, 0, Colors.WHITE)
 
   def _draw_metrics(self, rect: rl.Rectangle):
-    metrics = [self._temp_status, self._panda_status, self._connect_status]
-    for idx, metric in enumerate(metrics):
-      y = int(rect.y) + METRIC_START_Y + idx * (METRIC_HEIGHT + METRIC_GAP)
-      self._draw_metric(rect, metric, y)
+    metrics = [(self._temp_status, 338), (self._panda_status, 496), (self._connect_status, 654)]
+
+    for metric, y_offset in metrics:
+      self._draw_metric(rect, metric, rect.y + y_offset)
 
   def _draw_metric(self, rect: rl.Rectangle, metric: MetricData, y: float):
     metric_rect = rl.Rectangle(rect.x + METRIC_MARGIN, y, METRIC_WIDTH, METRIC_HEIGHT)
