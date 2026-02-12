@@ -2,13 +2,12 @@ import pyray as rl
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.selfdrive.ui.widgets.pairing_dialog import PairingDialog
-from openpilot.system.ui.lib.application import gui_app, FontWeight, FONT_SCALE
+from openpilot.system.ui.lib.application import FontWeight, gui_app
 from openpilot.system.ui.lib.multilang import tr
-from openpilot.system.ui.lib.wrap_text import wrap_text
 from openpilot.system.ui.widgets import Widget
-from openpilot.system.ui.widgets.confirm_dialog import alert_dialog
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
-from openpilot.system.ui.widgets.label import Label
+from openpilot.system.ui.widgets.confirm_dialog import alert_dialog
+from openpilot.system.ui.widgets.label import gui_label
 
 
 class SetupWidget(Widget):
@@ -19,72 +18,31 @@ class SetupWidget(Widget):
     self._pair_device_btn = Button(lambda: tr("Pair device"), self._show_pairing, button_style=ButtonStyle.PRIMARY)
     self._open_settings_btn = Button(lambda: tr("Open"), lambda: self._open_settings_callback() if self._open_settings_callback else None,
                                      button_style=ButtonStyle.PRIMARY)
-    self._firehose_label = Label(lambda: tr("🔥 Firehose Mode 🔥"), font_weight=FontWeight.MEDIUM, font_size=64)
 
   def set_open_settings_callback(self, callback):
     self._open_settings_callback = callback
 
   def _render(self, rect: rl.Rectangle):
     if not ui_state.prime_state.is_paired():
-      self._render_registration(rect)
+      self._render_setup_card(rect, title=tr("Finish Setup"), description=tr("Pair your device with Konik Stable."), button=self._pair_device_btn)
     else:
-      self._render_firehose_prompt(rect)
+      self._render_setup_card(rect, title=tr("Setup Complete"), description=tr("Device is paired and ready."), button=self._open_settings_btn)
 
-  def _render_registration(self, rect: rl.Rectangle):
-    """Render registration prompt."""
+  def _render_setup_card(self, rect: rl.Rectangle, title: str, description: str, button: Button):
+    rl.draw_rectangle_rounded(rect, 0.125, 24, rl.Color(51, 51, 51, 255))
 
-    rl.draw_rectangle_rounded(rl.Rectangle(rect.x, rect.y, rect.width, rect.height), 0.03, 20, rl.Color(51, 51, 51, 255))
+    content_w = rect.width - 64
+    x = rect.x + 32
+    y = rect.y + 36
 
-    x = rect.x + 64
-    y = rect.y + 48
-    w = rect.width - 128
+    gui_label(rl.Rectangle(x, y, content_w, 88), title, 75, font_weight=FontWeight.BOLD,
+              alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER)
+    y += 120
+    gui_label(rl.Rectangle(x, y, content_w, 150), description, 58,
+              alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER)
 
-    # Title
-    font = gui_app.font(FontWeight.BOLD)
-    rl.draw_text_ex(font, tr("Finish Setup"), rl.Vector2(x, y), 75, 0, rl.WHITE)
-    y += 113  # 75 + 38 spacing
-
-    # Description
-    desc = tr("Pair your device with Konik Stable.")
-    light_font = gui_app.font(FontWeight.NORMAL)
-    wrapped = wrap_text(light_font, desc, 50, int(w))
-    for line in wrapped:
-      rl.draw_text_ex(light_font, line, rl.Vector2(x, y), 50, 0, rl.WHITE)
-      y += 50 * FONT_SCALE
-
-    button_rect = rl.Rectangle(x, y + 30, w, 200)
-    self._pair_device_btn.render(button_rect)
-
-  def _render_firehose_prompt(self, rect: rl.Rectangle):
-    """Render firehose prompt widget."""
-
-    rl.draw_rectangle_rounded(rl.Rectangle(rect.x, rect.y, rect.width, 500), 0.04, 20, rl.Color(51, 51, 51, 255))
-
-    # Content margins (56, 40, 56, 40)
-    x = rect.x + 56
-    y = rect.y + 40
-    w = rect.width - 112
-    spacing = 42
-
-    # Title with fire emojis
-    self._firehose_label.render(rl.Rectangle(rect.x, y, rect.width, 64))
-    y += 64 + spacing
-
-    # Description
-    desc_font = gui_app.font(FontWeight.NORMAL)
-    desc_text = tr("Maximize your training data uploads to improve hoofpilot's driving models.")
-    wrapped_desc = wrap_text(desc_font, desc_text, 40, int(w))
-
-    for line in wrapped_desc:
-      rl.draw_text_ex(desc_font, line, rl.Vector2(x, y), 40, 0, rl.WHITE)
-      y += 40 * FONT_SCALE
-
-    y += spacing
-
-    # Open button
-    button_height = 48 + 64  # font size + padding
-    button_rect = rl.Rectangle(x, y, w, button_height)
-    self._open_settings_btn.render(button_rect)
+    button_rect = rl.Rectangle(rect.x + 40, rect.y + rect.height - 170, rect.width - 80, 120)
+    button.render(button_rect)
 
   def _show_pairing(self):
     if not system_time_valid():
