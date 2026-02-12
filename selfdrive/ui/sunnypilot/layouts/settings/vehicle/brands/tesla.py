@@ -32,7 +32,7 @@ class TeslaSettings(BrandSettings):
                                "recommend disabling this feature if you experience these.")
     coop_steering_desc = (
       f"<b>{coop_steering_warning}</b><br><br>" +
-      f"{tr('Allows the driver to provide limited steering input while openpilot is engaged.')}<br>" +
+      f"{tr('Allows the driver to provide limited steering input while hoofpilot is engaged.')}<br>" +
       f"{tr(f'Only works above {display_value_coop} {unit}.')}"
     )
 

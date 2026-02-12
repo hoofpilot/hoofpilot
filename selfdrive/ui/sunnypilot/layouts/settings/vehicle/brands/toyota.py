@@ -15,7 +15,7 @@ from openpilot.system.ui.sunnypilot.widgets.list_view import toggle_item_sp
 
 DESCRIPTIONS = {
   'enforce_stock_longitudinal': tr_noop(
-    'sunnypilot will not take over control of gas and brakes. Factory Toyota longitudinal control will be used.'
+    'hoofpilot will not take over control of gas and brakes. Factory Toyota longitudinal control will be used.'
   ),
 }
 

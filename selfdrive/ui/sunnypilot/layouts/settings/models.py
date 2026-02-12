@@ -96,7 +96,7 @@ class ModelsLayout(Widget):
 
   def _update_lagd_description(self, lagd_toggle: bool):
     desc = tr("Enable this for the car to learn and adapt its steering response time. Disable to use a fixed steering response time. " +
-              "Keeping this on provides the stock openpilot experience.")
+              "Keeping this on provides the stock hoofpilot experience.")
     if lagd_toggle:
       desc += f"<br>{tr('Live Steer Delay:')} {ui_state.sm['liveDelay'].lateralDelay:.3f} s"
     elif ui_state.CP:

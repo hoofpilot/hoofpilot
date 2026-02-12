@@ -92,7 +92,7 @@ class Setup(Widget):
     self._getting_started_body_label = Label("Before we get on the road, let's finish installation and cover some details.",
                                              BODY_FONT_SIZE, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT, text_padding=20)
 
-    self._software_selection_openpilot_button = ButtonRadio("openpilot", self.checkmark, font_size=BODY_FONT_SIZE, text_padding=80)
+    self._software_selection_openpilot_button = ButtonRadio("hoofpilot", self.checkmark, font_size=BODY_FONT_SIZE, text_padding=80)
     self._software_selection_custom_software_button = ButtonRadio("Custom Software", self.checkmark, font_size=BODY_FONT_SIZE, text_padding=80)
     self._software_selection_continue_button = Button("Continue", self._software_selection_continue_button_callback,
                                                       button_style=ButtonStyle.PRIMARY)

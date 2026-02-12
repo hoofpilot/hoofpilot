@@ -72,7 +72,7 @@ class SetupWidget(Widget):
 
     # Description
     desc_font = gui_app.font(FontWeight.NORMAL)
-    desc_text = tr("Maximize your training data uploads to improve openpilot's driving models.")
+    desc_text = tr("Maximize your training data uploads to improve hoofpilot's driving models.")
     wrapped_desc = wrap_text(desc_font, desc_text, 40, int(w))
 
     for line in wrapped_desc:

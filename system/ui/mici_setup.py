@@ -127,7 +127,7 @@ class SoftwareSelectionPage(Widget):
                use_custom_software_callback: Callable):
     super().__init__()
 
-    self._openpilot_slider = LargerSlider("slide to use\nopenpilot", use_openpilot_callback)
+    self._openpilot_slider = LargerSlider("slide to use\nhoofpilot", use_openpilot_callback)
     self._custom_software_slider = LargerSlider("slide to use\ncustom software", use_custom_software_callback, green=False)
 
   def reset(self):
@@ -719,7 +719,7 @@ class Setup(Widget):
 
     except urllib.error.HTTPError as e:
       if e.code == 409:
-        error_msg = "Incompatible sunnypilot version"
+        error_msg = "Incompatible hoofpilot version"
         self.download_failed(self.download_url, error_msg)
     except Exception:
       error_msg = "Invalid URL"

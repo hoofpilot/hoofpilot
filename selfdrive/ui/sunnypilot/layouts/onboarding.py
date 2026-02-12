@@ -31,7 +31,7 @@ class SunnylinkConsentPage(Widget):
         "highlight_primary": True
       },
       {
-        "text": tr("sunnylink is designed to be enabled as part of sunnypilot's core functionality. " +
+        "text": tr("sunnylink is designed to be enabled as part of hoofpilot's core functionality. " +
                    "If sunnylink is disabled, features such as settings management, remote monitoring, " +
                    "real-time dashboards will be unavailable."),
         "secondary_btn": tr("Back"),
