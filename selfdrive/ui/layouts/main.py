@@ -35,6 +35,7 @@ class MainLayout(Widget):
 
     self._sidebar_rect = rl.Rectangle(0, 0, 0, 0)
     self._content_rect = rl.Rectangle(0, 0, 0, 0)
+    self._skip_settings_render_once = False
 
     # Set callbacks
     self._setup_callbacks()
@@ -89,6 +90,8 @@ class MainLayout(Widget):
     self._layouts[MainState.SETTINGS].set_current_panel(panel_type)
     self._set_current_layout(MainState.SETTINGS)
     self._sidebar.set_visible(False)
+    # Prevent the same touch-release event that opened settings from immediately closing it.
+    self._skip_settings_render_once = True
 
   def _on_settings_clicked(self):
     self.open_settings(PanelType.DEVICE)
@@ -105,6 +108,10 @@ class MainLayout(Widget):
     # Render sidebar
     if self._sidebar.is_visible:
       self._sidebar.render(self._sidebar_rect)
+
+    if self._current_mode == MainState.SETTINGS and self._skip_settings_render_once:
+      self._skip_settings_render_once = False
+      return
 
     content_rect = self._content_rect if self._sidebar.is_visible else self._rect
     self._layouts[self._current_mode].render(content_rect)
