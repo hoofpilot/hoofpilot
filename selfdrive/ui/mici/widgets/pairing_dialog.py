@@ -25,7 +25,7 @@ class PairingDialog(NavWidget):
     self._last_qr_generation = float("-inf")
 
     self._txt_pair = gui_app.texture("icons_mici/settings/device/pair.png", 33, 60)
-    self._pair_label = MiciLabel("pair with stable.konik.ai", 48, font_weight=FontWeight.BOLD,
+    self._pair_label = MiciLabel("pair with Konik Stable", 48, font_weight=FontWeight.BOLD,
                                  color=rl.Color(255, 255, 255, int(255 * 0.9)), line_height=40, wrap_text=True)
 
   def _get_pairing_url(self) -> str:

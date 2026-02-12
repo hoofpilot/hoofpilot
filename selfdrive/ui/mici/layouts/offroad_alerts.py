@@ -257,7 +257,7 @@ class MiciOffroadAlerts(Widget):
             version, date = parts[0], parts[3]
             version_string = f"\nhoofpilot {version}, {date}\n"
 
-        update_alert_data.text = f"Update available {version_string}. Click to update. Read the release notes at blog.comma.ai."
+        update_alert_data.text = f"Update available {version_string}. Click to update."
         update_alert_data.visible = True
         active_count += 1
       else:

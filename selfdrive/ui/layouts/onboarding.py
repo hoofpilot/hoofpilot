@@ -13,6 +13,8 @@ from openpilot.system.ui.widgets.label import Label
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.version import terms_version, training_version, terms_version_sp
 
+from openpilot.selfdrive.ui.sunnypilot.layouts.onboarding import SunnylinkOnboarding
+
 DEBUG = False
 
 STEP_RECTS = [rl.Rectangle(104, 800, 633, 175), rl.Rectangle(1835, 0, 2159, 1080), rl.Rectangle(1835, 0, 2156, 1080),
@@ -33,6 +35,7 @@ class OnboardingState(IntEnum):
   TERMS = 0
   ONBOARDING = 1
   DECLINE = 2
+  SUNNYLINK_CONSENT = 3
 
 
 class TrainingGuide(Widget):
@@ -109,8 +112,8 @@ class TermsPage(Widget):
     self._on_accept = on_accept
     self._on_decline = on_decline
 
-    self._title = Label(tr("Welcome to hoofpilot"), font_size=90, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
-    self._desc = Label(tr("You must accept the Terms of Service to use hoofpilot. Read the latest terms online before continuing."),
+    self._title = Label(tr("Welcome to hoofpilot!"), font_size=90, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
+    self._desc = Label(tr("You must accept the Terms and Conditions to use hoofpilot. Read the latest terms at https://comma.ai/terms before continuing."),
                        font_size=90, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
 
     self._decline_btn = Button(tr("Decline"), click_callback=on_decline)
@@ -190,7 +193,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._training_done
+    return self._accepted_terms and self._sunnylink.completed and self._training_done
 
   def _on_terms_declined(self):
     self._state = OnboardingState.DECLINE

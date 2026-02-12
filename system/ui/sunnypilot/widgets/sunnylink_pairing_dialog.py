@@ -65,7 +65,11 @@ class SunnylinkPairingDialog(PairingDialog):
     y += close_size + 40
 
     # Title
+<<<<<<< HEAD
     title = tr("Pair your GitHub account") if self._sponsor_pairing else tr("Early Access: Become a hoofpilot Sponsor")
+=======
+    title = tr("Pair your GitHub account") if self._sponsor_pairing else tr("Early Access: Become a sunnypilot Sponsor")
+>>>>>>> sunnypilot/master
     title_font = gui_app.font(FontWeight.NORMAL)
     left_width = int(content_rect.width * 0.5 - 15)
 
@@ -94,13 +98,21 @@ class SunnylinkPairingDialog(PairingDialog):
         tr("Scan the QR code to login to your GitHub account"),
         tr("Follow the prompts to complete the pairing process"),
         tr("Re-enter the \"sunnylink\" panel to verify sponsorship status"),
+<<<<<<< HEAD
         tr("If sponsorship status was not updated, please contact a moderator on the hoofpilot community forum at https://community.sunnypilot.ai")
+=======
+        tr("If sponsorship status was not updated, please contact a moderator on the community forum at https://community.sunnypilot.ai")
+>>>>>>> sunnypilot/master
       ]
     else:
       instructions = [
         tr("Scan the QR code to visit sunnyhaibin's GitHub Sponsors page"),
         tr("Choose your sponsorship tier and confirm your support"),
+<<<<<<< HEAD
         tr("Join our hoofpilot community forum at https://community.sunnypilot.ai and reach out to a moderator if you have issues")
+=======
+        tr("Join our Community Forum at https://community.sunnypilot.ai and reach out to a moderator if you have issues")
+>>>>>>> sunnypilot/master
       ]
 
     font = gui_app.font(FontWeight.BOLD)
