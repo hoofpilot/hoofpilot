@@ -26,8 +26,6 @@ class SetupWidget(Widget):
   def _render(self, rect: rl.Rectangle):
     if not ui_state.prime_state.is_paired():
       self._render_setup_card(rect, title=tr("Finish Setup"), description=tr("Pair your device with Konik Stable."), button=self._pair_device_btn)
-    else:
-      self._render_setup_card(rect, title=tr("Setup Complete"), description=tr("Device is paired and ready."), button=self._open_settings_btn)
 
   def _render_setup_card(self, rect: rl.Rectangle, title: str, description: str, button: Button):
     rl.draw_rectangle_rounded(rect, 0.083, 24, rl.Color(51, 51, 51, 255))

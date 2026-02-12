@@ -1,5 +1,6 @@
 import time
 import pyray as rl
+from importlib.resources import as_file, files
 from collections.abc import Callable
 from enum import IntEnum
 from openpilot.common.params import Params
@@ -18,6 +19,8 @@ CONTENT_MARGIN = 40
 SPACING = 25
 RIGHT_COLUMN_WIDTH = 750
 REFRESH_INTERVAL = 10.0
+ASSETS_DIR = files("openpilot.selfdrive").joinpath("assets")
+MONO_FONT = ASSETS_DIR.joinpath("fonts").joinpath("JetBrainsMono-Medium.ttf")
 
 
 class HomeLayoutState(IntEnum):
@@ -55,6 +58,7 @@ class HomeLayout(Widget):
     self.alert_notif_rect = rl.Rectangle(0, 0, 220, HEADER_HEIGHT - 10)
 
     self._setup_widget = SetupWidget()
+    self._mono_font = None
 
     self._exp_mode_button = ExperimentalModeButton()
     self._setup_callbacks()
@@ -172,9 +176,20 @@ class HomeLayout(Widget):
     if self.update_available or self.alert_count > 0:
       version_text_width -= SPACING * 1.5
 
-    version_rect = rl.Rectangle(self.header_rect.x + self.header_rect.width - version_text_width, self.header_rect.y,
-                                version_text_width, self.header_rect.height)
-    gui_label(version_rect, self._version_text, 48, rl.WHITE, alignment=rl.GuiTextAlignment.TEXT_ALIGN_RIGHT)
+    if self._mono_font is None:
+      try:
+        with as_file(MONO_FONT) as mono_path:
+          self._mono_font = rl.load_font_ex(mono_path.as_posix(), 96, None, 0)
+          rl.set_texture_filter(self._mono_font.texture, rl.TextureFilter.TEXTURE_FILTER_BILINEAR)
+      except Exception:
+        self._mono_font = font
+
+    version_text = self._version_text
+    version_size = 48
+    text_sz = measure_text_cached(self._mono_font, version_text, version_size)
+    text_x = int(self.header_rect.x + self.header_rect.width - text_sz.x)
+    text_y = int(self.header_rect.y + (self.header_rect.height - text_sz.y) / 2)
+    rl.draw_text_ex(self._mono_font, version_text, rl.Vector2(text_x, text_y), version_size, 0, rl.WHITE)
 
   def _render_home_content(self):
     self._render_left_column()
@@ -190,6 +205,8 @@ class HomeLayout(Widget):
     self._exp_mode_button.render(self.left_column_rect)
 
   def _render_right_column(self):
+    if ui_state.prime_state.is_paired():
+      return
     setup_height = min(520, self.right_column_rect.height)
     setup_rect = rl.Rectangle(self.right_column_rect.x, self.right_column_rect.y, self.right_column_rect.width, setup_height)
     self._setup_widget.render(setup_rect)
