@@ -45,7 +45,7 @@ class SetupWidget(Widget):
     y += 113  # 75 + 38 spacing
 
     # Description
-    desc = tr("Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.")
+    desc = tr("Pair your device with Konik Stable.")
     light_font = gui_app.font(FontWeight.NORMAL)
     wrapped = wrap_text(light_font, desc, 50, int(w))
     for line in wrapped:

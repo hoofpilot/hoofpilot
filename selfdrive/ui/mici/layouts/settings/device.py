@@ -118,7 +118,7 @@ class UpdaterState(IntEnum):
 
 class PairBigButton(BigButton):
   def __init__(self):
-    super().__init__("pair", "connect.comma.ai", "icons_mici/settings/comma_icon.png", icon_size=(33, 60))
+    super().__init__("pair", "stable.konik.ai", "../../sunnypilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
 
   def _get_label_font_size(self):
     return 64
@@ -132,7 +132,7 @@ class PairBigButton(BigButton):
         self.set_value("upgrade to prime")
     else:
       self.set_text("pair")
-      self.set_value("connect.comma.ai")
+      self.set_value("stable.konik.ai")
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
     super()._handle_mouse_release(mouse_pos)
@@ -144,7 +144,7 @@ class PairBigButton(BigButton):
     if not system_time_valid():
       dlg = BigDialog(tr("Please connect to Wi-Fi to complete initial pairing"), "")
     elif UNREGISTERED_DONGLE_ID == (ui_state.params.get("DongleId") or UNREGISTERED_DONGLE_ID):
-      dlg = BigDialog(tr("Device must be registered with the comma.ai backend to pair"), "")
+      dlg = BigDialog(tr("Device must be registered with the konik.ai backend to pair"), "")
     else:
       dlg = PairingDialog()
     gui_app.set_modal_overlay(dlg)
