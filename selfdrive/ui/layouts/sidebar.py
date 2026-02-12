@@ -13,6 +13,8 @@ SIDEBAR_WIDTH = 300
 METRIC_HEIGHT = 126
 METRIC_WIDTH = 240
 METRIC_MARGIN = 30
+METRIC_START_Y = 340
+METRIC_GAP = 16
 FONT_SIZE = 35
 
 SETTINGS_BTN = rl.Rectangle(50, 35, 200, 117)
@@ -201,12 +203,9 @@ class Sidebar(Widget):
 
   def _draw_metrics(self, rect: rl.Rectangle):
     metrics = [self._temp_status, self._panda_status, self._connect_status]
-    start_y = int(rect.y) + 300
-    available_height = max(0, int(HOME_BTN.y) - METRIC_MARGIN - METRIC_HEIGHT - start_y)
-    spacing = available_height / max(1, len(metrics) - 1)
-
     for idx, metric in enumerate(metrics):
-      self._draw_metric(rect, metric, start_y + idx * spacing)
+      y = int(rect.y) + METRIC_START_Y + idx * (METRIC_HEIGHT + METRIC_GAP)
+      self._draw_metric(rect, metric, y)
 
   def _draw_metric(self, rect: rl.Rectangle, metric: MetricData, y: float):
     metric_rect = rl.Rectangle(rect.x + METRIC_MARGIN, y, METRIC_WIDTH, METRIC_HEIGHT)
