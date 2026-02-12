@@ -19,14 +19,11 @@ from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.version import terms_version, training_version, terms_version_sp
 
-from openpilot.selfdrive.ui.sunnypilot.mici.layouts.onboarding import SunnylinkOnboarding
-
 
 class OnboardingState(IntEnum):
   TERMS = 0
   ONBOARDING = 1
   DECLINE = 2
-  SUNNYLINK_CONSENT = 3
 
 
 class DriverCameraSetupDialog(DriverCameraDialog):
@@ -453,13 +450,9 @@ class OnboardingWindow(Widget):
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._decline_page = DeclinePage(back_callback=self._on_decline_back)
 
-    # sunnylink consent pages
     self._accepted_terms = self._accepted_terms and ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp
-    self._sunnylink = SunnylinkOnboarding()
     if not self._accepted_terms:
       self._state = OnboardingState.TERMS
-    elif not self._sunnylink.completed:
-      self._state = OnboardingState.SUNNYLINK_CONSENT
     elif not self._training_done:
       self._state = OnboardingState.ONBOARDING
     else:
@@ -475,7 +468,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._sunnylink.completed and self._training_done
+    return self._accepted_terms and self._training_done
 
   def _on_terms_declined(self):
     self._state = OnboardingState.DECLINE
@@ -490,9 +483,7 @@ class OnboardingWindow(Widget):
   def _on_terms_accepted(self):
     ui_state.params.put("HasAcceptedTerms", terms_version)
     ui_state.params.put("HasAcceptedTermsSP", terms_version_sp)
-    if not self._sunnylink.completed:
-      self._state = OnboardingState.SUNNYLINK_CONSENT
-    elif not self._training_done:
+    if not self._training_done:
       self._state = OnboardingState.ONBOARDING
     else:
       self.close()
@@ -504,13 +495,6 @@ class OnboardingWindow(Widget):
   def _render(self, _):
     if self._state == OnboardingState.TERMS:
       self._terms.render(self._rect)
-    elif self._state == OnboardingState.SUNNYLINK_CONSENT:
-      self._sunnylink.render(self._rect)
-      if self._sunnylink.completed:
-        if not self._training_done:
-          self._state = OnboardingState.ONBOARDING
-        else:
-          self.close()
     elif self._state == OnboardingState.ONBOARDING:
       if not self._training_done:
         self._training_guide.render(self._rect)
