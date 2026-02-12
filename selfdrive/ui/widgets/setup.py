@@ -4,6 +4,7 @@ from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.selfdrive.ui.widgets.pairing_dialog import PairingDialog
 from openpilot.system.ui.lib.application import FontWeight, gui_app
 from openpilot.system.ui.lib.multilang import tr
+from openpilot.system.ui.lib.wrap_text import wrap_text
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
 from openpilot.system.ui.widgets.confirm_dialog import alert_dialog
@@ -29,7 +30,7 @@ class SetupWidget(Widget):
       self._render_setup_card(rect, title=tr("Setup Complete"), description=tr("Device is paired and ready."), button=self._open_settings_btn)
 
   def _render_setup_card(self, rect: rl.Rectangle, title: str, description: str, button: Button):
-    rl.draw_rectangle_rounded(rect, 0.125, 24, rl.Color(51, 51, 51, 255))
+    rl.draw_rectangle_rounded(rect, 0.083, 24, rl.Color(51, 51, 51, 255))
 
     content_w = rect.width - 64
     x = rect.x + 32
@@ -38,8 +39,13 @@ class SetupWidget(Widget):
     gui_label(rl.Rectangle(x, y, content_w, 88), title, 75, font_weight=FontWeight.BOLD,
               alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER)
     y += 120
-    gui_label(rl.Rectangle(x, y, content_w, 150), description, 58,
-              alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER)
+    desc_font = gui_app.font(FontWeight.NORMAL)
+    wrapped = wrap_text(desc_font, description, 58, int(content_w))
+    line_y = y
+    for line in wrapped[:3]:
+      gui_label(rl.Rectangle(x, line_y, content_w, 62), line, 58,
+                alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER)
+      line_y += 62
 
     button_rect = rl.Rectangle(rect.x + 40, rect.y + rect.height - 170, rect.width - 80, 120)
     button.render(button_rect)

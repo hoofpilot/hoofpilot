@@ -18,7 +18,7 @@ class ExperimentalModeButton(Widget):
     self.experimental_mode = self.params.get_bool("ExperimentalMode")
     self.openpilot_enabled = self.params.get_bool("OpenpilotEnabledToggle")
     self._card_gap = 18
-    self._card_radius = 0.125
+    self._card_radius = 0.083
     self._ring_radius = 22
     self._ring_thickness = 6
     self._text_size = 75
