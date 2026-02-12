@@ -8,6 +8,8 @@ import pyray as rl
 from dataclasses import dataclass
 
 from openpilot.common.constants import CV
+
+
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 
 
@@ -187,6 +189,31 @@ class DesiredLateralAccelElement(LateralControlElement):
     color = self.get_lat_color(lat_active, steer_override)
 
     return UiElement(value, "DESIRED L.A.", self.unit, color)
+
+
+class DesiredSteeringPIDElement(LateralControlElement):
+  def __init__(self):
+    self.unit = ""
+
+  def update(self, sm, is_metric: bool) -> UiElement:
+    car_state = sm['carState']
+    controls_state = sm['controlsState']
+    lat_active = sm['carControl'].latActive
+    angle_steers = car_state.steeringAngleDeg
+    steer_angle_desired = controls_state.lateralControlState.pidState.steeringAngleDesiredDeg
+
+    value = f"{steer_angle_desired:.1f}°" if lat_active else "-"
+
+    color = rl.WHITE
+    if lat_active:
+      if abs(angle_steers) > 180:
+        color = rl.RED
+      elif abs(angle_steers) > 90:
+        color = rl.Color(255, 188, 0, 255)
+      else:
+        color = rl.Color(0, 255, 0, 255)
+
+    return UiElement(value, "DESIRED STEER", self.unit, color)
 
 
 class AEgoElement:

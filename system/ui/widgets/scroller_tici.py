@@ -1,7 +1,6 @@
 import pyray as rl
 from openpilot.system.ui.lib.scroll_panel import GuiScrollPanel
 from openpilot.system.ui.widgets import Widget
-from openpilot.selfdrive.ui.ui_state import ui_state
 
 ITEM_SPACING = 40
 LINE_COLOR = rl.GRAY
@@ -31,7 +30,7 @@ class Scroller(Widget):
     self._line_separator = LineSeparator() if line_separator else None
     self._pad_end = pad_end
 
-    self.scroll_panel = GuiScrollPanel(allow_overscroll=False)
+    self.scroll_panel = GuiScrollPanel()
 
     for item in items:
       self.add_widget(item)
@@ -53,9 +52,7 @@ class Scroller(Widget):
     content_height = sum(item.rect.height for item in visible_items) + self._spacing * (len(visible_items))
     if not self._pad_end:
       content_height -= self._spacing
-    self.scroll_panel.set_allow_overscroll(not ui_state.started)
-    self.scroll_panel.set_stable_mode(ui_state.started)
-    scroll = round(self.scroll_panel.update(self._rect, rl.Rectangle(0, 0, self._rect.width, content_height)))
+    scroll = self.scroll_panel.update(self._rect, rl.Rectangle(0, 0, self._rect.width, content_height))
 
     rl.begin_scissor_mode(int(self._rect.x), int(self._rect.y),
                           int(self._rect.width), int(self._rect.height))

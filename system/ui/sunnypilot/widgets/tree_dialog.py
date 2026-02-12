@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 import pyray as rl
 from openpilot.common.params import Params
 from openpilot.system.ui.lib.application import FontWeight, gui_app
-from openpilot.system.ui.lib.animation import ease_out_cubic, LinearAnimation, scale_from_center
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets import DialogResult
 from openpilot.system.ui.widgets.button import Button, ButtonStyle, BUTTON_PRESSED_BACKGROUND_COLORS
@@ -101,9 +100,6 @@ class TreeOptionDialog(MultiOptionDialog):
     self.search_subtitle = search_subtitle
     self.search_dialog = None
     self._search_pressed = False
-
-    self._anim = LinearAnimation(0.2)
-    self._anim.start('in')
 
     self.selection_node = None
     # Try to match by ref, by display text, or fall back to "Default" when no ref is set
@@ -200,80 +196,76 @@ class TreeOptionDialog(MultiOptionDialog):
       self.scroller.scroll_panel.set_offset(0)
 
   def _render(self, rect):
-    progress = ease_out_cubic(self._anim.step())
     dialog_content_rect = rl.Rectangle(rect.x + 50, rect.y + 50, rect.width - 100, rect.height - 100)
+    rl.draw_rectangle_rounded(dialog_content_rect, 0.02, 20, rl.BLACK)
 
-    def _draw_dialog():
-      rl.draw_rectangle_rounded(dialog_content_rect, 0.02, 20, rl.BLACK)
+    # Title on the left
+    title_rect = rl.Rectangle(dialog_content_rect.x + 50, dialog_content_rect.y + 50, dialog_content_rect.width * 0.5, 70)
+    gui_label(title_rect, self.title, 70, font_weight=FontWeight.BOLD)
 
-      # Title on the left
-      title_rect = rl.Rectangle(dialog_content_rect.x + 50, dialog_content_rect.y + 50, dialog_content_rect.width * 0.5, 70)
-      gui_label(title_rect, self.title, 70, font_weight=FontWeight.BOLD)
+    # Search bar on the top right
+    search_width = dialog_content_rect.width * self._search_width
+    search_height = 110
+    search_x = dialog_content_rect.x + dialog_content_rect.width - 50 - search_width
+    search_y = dialog_content_rect.y + 40  # align roughly with title
 
-      # Search bar on the top right
-      search_width = dialog_content_rect.width * self._search_width
-      search_height = 110
-      search_x = dialog_content_rect.x + dialog_content_rect.width - 50 - search_width
-      search_y = dialog_content_rect.y + 40  # align roughly with title
+    self._search_rect = rl.Rectangle(search_x, search_y, search_width, search_height)
 
-      self._search_rect = rl.Rectangle(search_x, search_y, search_width, search_height)
+    # Draw search field
+    inset = 4
+    roundness = 0.3
+    input_rect = rl.Rectangle(self._search_rect.x + inset, self._search_rect.y + inset,
+                              self._search_rect.width - inset * 2, self._search_rect.height - inset * 2)
 
-      # Draw search field
-      inset = 4
-      roundness = 0.3
-      input_rect = rl.Rectangle(self._search_rect.x + inset, self._search_rect.y + inset,
-                                self._search_rect.width - inset * 2, self._search_rect.height - inset * 2)
+    # Transparent fill (unpressed), white fill (pressed), border
+    fill_color = style.TREE_DIALOG_SEARCH_BUTTON_PRESSED if self._search_pressed else style.TREE_DIALOG_TRANSPARENT
+    rl.draw_rectangle_rounded(input_rect, roundness, 10, fill_color)
+    rl.draw_rectangle_rounded_lines_ex(input_rect, roundness, 10, 3, style.TREE_DIALOG_SEARCH_BUTTON_BORDER)
 
-      # Transparent fill (unpressed), white fill (pressed), border
-      fill_color = style.TREE_DIALOG_SEARCH_BUTTON_PRESSED if self._search_pressed else style.TREE_DIALOG_TRANSPARENT
-      rl.draw_rectangle_rounded(input_rect, roundness, 10, fill_color)
-      rl.draw_rectangle_rounded_lines_ex(input_rect, roundness, 10, 3, style.TREE_DIALOG_SEARCH_BUTTON_BORDER)
+    # Magnifying glass icon
+    icon_color = rl.Color(180, 180, 180, 240)
+    cx = input_rect.x + 60
+    cy = input_rect.y + input_rect.height / 2 - 5
+    radius = min(input_rect.height * 0.28, 26)
 
-      # Magnifying glass icon
-      icon_color = rl.Color(180, 180, 180, 240)
-      cx = input_rect.x + 60
-      cy = input_rect.y + input_rect.height / 2 - 5
-      radius = min(input_rect.height * 0.28, 26)
+    circle_thickness = 4
+    for i in range(circle_thickness):
+      rl.draw_circle_lines(int(cx), int(cy), radius - i, icon_color)
 
-      circle_thickness = 4
-      for i in range(circle_thickness):
-        rl.draw_circle_lines(int(cx), int(cy), radius - i, icon_color)
+    handle_thickness = 5
+    inner_x = cx + radius * 0.65
+    inner_y = cy + radius * 0.65
+    outer_x = cx + radius * 1.45
+    outer_y = cy + radius * 1.45
 
-      handle_thickness = 5
-      inner_x = cx + radius * 0.65
-      inner_y = cy + radius * 0.65
-      outer_x = cx + radius * 1.45
-      outer_y = cy + radius * 1.45
+    rl.draw_line_ex(rl.Vector2(inner_x, inner_y), rl.Vector2(outer_x, outer_y), handle_thickness, icon_color)
 
-      rl.draw_line_ex(rl.Vector2(inner_x, inner_y), rl.Vector2(outer_x, outer_y), handle_thickness, icon_color)
+    # User text (query), placed after the icon if present
+    if self.query:
+      text_start_x = outer_x + 45
+      text_rect = rl.Rectangle(text_start_x, input_rect.y, input_rect.x + input_rect.width - text_start_x - 10, input_rect.height)
+      gui_label(text_rect, self.query, 70, font_weight=FontWeight.MEDIUM)
 
-      # User text (query), placed after the icon if present
-      if self.query:
-        text_start_x = outer_x + 45
-        text_rect = rl.Rectangle(text_start_x, input_rect.y, input_rect.x + input_rect.width - text_start_x - 10, input_rect.height)
-        gui_label(text_rect, self.query, 70, font_weight=FontWeight.MEDIUM)
+    options_top = self._search_rect.y + self._search_rect.height + 40
+    options_area_rect = rl.Rectangle(dialog_content_rect.x + 50, options_top, dialog_content_rect.width - 100,
+                                     dialog_content_rect.height - (options_top - dialog_content_rect.y) - 210)
 
-      options_top = self._search_rect.y + self._search_rect.height + 40
-      options_area_rect = rl.Rectangle(dialog_content_rect.x + 50, options_top, dialog_content_rect.width - 100,
-                                       dialog_content_rect.height - (options_top - dialog_content_rect.y) - 210)
+    for index, option_text in enumerate(self.options):
+      self.option_buttons[index].selected = (option_text == self.selection)
+      self.option_buttons[index].set_button_style(ButtonStyle.PRIMARY if option_text == self.selection else ButtonStyle.NORMAL)
+      self.option_buttons[index].set_rect(rl.Rectangle(0, 0, options_area_rect.width, 135))
+    self.scroller.render(options_area_rect)
 
-      for index, option_text in enumerate(self.options):
-        self.option_buttons[index].selected = (option_text == self.selection)
-        self.option_buttons[index].set_button_style(ButtonStyle.PRIMARY if option_text == self.selection else ButtonStyle.NORMAL)
-        self.option_buttons[index].set_rect(rl.Rectangle(0, 0, options_area_rect.width, 135))
-      self.scroller.render(options_area_rect)
+    button_width = (dialog_content_rect.width - 150) / 2
+    button_y_position = dialog_content_rect.y + dialog_content_rect.height - 160
 
-      button_width = (dialog_content_rect.width - 150) / 2
-      button_y_position = dialog_content_rect.y + dialog_content_rect.height - 160
+    cancel_rect = rl.Rectangle(dialog_content_rect.x + 50, button_y_position, button_width, 160)
+    self.cancel_button.render(cancel_rect)
 
-      cancel_rect = rl.Rectangle(dialog_content_rect.x + 50, button_y_position, button_width, 160)
-      self.cancel_button.render(cancel_rect)
+    select_rect = rl.Rectangle(dialog_content_rect.x + 100 + button_width, button_y_position, button_width, 160)
+    self.select_button.set_enabled(self.selection != self.current)
+    self.select_button.render(select_rect)
 
-      select_rect = rl.Rectangle(dialog_content_rect.x + 100 + button_width, button_y_position, button_width, 160)
-      self.select_button.set_enabled(self.selection != self.current)
-      self.select_button.render(select_rect)
-
-    scale_from_center(dialog_content_rect, 0.96 + 0.04 * progress, _draw_dialog)
     return self._result
 
   def _handle_mouse_press(self, mouse_pos):

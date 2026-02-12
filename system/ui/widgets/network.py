@@ -28,8 +28,8 @@ try:
   from openpilot.selfdrive.ui.lib.prime_state import PrimeType
 except Exception:
   Params = None
-  ui_state = None  # type: ignore
-  PrimeType = None  # type: ignore
+  ui_state = None
+  PrimeType = None
 
 NM_DEVICE_STATE_NEED_AUTH = 60
 MIN_PASSWORD_LENGTH = 8
@@ -346,9 +346,6 @@ class WifiManagerUI(Widget):
 
   def _draw_network_list(self, rect: rl.Rectangle):
     content_rect = rl.Rectangle(rect.x, rect.y, rect.width, len(self._networks) * ITEM_HEIGHT)
-    if ui_state is not None:
-      self.scroll_panel.set_allow_overscroll(not ui_state.started)
-      self.scroll_panel.set_stable_mode(ui_state.started)
     offset = self.scroll_panel.update(rect, content_rect)
 
     rl.begin_scissor_mode(int(rect.x), int(rect.y), int(rect.width), int(rect.height))

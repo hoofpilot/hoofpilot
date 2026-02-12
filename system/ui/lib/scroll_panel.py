@@ -20,9 +20,7 @@ class ScrollState(IntEnum):
 
 
 class GuiScrollPanel:
-  def __init__(self, allow_overscroll: bool = True):
-    self._allow_overscroll = allow_overscroll
-    self._stable_mode = False
+  def __init__(self):
     self._scroll_state: ScrollState = ScrollState.IDLE
     self._last_mouse_y: float = 0.0
     self._start_mouse_y: float = 0.0  # Track the initial mouse position for drag detection
@@ -36,10 +34,6 @@ class GuiScrollPanel:
         self._handle_mouse_event(mouse_event, bounds, content)
 
     self._update_state(bounds, content)
-
-    if self._stable_mode and self._scroll_state == ScrollState.IDLE:
-      self._velocity_filter_y.x = 0.0
-      self._offset_filter_y.x = round(self._offset_filter_y.x)
 
     return float(self._offset_filter_y.x)
 
@@ -59,13 +53,10 @@ class GuiScrollPanel:
       above_bounds, below_bounds = self._check_bounds(bounds, content)
 
       # Decay velocity when idle
-      if not self._stable_mode:
-        if abs(self._velocity_filter_y.x) > MIN_VELOCITY:
-          # Faster decay if bouncing back from out of bounds
-          friction = math.exp(-BOUNCE_RETURN_RATE * 1 / gui_app.target_fps)
-          self._velocity_filter_y.x *= friction ** 2 if (above_bounds or below_bounds) else friction
-        else:
-          self._velocity_filter_y.x = 0.0
+      if abs(self._velocity_filter_y.x) > MIN_VELOCITY:
+        # Faster decay if bouncing back from out of bounds
+        friction = math.exp(-BOUNCE_RETURN_RATE * 1 / gui_app.target_fps)
+        self._velocity_filter_y.x *= friction ** 2 if (above_bounds or below_bounds) else friction
       else:
         self._velocity_filter_y.x = 0.0
 
@@ -75,8 +66,7 @@ class GuiScrollPanel:
         else:
           self._offset_filter_y.update(-max_scroll_distance)
 
-      if not self._stable_mode:
-        self._offset_filter_y.x += self._velocity_filter_y.x / gui_app.target_fps
+      self._offset_filter_y.x += self._velocity_filter_y.x / gui_app.target_fps
 
     elif self._scroll_state == ScrollState.DRAGGING_CONTENT:
       # Mouse not moving, decay velocity
@@ -84,14 +74,6 @@ class GuiScrollPanel:
         self._velocity_filter_y.update(0.0)
 
     # Settle to exact bounds
-    if not self._allow_overscroll:
-      if self._offset_filter_y.x > 0:
-        self._offset_filter_y.x = 0.0
-        self._velocity_filter_y.x = 0.0
-      elif self._offset_filter_y.x < -max_scroll_distance:
-        self._offset_filter_y.x = -max_scroll_distance
-        self._velocity_filter_y.x = 0.0
-
     if abs(self._offset_filter_y.x) < 1e-2:
       self._offset_filter_y.x = 0.0
     elif abs(self._offset_filter_y.x + max_scroll_distance) < 1e-2:
@@ -118,17 +100,12 @@ class GuiScrollPanel:
     elif self._scroll_state == ScrollState.DRAGGING_CONTENT:
       if mouse_event.left_released:
         self._scroll_state = ScrollState.IDLE
-        if self._stable_mode:
-          self._velocity_filter_y.x = 0.0
       else:
         delta_y = mouse_event.pos.y - self._last_mouse_y
         above_bounds, below_bounds = self._check_bounds(bounds, content)
-        # Rubber banding effect when out of bounds
+        # Rubber banding effect when out of bands
         if above_bounds or below_bounds:
-          if self._allow_overscroll:
-            delta_y /= 3
-          else:
-            delta_y = 0
+          delta_y /= 3
 
         self._offset_filter_y.x += delta_y
 
@@ -150,12 +127,6 @@ class GuiScrollPanel:
 
   def is_touch_valid(self):
     return self._scroll_state == ScrollState.IDLE and abs(self._velocity_filter_y.x) < MIN_VELOCITY_FOR_CLICKING
-
-  def set_allow_overscroll(self, allow_overscroll: bool) -> None:
-    self._allow_overscroll = allow_overscroll
-
-  def set_stable_mode(self, stable: bool) -> None:
-    self._stable_mode = stable
 
   def set_offset(self, position: float) -> None:
     self._offset_filter_y.x = position

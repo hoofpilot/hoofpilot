@@ -19,10 +19,14 @@ from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.version import terms_version, training_version, terms_version_sp
 
+from openpilot.selfdrive.ui.sunnypilot.mici.layouts.onboarding import SunnylinkOnboarding
+
+
 class OnboardingState(IntEnum):
   TERMS = 0
   ONBOARDING = 1
   DECLINE = 2
+  SUNNYLINK_CONSENT = 3
 
 
 class DriverCameraSetupDialog(DriverCameraDialog):
@@ -123,9 +127,9 @@ class TrainingGuideDMTutorial(Widget):
 
   def __init__(self, continue_callback):
     super().__init__()
-    self._back_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_question.png", 48, 48))
+    self._back_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_question.png", 28, 48))
     self._back_button.set_click_callback(self._show_bad_face_page)
-    self._good_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 48, 35))
+    self._good_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 42, 42))
 
     # Wrap the continue callback to restore settings
     def wrapped_continue_callback():
@@ -165,8 +169,8 @@ class TrainingGuideDMTutorial(Widget):
 
   def _update_state(self):
     super()._update_state()
-    if device.awake:
-      ui_state.params.put_bool("IsDriverViewEnabled", True)
+    if device.awake and not ui_state.params.get_bool("IsDriverViewEnabled"):
+      ui_state.params.put_bool_nonblocking("IsDriverViewEnabled", True)
 
     sm = ui_state.sm
     if sm.recv_frame.get("driverMonitoringState", 0) == 0:
@@ -236,19 +240,20 @@ class TrainingGuideDMTutorial(Widget):
       ring_color,
     )
 
-    self._back_button.render(rl.Rectangle(
-      self._rect.x + 8,
-      self._rect.y + self._rect.height - self._back_button.rect.height,
-      self._back_button.rect.width,
-      self._back_button.rect.height,
-    ))
+    if self._dialog._camera_view.frame:
+      self._back_button.render(rl.Rectangle(
+        self._rect.x + 8,
+        self._rect.y + self._rect.height - self._back_button.rect.height,
+        self._back_button.rect.width,
+        self._back_button.rect.height,
+      ))
 
-    self._good_button.render(rl.Rectangle(
-      self._rect.x + self._rect.width - self._good_button.rect.width - 8,
-      self._rect.y + self._rect.height - self._good_button.rect.height,
-      self._good_button.rect.width,
-      self._good_button.rect.height,
-    ))
+      self._good_button.render(rl.Rectangle(
+        self._rect.x + self._rect.width - self._good_button.rect.width - 8,
+        self._rect.y + self._rect.height - self._good_button.rect.height,
+        self._good_button.rect.width,
+        self._good_button.rect.height,
+      ))
 
     # rounded border
     rl.draw_rectangle_rounded_lines_ex(self._rect, 0.2 * 1.02, 10, 50, rl.BLACK)
@@ -299,7 +304,7 @@ class TrainingGuideAttentionNotice(SetupTermsPage):
   def __init__(self, continue_callback):
     super().__init__(continue_callback, continue_text="continue")
     self._title_header = TermsHeader("driver assistance", gui_app.texture("icons_mici/setup/warning.png", 60, 60))
-    self._warning_label = UnifiedLabel("1. hoofpilot is a driver assistance system.\n\n" +
+    self._warning_label = UnifiedLabel("1. sunnypilot is a driver assistance system.\n\n" +
                                        "2. You must pay attention at all times.\n\n" +
                                        "3. You must be ready to take over at any time.\n\n" +
                                        "4. You are fully responsible for driving the car.", 42,
@@ -370,12 +375,12 @@ class TrainingGuide(Widget):
 class DeclinePage(Widget):
   def __init__(self, back_callback=None):
     super().__init__()
-    self._uninstall_slider = SmallSlider("uninstall hoofpilot", self._on_uninstall)
+    self._uninstall_slider = SmallSlider("uninstall sunnypilot", self._on_uninstall)
 
     self._back_button = SmallButton("back")
     self._back_button.set_click_callback(back_callback)
 
-    self._warning_header = TermsHeader("you must accept the\nterms to use hoofpilot",
+    self._warning_header = TermsHeader("you must accept the\nterms to use sunnypilot",
                                        gui_app.texture("icons_mici/setup/red_warning.png", 66, 60))
 
   def _on_uninstall(self):
@@ -413,8 +418,8 @@ class TermsPage(SetupTermsPage):
     info_txt = gui_app.texture("icons_mici/setup/green_info.png", 60, 60)
     self._title_header = TermsHeader("terms of service", info_txt)
 
-    self._terms_label = UnifiedLabel("You must accept the Terms of Service to use hoofpilot. " +
-                                     "Read the latest terms at https://comma.ai/terms before continuing.", 36,
+    self._terms_label = UnifiedLabel("You must accept the Terms of Service to use sunnypilot. " +
+                                     "Read the latest terms at https://sunnypilot.ai/terms before continuing.", 36,
                                      FontWeight.ROMAN)
 
   @property
@@ -448,9 +453,13 @@ class OnboardingWindow(Widget):
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._decline_page = DeclinePage(back_callback=self._on_decline_back)
 
+    # sunnylink consent pages
     self._accepted_terms = self._accepted_terms and ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp
+    self._sunnylink = SunnylinkOnboarding()
     if not self._accepted_terms:
       self._state = OnboardingState.TERMS
+    elif not self._sunnylink.completed:
+      self._state = OnboardingState.SUNNYLINK_CONSENT
     elif not self._training_done:
       self._state = OnboardingState.ONBOARDING
     else:
@@ -466,7 +475,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._training_done
+    return self._accepted_terms and self._sunnylink.completed and self._training_done
 
   def _on_terms_declined(self):
     self._state = OnboardingState.DECLINE
@@ -481,7 +490,9 @@ class OnboardingWindow(Widget):
   def _on_terms_accepted(self):
     ui_state.params.put("HasAcceptedTerms", terms_version)
     ui_state.params.put("HasAcceptedTermsSP", terms_version_sp)
-    if not self._training_done:
+    if not self._sunnylink.completed:
+      self._state = OnboardingState.SUNNYLINK_CONSENT
+    elif not self._training_done:
       self._state = OnboardingState.ONBOARDING
     else:
       self.close()
@@ -493,6 +504,13 @@ class OnboardingWindow(Widget):
   def _render(self, _):
     if self._state == OnboardingState.TERMS:
       self._terms.render(self._rect)
+    elif self._state == OnboardingState.SUNNYLINK_CONSENT:
+      self._sunnylink.render(self._rect)
+      if self._sunnylink.completed:
+        if not self._training_done:
+          self._state = OnboardingState.ONBOARDING
+        else:
+          self.close()
     elif self._state == OnboardingState.ONBOARDING:
       if not self._training_done:
         self._training_guide.render(self._rect)

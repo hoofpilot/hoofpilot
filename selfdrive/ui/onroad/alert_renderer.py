@@ -48,7 +48,7 @@ class Alert:
 
 # Pre-defined alert instances
 ALERT_STARTUP_PENDING = Alert(
-  text1=tr("hoofpilot Unavailable"),
+  text1=tr("sunnypilot Unavailable"),
   text2=tr("Waiting to start"),
   size=AlertSize.mid,
   status=AlertStatus.normal,
@@ -74,14 +74,6 @@ class AlertRenderer(Widget):
     super().__init__()
     self.font_regular: rl.Font = gui_app.font(FontWeight.NORMAL)
     self.font_bold: rl.Font = gui_app.font(FontWeight.BOLD)
-    self._last_alert: Alert | None = None
-    self._last_alert_time = 0.0
-    self._pending_alert: Alert | None = None
-    self._pending_alert_time = 0.0
-    self._startup_alert_until = 0.0
-    self._startup_latch_until = 0.0
-    self._startup_pending_active = False
-    self._startup_pending_clear_after = 0.0
 
     # font size is set dynamically
     self._full_text1_label = Label("", font_size=0, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER,
@@ -101,8 +93,6 @@ class AlertRenderer(Widget):
       # 1. Never received selfdriveState since going onroad
       waiting_for_startup = recv_frame < ui_state.started_frame
       if waiting_for_startup and time_since_onroad > 5:
-        # Latch startup pending until we have a stable selfdriveState update.
-        self._startup_pending_active = True
         return ALERT_STARTUP_PENDING
 
       # 2. Lost communication with selfdriveState after receiving it
@@ -112,17 +102,6 @@ class AlertRenderer(Widget):
           if ss.enabled and (ss_missing - SELFDRIVE_STATE_TIMEOUT) < SELFDRIVE_UNRESPONSIVE_TIMEOUT:
             return ALERT_CRITICAL_TIMEOUT
           return ALERT_CRITICAL_REBOOT
-
-    # Clear startup pending after a stable selfdriveState update.
-    if self._startup_pending_active and sm.updated['selfdriveState'] and recv_frame >= ui_state.started_frame:
-      if self._startup_pending_clear_after == 0.0:
-        self._startup_pending_clear_after = time.monotonic() + 1.0
-      elif time.monotonic() >= self._startup_pending_clear_after:
-        self._startup_pending_active = False
-        self._startup_pending_clear_after = 0.0
-
-    if self._startup_pending_active:
-      return ALERT_STARTUP_PENDING
 
     # No alert if size is none
     if ss.alertSize == 0:
@@ -136,7 +115,11 @@ class AlertRenderer(Widget):
     return Alert(text1=ss.alertText1, text2=ss.alertText2, size=ss.alertSize.raw, status=ss.alertStatus.raw)
 
   def _render(self, rect: rl.Rectangle):
-    alert = self._debounce_alert(self.get_alert(ui_state.sm))
+    alert = self.get_alert(ui_state.sm)
+
+    if gui_app.sunnypilot_ui():
+      ui_state.onroad_brightness_handle_alerts(ui_state.started, alert)
+
     if not alert:
       return
 
@@ -197,60 +180,3 @@ class AlertRenderer(Widget):
     x = rect.x + (rect.width - text_size.x) / 2
     y = rect.y + ((rect.height - text_size.y) / 2 if center_y else 0)
     rl.draw_text_ex(font, text, rl.Vector2(x, y), font_size, 0, color)
-
-  def _debounce_alert(self, alert: Alert | None) -> Alert | None:
-    now = time.monotonic()
-    if alert and alert.status == AlertStatus.critical:
-      self._last_alert = alert
-      self._last_alert_time = now
-      self._pending_alert = None
-      return alert
-
-    if alert and alert.text1 == ALERT_STARTUP_PENDING.text1 and alert.text2 == ALERT_STARTUP_PENDING.text2:
-      if (now - ui_state.started_time) < 3.0:
-        return None
-      # Keep the startup pending alert stable to avoid entry flicker.
-      if self._last_alert != alert:
-        if self._pending_alert != alert:
-          self._pending_alert = alert
-          self._pending_alert_time = now
-          return self._last_alert
-        if (now - self._pending_alert_time) < 1.0:
-          return self._last_alert
-        self._pending_alert = None
-      if self._startup_alert_until <= now:
-        self._startup_alert_until = now + 2.0
-      if self._startup_latch_until <= now:
-        self._startup_latch_until = now + 12.0
-      self._last_alert = alert
-      self._last_alert_time = now
-      return alert
-
-    if alert is None:
-      if self._startup_latch_until > now and self._last_alert == ALERT_STARTUP_PENDING:
-        return self._last_alert
-      if self._startup_alert_until > now:
-        return self._last_alert
-      if self._last_alert and (now - self._last_alert_time) < 1.0:
-        return self._last_alert
-      self._last_alert = None
-      self._pending_alert = None
-      return None
-
-    if self._last_alert and alert == self._last_alert:
-      self._last_alert_time = now
-      self._pending_alert = None
-      return alert
-
-    if self._pending_alert != alert:
-      self._pending_alert = alert
-      self._pending_alert_time = now
-      return self._last_alert
-
-    if (now - self._pending_alert_time) >= 0.2:
-      self._last_alert = alert
-      self._last_alert_time = now
-      self._pending_alert = None
-      return alert
-
-    return self._last_alert

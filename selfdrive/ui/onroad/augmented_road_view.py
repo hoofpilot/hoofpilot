@@ -2,24 +2,23 @@ import time
 import numpy as np
 import pyray as rl
 from cereal import log, messaging
-from msgq import ipc_pyx
 from msgq.visionipc import VisionStreamType
 from openpilot.selfdrive.ui import UI_BORDER_SIZE
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.onroad.alert_renderer import AlertRenderer
-from openpilot.selfdrive.ui.onroad.driver_state import DriverStateRenderer, BTN_SIZE
-from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer, UI_CONFIG
+from openpilot.selfdrive.ui.onroad.driver_state import DriverStateRenderer
+from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer
 from openpilot.selfdrive.ui.onroad.model_renderer import ModelRenderer
 from openpilot.selfdrive.ui.onroad.cameraview import CameraView
-from openpilot.system.ui.lib.application import gui_app, MousePos
+from openpilot.system.ui.lib.application import gui_app
 from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCameraConfig, view_frame_from_device_frame
 from openpilot.common.transformations.orientation import rot_from_euler
 
 if gui_app.sunnypilot_ui():
-  from openpilot.selfdrive.ui.sunnypilot.onroad.hud_renderer import HudRendererSP as HudRenderer
+  from openpilot.selfdrive.ui.sunnypilot.onroad.augmented_road_view import BORDER_COLORS_SP, AugmentedRoadViewSP
   from openpilot.selfdrive.ui.sunnypilot.onroad.driver_state import DriverStateRendererSP as DriverStateRenderer
-
-from openpilot.selfdrive.ui.sunnypilot.onroad.augmented_road_view import BORDER_COLORS_SP
+  from openpilot.selfdrive.ui.sunnypilot.onroad.hud_renderer import HudRendererSP as HudRenderer
+  from openpilot.selfdrive.ui.sunnypilot.ui_state import OnroadTimerStatus
 
 OpState = log.SelfdriveState.OpenpilotState
 CALIBRATED = log.LiveCalibrationData.Status.calibrated
@@ -39,9 +38,10 @@ ROAD_CAM_MIN_SPEED = 15.0  # m/s (34 mph)
 INF_POINT = np.array([1000.0, 0.0, 0.0])
 
 
-class AugmentedRoadView(CameraView):
+class AugmentedRoadView(CameraView, AugmentedRoadViewSP):
   def __init__(self, stream_type: VisionStreamType = VisionStreamType.VISION_STREAM_ROAD):
-    super().__init__("camerad", stream_type)
+    CameraView.__init__(self, "camerad", stream_type)
+    AugmentedRoadViewSP.__init__(self)
     self._set_placeholder_color(BORDER_COLORS[UIStatus.DISENGAGED])
 
     self.device_camera: DeviceCameraConfig | None = None
@@ -56,15 +56,9 @@ class AugmentedRoadView(CameraView):
     self._hud_renderer = HudRenderer()
     self.alert_renderer = AlertRenderer()
     self.driver_state_renderer = DriverStateRenderer()
-    self._settings_cb = None
-    settings_icon_size = int(BTN_SIZE * 0.75)
-    self._settings_icon = gui_app.texture("images/button_settings.png", settings_icon_size, settings_icon_size)
-    self._settings_rect = rl.Rectangle()
-    self._settings_cooldown_until = 0.0
 
     # debug
     self._pm = messaging.PubMaster(['uiDebug'])
-    self._ui_debug_enabled = True
 
   def _render(self, rect):
     # Only render when system is started to avoid invalid data access
@@ -99,6 +93,7 @@ class AugmentedRoadView(CameraView):
 
     # Draw all UI overlays
     self.model_renderer.render(self._content_rect)
+    AugmentedRoadViewSP.update_fade_out_bottom_overlay(self, self._content_rect)
     self._hud_renderer.render(self._content_rect)
     self.alert_renderer.render(self._content_rect)
     self.driver_state_renderer.render(self._content_rect)
@@ -109,39 +104,15 @@ class AugmentedRoadView(CameraView):
     # End clipping region
     rl.end_scissor_mode()
 
-    # Draw settings icon above the driver monitoring indicator
-    is_rhd = ui_state.sm["driverMonitoringState"].isRHD if ui_state.sm.updated["driverMonitoringState"] else False
-    offset = UI_BORDER_SIZE + BTN_SIZE / 2
-    center_x = rect.x + (rect.width - offset if is_rhd else offset)
-    center_y = rect.y + rect.height - offset
-    icon_x = center_x - self._settings_icon.width / 2 + 27
-    icon_y = center_y - BTN_SIZE / 2 - self._settings_icon.height - 45
-    self._settings_rect = rl.Rectangle(icon_x, icon_y, self._settings_icon.width, self._settings_icon.height)
-    rl.draw_texture_ex(self._settings_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
-
     # Draw colored border based on driving state
     self._draw_border(rect)
 
     # publish uiDebug
     msg = messaging.new_message('uiDebug')
     msg.uiDebug.drawTimeMillis = (time.monotonic() - start_draw) * 1000
-    if self._ui_debug_enabled:
-      try:
-        self._pm.send('uiDebug', msg)
-      except ipc_pyx.MultiplePublishersError:
-        # Disable uiDebug publishing if another publisher is active.
-        self._ui_debug_enabled = False
+    self._pm.send('uiDebug', msg)
 
-  def set_settings_callback(self, callback):
-    self._settings_cb = callback
-
-  def _handle_mouse_press(self, mouse_pos: MousePos):
-    now = time.monotonic()
-    if (self._settings_cb is not None and now >= self._settings_cooldown_until and
-        rl.check_collision_point_rec(mouse_pos, self._settings_rect)):
-      self._settings_cooldown_until = now + 3.0
-      self._settings_cb()
-      return
+  def _handle_mouse_press(self, _):
     if not self._hud_renderer.user_interacting() and self._click_callback is not None:
       self._click_callback()
 
@@ -254,6 +225,14 @@ class AugmentedRoadView(CameraView):
     self.model_renderer.set_transform(video_transform @ calib_transform)
 
     return self._cached_matrix
+
+  def show_event(self):
+    if gui_app.sunnypilot_ui():
+      ui_state.reset_onroad_sleep_timer(OnroadTimerStatus.RESUME)
+
+  def hide_event(self):
+    if gui_app.sunnypilot_ui():
+      ui_state.reset_onroad_sleep_timer(OnroadTimerStatus.PAUSE)
 
 
 if __name__ == "__main__":

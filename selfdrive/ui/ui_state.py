@@ -11,7 +11,6 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.ui.lib.prime_state import PrimeState
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.hardware import HARDWARE, PC
-from openpilot.system.hardware.ignition_state import ignition_state
 
 from openpilot.selfdrive.ui.sunnypilot.ui_state import UIStateSP, DeviceSP
 
@@ -129,7 +128,7 @@ class UIState(UIStateSP):
         self.panda_type = panda_states[0].pandaType
         # Check ignition status across all pandas
         if self.panda_type != log.PandaState.PandaType.unknown:
-          self.ignition = self.ignition = ignition_state.update(panda_states)
+          self.ignition = any(state.ignitionLine or state.ignitionCan for state in panda_states)
     elif self.sm.frame - self.sm.recv_frame["pandaStates"] > 5 * rl.get_fps():
       self.panda_type = log.PandaState.PandaType.unknown
 
@@ -173,9 +172,6 @@ class UIState(UIStateSP):
         self.status = UIStatus.DISENGAGED
         self.started_frame = self.sm.frame
         self.started_time = time.monotonic()
-
-      # Disable animations while onroad to save resources
-      gui_app.disable_animations = self.started
 
       for callback in self._offroad_transition_callbacks:
         callback()
@@ -262,9 +258,17 @@ class Device(DeviceSP):
       else:
         clipped_brightness = ((clipped_brightness + 16.0) / 116.0) ** 3.0
 
-      clipped_brightness = float(np.interp(clipped_brightness, [0, 1], [30, 100]))
+      min_brightness = 30
+      if gui_app.sunnypilot_ui():
+        min_brightness = DeviceSP.set_min_onroad_brightness(ui_state, min_brightness)
+
+      clipped_brightness = float(np.interp(clipped_brightness, [0, 1], [min_brightness, 100]))
 
     brightness = round(self._brightness_filter.update(clipped_brightness))
+
+    if gui_app.sunnypilot_ui():
+      brightness = DeviceSP.set_onroad_brightness(ui_state, self._awake, brightness)
+
     if not self._awake:
       brightness = 0
 
@@ -280,6 +284,9 @@ class Device(DeviceSP):
     self._ignition = ui_state.ignition
 
     if ignition_just_turned_off or any(ev.left_down for ev in gui_app.mouse_events):
+      if gui_app.sunnypilot_ui():
+        DeviceSP.wake_from_dimmed_onroad_brightness(ui_state, gui_app.mouse_events)
+
       self._reset_interactive_timeout()
 
     interaction_timeout = time.monotonic() > self._interaction_time

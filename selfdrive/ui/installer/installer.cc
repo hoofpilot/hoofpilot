@@ -1,13 +1,7 @@
 #include <array>
-#include <atomic>
 #include <cassert>
-#include <algorithm>
-#include <cstdio>
-#include <cstring>
 #include <fstream>
 #include <map>
-#include <sstream>
-#include <vector>
 
 #include "common/swaglog.h"
 #include "common/util.h"
@@ -17,17 +11,6 @@
 int freshClone();
 int cachedFetch(const std::string &cache);
 int executeGitCommand(const std::string &cmd);
-std::string httpGet(const std::string &url, size_t chunk_size = 0, std::atomic<bool> *abort = nullptr);
-
-struct Fork {
-  std::string name;
-  std::string url;
-};
-
-std::vector<Fork> fetchForkList();
-std::vector<Fork> parseForkList(const std::string &json);
-int showForkSelection(const std::vector<Fork> &forks);
-void renderForkSelection(const std::vector<Fork> &forks, int selected);
 
 std::string get_str(std::string const s) {
   std::string::size_type pos = s.find('?');
@@ -36,9 +19,8 @@ std::string get_str(std::string const s) {
 }
 
 // Leave some extra space for the fork installer
-std::string GIT_URL = get_str("https://github.com/commaai/openpilot.git" "?                                                                ");
+const std::string GIT_URL = get_str("https://github.com/commaai/openpilot.git" "?                                                                ");
 const std::string BRANCH_STR = get_str(BRANCH "?                                                                ");
-const std::string FORK_LIST_URL = "https://gist.githubusercontent.com/amoghmunikote/73bacb1596b3b3b60a98fd0e963037c4/raw";
 
 #define GIT_SSH_URL "git@github.com:commaai/openpilot.git"
 #define CONTINUE_PATH "/data/continue.sh"
@@ -96,128 +78,6 @@ void branchMigration() {
 void run(const char* cmd) {
   int err = std::system(cmd);
   assert(err == 0);
-}
-
-// Simple HTTP GET using system curl to retrieve fork metadata
-std::string httpGet(const std::string &url, size_t chunk_size, std::atomic<bool> *abort) {
-  std::string cmd = "curl -s -L \"" + url + "\"";
-  FILE *pipe = popen(cmd.c_str(), "r");
-  if (!pipe) return "";
-
-  std::string result;
-  char buffer[1024];
-  size_t bytes_read = 0;
-  while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-    if (abort && *abort) break;
-    result += buffer;
-    bytes_read += strlen(buffer);
-    if (chunk_size > 0 && bytes_read >= chunk_size) break;
-  }
-  pclose(pipe);
-  return result;
-}
-
-// Parse JSON fork list formatted as [{"name":"...","url":"..."}, ...]
-std::vector<Fork> parseForkList(const std::string &json) {
-  std::vector<Fork> forks;
-
-  // Always include official openpilot
-  forks.push_back({"openpilot (official)", "https://github.com/commaai/openpilot.git"});
-
-  size_t pos = 0;
-  while ((pos = json.find("\"name\":", pos)) != std::string::npos) {
-    Fork fork;
-
-    size_t name_start = json.find("\"", pos + 7) + 1;
-    size_t name_end = json.find("\"", name_start);
-    if (name_end == std::string::npos) break;
-    fork.name = json.substr(name_start, name_end - name_start);
-
-    size_t url_pos = json.find("\"url\":", name_end);
-    if (url_pos == std::string::npos) break;
-    size_t url_start = json.find("\"", url_pos + 6) + 1;
-    size_t url_end = json.find("\"", url_start);
-    if (url_end == std::string::npos) break;
-
-    std::string url = json.substr(url_start, url_end - url_start);
-    if (url.find("http") == 0 && url.find(".git") == std::string::npos) {
-      fork.url = "https://github.com/" + fork.name + "/openpilot.git";
-    } else {
-      fork.url = url;
-    }
-
-    forks.push_back(fork);
-    pos = url_end;
-  }
-
-  return forks;
-}
-
-std::vector<Fork> fetchForkList() {
-  LOGD("Fetching fork list from %s", FORK_LIST_URL.c_str());
-  std::atomic<bool> abort{false};
-  std::string json = httpGet(FORK_LIST_URL, 0, &abort);
-
-  if (json.empty()) {
-    LOGW("Failed to fetch fork list, using default");
-    return {{"openpilot (official)", "https://github.com/commaai/openpilot.git"}};
-  }
-
-  return parseForkList(json);
-}
-
-void renderForkSelection(const std::vector<Fork> &forks, int selected) {
-  BeginDrawing();
-  ClearBackground(BLACK);
-
-  const char *title = "Select openpilot Fork";
-  int title_width = MeasureText(title, FONT_SIZE);
-  DrawTextEx(font_display, title, (Vector2){(float)(GetScreenWidth() - title_width)/2, 100}, FONT_SIZE, 0, WHITE);
-
-  int y_start = 300;
-  int item_height = 120;
-
-  for (size_t i = 0; i < forks.size(); i++) {
-    Color color = (i == selected) ? (Color){70, 91, 234, 255} : (Color){41, 41, 41, 255};
-    Color text_color = (i == selected) ? WHITE : (Color){200, 200, 200, 255};
-
-    Rectangle rect = {150, (float)(y_start + i * item_height), (float)GetScreenWidth() - 300, (float)item_height - 20};
-    DrawRectangleRec(rect, color);
-
-    DrawTextEx(font_inter, forks[i].name.c_str(), (Vector2){rect.x + 20, rect.y + 20}, 60, 0, text_color);
-    DrawTextEx(font_roman, forks[i].url.c_str(), (Vector2){rect.x + 20, rect.y + 70}, 35, 0, text_color);
-  }
-
-  const char *instructions = "Use UP/DOWN to select, ENTER to confirm, ESC for official";
-  int instr_width = MeasureText(instructions, 40);
-  DrawTextEx(font_inter, instructions, (Vector2){(float)(GetScreenWidth() - instr_width)/2, (float)GetScreenHeight() - 100}, 40, 0, WHITE);
-
-  EndDrawing();
-}
-
-int showForkSelection(const std::vector<Fork> &forks) {
-  if (forks.size() <= 1) return 0;
-
-  int selected = 0;
-
-  while (!WindowShouldClose()) {
-    if (IsKeyPressed(KEY_UP)) {
-      selected = (selected - 1 + forks.size()) % forks.size();
-    }
-    if (IsKeyPressed(KEY_DOWN)) {
-      selected = (selected + 1) % forks.size();
-    }
-    if (IsKeyPressed(KEY_ENTER)) {
-      return selected;
-    }
-    if (IsKeyPressed(KEY_ESCAPE)) {
-      return 0;
-    }
-
-    renderForkSelection(forks, selected);
-  }
-
-  return 0;
 }
 
 void finishInstall() {
@@ -396,13 +256,6 @@ int main(int argc, char *argv[]) {
   if (util::file_exists(CONTINUE_PATH)) {
     finishInstall();
   } else {
-    std::vector<Fork> forks = fetchForkList();
-    int selected_fork = showForkSelection(forks);
-    if (selected_fork >= 0 && selected_fork < (int)forks.size()) {
-      GIT_URL = forks[selected_fork].url;
-      LOGD("Selected fork: %s (%s)", forks[selected_fork].name.c_str(), GIT_URL.c_str());
-    }
-
     renderProgress(0);
     int result = doInstall();
     cloneFinished(result);

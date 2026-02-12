@@ -20,7 +20,6 @@ from openpilot.selfdrive.ui.sunnypilot.layouts.settings.network import NetworkUI
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.osm import OSMLayout
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.software import SoftwareLayoutSP
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.steering import SteeringLayout
-from openpilot.selfdrive.ui.sunnypilot.layouts.settings.stable import StableLayout
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.sunnylink import SunnylinkLayout
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.trips import TripsLayout
 from openpilot.selfdrive.ui.sunnypilot.layouts.settings.vehicle import VehicleLayout
@@ -38,10 +37,9 @@ from openpilot.system.ui.widgets.scroller_tici import Scroller
 OP.PANEL_COLOR = rl.Color(10, 10, 10, 255)
 ICON_SIZE = 70
 
-OP.PanelType = IntEnum(  # type: ignore
+OP.PanelType = IntEnum(
   "PanelType",
   [es.name for es in OP.PanelType] + [
-    "STABLE",
     "SUNNYLINK",
     "MODELS",
     "STEERING",
@@ -113,8 +111,8 @@ class SettingsLayoutSP(OP.SettingsLayout):
 
     self._panels = {
       OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_home.png"),
-      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_konik.png"),
       OP.PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUISP(wifi_manager), icon="icons/network.png"),
+      OP.PanelType.SUNNYLINK: PanelInfo(tr_noop("sunnylink"), SunnylinkLayout(), icon="icons/wifi_strength_full.png"),
       OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_toggle.png"),
       OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_software.png"),
       OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_models.png"),
@@ -126,7 +124,8 @@ class SettingsLayoutSP(OP.SettingsLayout):
       # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_map.png"),
       OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_trips.png"),
       OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_vehicle.png"),
-      OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/developer_icon.png"),
+      OP.PanelType.FIREHOSE: PanelInfo(tr_noop("Firehose"), FirehoseLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_firehose.png"),
+      OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/shell.png"),
     }
 
   def _draw_sidebar(self, rect: rl.Rectangle):
@@ -173,9 +172,9 @@ class SettingsLayoutSP(OP.SettingsLayout):
     # Draw navigation section with scroller
     nav_rect = rl.Rectangle(
       rect.x,
-      self._close_btn_rect.y + self._close_btn_rect.height + style.ITEM_PADDING * 2,
+      self._close_btn_rect.height + style.ITEM_PADDING * 4,  # Starting Y position for nav items
       rect.width,
-      rect.height - (self._close_btn_rect.height + style.ITEM_PADDING * 4)
+      rect.height - 300  # Remaining height after close button
     )
 
     if self._nav_items:
@@ -184,7 +183,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
 
   def _handle_mouse_release(self, mouse_pos: MousePos) -> bool:
     # Check close button
-    if hasattr(self, "_close_btn_rect") and rl.check_collision_point_rec(mouse_pos, self._close_btn_rect):
+    if rl.check_collision_point_rec(mouse_pos, self._close_btn_rect):
       if self._close_callback:
         self._close_callback()
       return True

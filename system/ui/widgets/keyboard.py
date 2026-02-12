@@ -2,418 +2,272 @@ from functools import partial
 import time
 from typing import Literal
 
-import numpy as np
 import pyray as rl
 
 from openpilot.system.ui.lib.application import gui_app, FontWeight
-from openpilot.system.ui.lib.animation import ease_out_cubic, LinearAnimation
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.button import ButtonStyle, Button
 from openpilot.system.ui.widgets.inputbox import InputBox
+from openpilot.system.ui.widgets.label import Label
 
-# MICI keyboard (unmodified)
-from openpilot.system.ui.widgets.mici_keyboard import (
-  CHAR_FONT_SIZE,
-  CHAR_NEAR_FONT_SIZE,
-  KEYBOARD_COLUMN_PADDING,
-  KEYBOARD_ROW_PADDING,
-  KEY_TOUCH_AREA_OFFSET,
-  MiciKeyboard,
-  SELECTED_CHAR_FONT_SIZE,
-  fast_euclidean_distance,
-)
+KEY_FONT_SIZE = 96
+DOUBLE_CLICK_THRESHOLD = 0.5  # seconds
+DELETE_REPEAT_DELAY = 0.5
+DELETE_REPEAT_INTERVAL = 0.07
 
-
-# ========= TIZI SCALING CONSTANTS (2160×1080) =========
-PILL_W = 1690     # match keyboard background asset width
-PILL_H = 500      # match keyboard background asset height
-KEY_FONT_SIZE = 88     # final key letter size (larger keys)
-ROW_SPACING = 1
-KEY_SPACING = 1
-KEYBOARD_INNER_PADDING_X = 80  # extra space inside pill before keys start
-KEYBOARD_INNER_PADDING_Y = 60
-
-KB_SCALE = 1.00      # global keyboard scale (keep 1.00)
+# Constants for special keys
 CONTENT_MARGIN = 50
-INPUT_TOP_MARGIN = 120
-KEYBOARD_BOTTOM_MARGIN = 40
+BACKSPACE_KEY = "<-"
+ENTER_KEY = "->"
+SPACE_KEY = " "
+SHIFT_INACTIVE_KEY = "SHIFT_OFF"
+SHIFT_ACTIVE_KEY = "SHIFT_ON"
+CAPS_LOCK_KEY = "CAPS"
+NUMERIC_KEY = "123"
+SYMBOL_KEY = "#+="
+ABC_KEY = "ABC"
 
-BACKSPACE_HOLD_DELAY = 0.45
-BACKSPACE_HOLD_INTERVAL = 0.07
-
-TOP_BAR_HEIGHT = 170
-TOP_BAR_PADDING_X = 60
-TOP_BAR_RADIUS = 0.18
-TOP_BAR_BUTTON_WIDTH = 300
-TOP_BAR_BUTTON_HEIGHT = 118
-TOP_BAR_BUTTON_GAP = 24
-TOP_BAR_SPACING = 36
-TOP_BAR_BG = rl.Color(12, 12, 12, 235)
-TOP_BAR_BORDER = rl.Color(255, 255, 255, 32)
-ANIMATION_DURATION = 0.25  # seconds
-ANIMATION_OFFSET = 160
-
-
-def _color_with_alpha(color: rl.Color, alpha: float) -> rl.Color:
-  alpha = np.clip(alpha, 0.0, 1.0)
-  return rl.Color(color.r, color.g, color.b, int(color.a * alpha))
-
-
-class ScaledMiciKeyboard(MiciKeyboard):
-  """
-  Wrapper around MiciKeyboard that keeps the original visuals intact while allowing
-  font size and row/key spacing to be adjusted from keyboard.py.
-  """
-
-  def __init__(self, *, key_font_size: float, row_spacing: float, key_spacing: float):
-    super().__init__()
-    self._row_spacing = row_spacing
-    self._key_spacing = key_spacing
-
-    # scale the various font sizes proportionally to the base key font size
-    font_scale = key_font_size / CHAR_FONT_SIZE
-    self._base_font_size = key_font_size
-    self._near_font_size = CHAR_NEAR_FONT_SIZE * font_scale
-    self._selected_font_size = SELECTED_CHAR_FONT_SIZE * font_scale
-
-  def _lay_out_keys(self, bg_x, bg_y, keys: list[list["Key"]]):
-    key_rect = rl.Rectangle(
-      bg_x + KEYBOARD_INNER_PADDING_X,
-      bg_y + KEYBOARD_INNER_PADDING_Y,
-      max(self._txt_bg.width - 2 * KEYBOARD_INNER_PADDING_X, 1),
-      max(self._txt_bg.height - 2 * KEYBOARD_INNER_PADDING_Y, 1),
-    )
-    row_count = max(len(keys) - 1, 1)
-    available_height = (key_rect.height - 2 * KEYBOARD_COLUMN_PADDING) - self._row_spacing * row_count
-    step_y = max(available_height, 1) / row_count
-
-    for row_idx, row in enumerate(keys):
-      padding = KEYBOARD_ROW_PADDING.get(row_idx, 0)
-      col_count = max(len(row) - 1, 1)
-      available_width = (key_rect.width - 2 * padding) - self._key_spacing * col_count
-      step_x = max(available_width, 1) / col_count
-
-      for key_idx, key in enumerate(row):
-        base_x = key_rect.x + padding + key_idx * (step_x + self._key_spacing)
-        base_y = key_rect.y + KEYBOARD_COLUMN_PADDING + row_idx * (step_y + self._row_spacing)
-
-        # ensure proximity checks stay aligned even as the keyboard slides in/out
-        key.original_position = rl.Vector2(base_x, base_y + KEY_TOUCH_AREA_OFFSET)
-
-        key_x = base_x
-        key_y = base_y
-
-        if self._closest_key[0] is None:
-          key.set_alpha(1.0)
-          key.set_font_size(self._base_font_size)
-        elif key == self._closest_key[0]:
-          # push key up with a max and inward so user can see key easier
-          key_y = max(key_y - 120, 40)
-          key_x += np.interp(key_x, [self._rect.x, self._rect.x + self._rect.width], [100, -100])
-          key.set_alpha(1.0)
-          key.set_font_size(self._selected_font_size)
-
-          # draw black circle behind selected key
-          rl.draw_circle_gradient(int(key_x + key.rect.width / 2), int(key_y + key.rect.height / 2),
-                                  self._selected_font_size, rl.Color(0, 0, 0, 225), rl.BLANK)
-        else:
-          dx = key.original_position.x - self._closest_key[0].original_position.x
-          dy = key.original_position.y - self._closest_key[0].original_position.y
-          distance_from_selected_key = fast_euclidean_distance(dx, dy)
-
-          inv = 1 / (distance_from_selected_key or 1.0)
-          ux = dx * inv
-          uy = dy * inv
-
-          push_pixels = np.interp(distance_from_selected_key, [0, 250], [20, 0])
-          key_x += ux * push_pixels
-          key_y += uy * push_pixels
-
-          font_size = np.interp(distance_from_selected_key, [0, 150], [self._near_font_size, self._base_font_size])
-          key_alpha = np.interp(distance_from_selected_key, [0, 100], [1.0, 0.35])
-          key.set_alpha(key_alpha)
-          key.set_font_size(font_size)
-
-        key.set_position(key_x, key_y)
+# Define keyboard layouts as a dictionary for easier access
+KEYBOARD_LAYOUTS = {
+  "lowercase": [
+    ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+    ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+    [SHIFT_INACTIVE_KEY, "z", "x", "c", "v", "b", "n", "m", BACKSPACE_KEY],
+    [NUMERIC_KEY, "/", "-", SPACE_KEY, ".", ENTER_KEY],
+  ],
+  "uppercase": [
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+    [SHIFT_ACTIVE_KEY, "Z", "X", "C", "V", "B", "N", "M", BACKSPACE_KEY],
+    [NUMERIC_KEY, "/", "-", SPACE_KEY, ".", ENTER_KEY],
+  ],
+  "numbers": [
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+    ["-", "/", ":", ";", "(", ")", "$", "&", "@", "\""],
+    [SYMBOL_KEY, "_", ",", "?", "!", "`", BACKSPACE_KEY],
+    [ABC_KEY, SPACE_KEY, ".", ENTER_KEY],
+  ],
+  "specials": [
+    ["[", "]", "{", "}", "#", "%", "^", "*", "+", "="],
+    ["_", "\\", "|", "~", "<", ">", "€", "£", "¥", "•"],
+    [NUMERIC_KEY, "-", ",", "?", "!", "'", BACKSPACE_KEY],
+    [ABC_KEY, SPACE_KEY, ".", ENTER_KEY],
+  ],
+}
 
 
 class Keyboard(Widget):
-  """
-  Full Tizi keyboard using MICI keyboard graphics + layout, but scaled correctly
-  for the 2160×1080 Huawei C3X screen.
-  """
-
-  def __init__(self, max_text_size: int = 255, min_text_size: int = 0,
-               password_mode: bool = False, show_password_toggle: bool = False):
+  def __init__(self, max_text_size: int = 255, min_text_size: int = 0, password_mode: bool = False, show_password_toggle: bool = False):
     super().__init__()
+    self._layout_name: Literal["lowercase", "uppercase", "numbers", "specials"] = "lowercase"
+    self._caps_lock = False
+    self._last_shift_press_time = 0
+    self._title = Label("", 90, FontWeight.BOLD, rl.GuiTextAlignment.TEXT_ALIGN_LEFT, text_padding=20)
+    self._sub_title = Label("", 55, FontWeight.NORMAL, rl.GuiTextAlignment.TEXT_ALIGN_LEFT, text_padding=20)
 
     self._max_text_size = max_text_size
     self._min_text_size = min_text_size
+    self._input_box = InputBox(max_text_size)
     self._password_mode = password_mode
     self._show_password_toggle = show_password_toggle
+
+    # Backspace key repeat tracking
+    self._backspace_pressed: bool = False
+    self._backspace_press_time: float = 0.0
+    self._backspace_last_repeat: float = 0.0
+
     self._render_return_status = -1
+    self._cancel_button = Button(lambda: tr("Cancel"), self._cancel_button_callback)
 
-    self._title_text = ""
-    self._sub_title_text = ""
-
-    # Input box
-    self._input_box = InputBox(max_text_size)
-    self._input_box._font_size = 56  # tuned for Tizi
-
-    # Top buttons + icons
-    self._cancel_button = Button(
-      lambda: tr("Cancel"),
-      self._cancel_button_callback,
-      button_style=ButtonStyle.NORMAL,
-      border_radius=54,
-      text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER,
-    )
-    self._done_button = Button(
-      lambda: tr("Done"),
-      self._done_button_callback,
-      button_style=ButtonStyle.PRIMARY,
-      border_radius=54,
-      text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_CENTER,
-    )
-
-    # Eye toggle
     self._eye_button = Button("", self._eye_button_callback, button_style=ButtonStyle.TRANSPARENT)
+
     self._eye_open_texture = gui_app.texture("icons/eye_open.png", 81, 54)
     self._eye_closed_texture = gui_app.texture("icons/eye_closed.png", 81, 54)
+    self._key_icons = {
+      BACKSPACE_KEY: gui_app.texture("icons/backspace.png", 80, 80),
+      SHIFT_INACTIVE_KEY: gui_app.texture("icons/shift.png", 80, 80),
+      SHIFT_ACTIVE_KEY: gui_app.texture("icons/shift-fill.png", 80, 80),
+      CAPS_LOCK_KEY: gui_app.texture("icons/capslock-fill.png", 80, 80),
+      ENTER_KEY: gui_app.texture("icons/arrow-right.png", 80, 80),
+    }
 
-    # Backspace
-    self._backspace_button = Button("", self._backspace_button_callback,
-                                    icon=gui_app.texture("icons/backspace.png", 80, 80),
-                                    button_style=ButtonStyle.TRANSPARENT)
+    self._all_keys = {}
+    for l in KEYBOARD_LAYOUTS:
+      for _, keys in enumerate(KEYBOARD_LAYOUTS[l]):
+        for _, key in enumerate(keys):
+          if key in self._key_icons:
+            texture = self._key_icons[key]
+            self._all_keys[key] = Button("", partial(self._key_callback, key), icon=texture,
+                                         button_style=ButtonStyle.PRIMARY if key == ENTER_KEY else ButtonStyle.KEYBOARD, multi_touch=True)
+          else:
+            self._all_keys[key] = Button(key, partial(self._key_callback, key), button_style=ButtonStyle.KEYBOARD, font_size=85, multi_touch=True)
+    self._all_keys[CAPS_LOCK_KEY] = Button("", partial(self._key_callback, CAPS_LOCK_KEY), icon=self._key_icons[CAPS_LOCK_KEY],
+                                           button_style=ButtonStyle.KEYBOARD, multi_touch=True)
 
-    self._backspace_is_down = False
-    self._backspace_down_time = 0.0
-    self._backspace_last_repeat = 0.0
-    self._anim = LinearAnimation(ANIMATION_DURATION, initial_progress=0.0)
-    self._anim.start('in')
-    self._dismissing = False
-    self._pending_return_status: int | None = None
-
-    # ========== MICI Keyboard (Tuned) ==========
-    self._mici_keyboard = ScaledMiciKeyboard(
-      key_font_size=KEY_FONT_SIZE,
-      row_spacing=ROW_SPACING,
-      key_spacing=KEY_SPACING,
-    )
-
-    # override pill background EXACTLY
-    try:
-      self._mici_keyboard._txt_bg = gui_app.texture(
-        "icons/keyboard_background.png",
-      )
-    except Exception as e:
-      print("Pill BG override failed:", e)
-
-    # override MICI internal layout values
-    self._mici_keyboard._pill_w = PILL_W
-    self._mici_keyboard._pill_h = PILL_H
-
-
-
-  # ===== API =====
   def set_text(self, text: str):
-    if len(text) > self._max_text_size:
-      text = text[:self._max_text_size]
-    self._mici_keyboard.set_text(text)
     self._input_box.text = text
 
   @property
   def text(self):
-    return self._mici_keyboard.text()
+    return self._input_box.text
 
   def clear(self):
-    self._mici_keyboard.set_text("")
+    self._layout_name = "lowercase"
+    self._caps_lock = False
     self._input_box.clear()
-    self._backspace_is_down = False
+    self._backspace_pressed = False
 
   def set_title(self, title: str, sub_title: str = ""):
-    self._title_text = title
-    self._sub_title_text = sub_title
+    self._title.set_text(title)
+    self._sub_title.set_text(sub_title)
 
-  def reset(self, min_text_size=None):
-    if min_text_size is not None:
-      self._min_text_size = min_text_size
-    self._render_return_status = -1
-    self._backspace_is_down = False
-    self.clear()
-    self._anim.start('in')
-    self._dismissing = False
-    self._pending_return_status = None
-
-
-  # ===== Button Callbacks =====
   def _eye_button_callback(self):
     self._password_mode = not self._password_mode
 
   def _cancel_button_callback(self):
     self.clear()
-    self._start_dismiss(0)
+    self._render_return_status = 0
 
-  def _done_button_callback(self):
-    if len(self.text) >= self._min_text_size:
-      self._start_dismiss(1)
+  def _key_callback(self, k):
+    if k == ENTER_KEY:
+      self._render_return_status = 1
+    else:
+      self.handle_key_press(k)
 
-  def _backspace_button_callback(self):
-    self._mici_keyboard.backspace()
-    self._input_box.text = self._mici_keyboard.text()
-    self._backspace_is_down = True
-    self._backspace_down_time = time.monotonic()
-    self._backspace_last_repeat = self._backspace_down_time
-
-  def _start_dismiss(self, status: int):
-    if self._pending_return_status == status and self._dismissing:
-      return
-    self._pending_return_status = status
-    self._dismissing = True
-    self._anim.start('out')
-
-
-
-  # ===== Render =====
   def _render(self, rect: rl.Rectangle):
-    self._update_animation()
-    if self._render_return_status != -1:
-      return self._render_return_status
+    rect = rl.Rectangle(rect.x + CONTENT_MARGIN, rect.y + CONTENT_MARGIN, rect.width - 2 * CONTENT_MARGIN, rect.height - 2 * CONTENT_MARGIN)
+    self._title.render(rl.Rectangle(rect.x, rect.y, rect.width, 95))
+    self._sub_title.render(rl.Rectangle(rect.x, rect.y + 95, rect.width, 60))
+    self._cancel_button.render(rl.Rectangle(rect.x + rect.width - 386, rect.y, 386, 125))
 
-    # outer margin
-    rect = rl.Rectangle(
-      rect.x + CONTENT_MARGIN,
-      rect.y + CONTENT_MARGIN,
-      rect.width - 2 * CONTENT_MARGIN,
-      rect.height - 2 * CONTENT_MARGIN,
-    )
+    # Draw input box and password toggle
+    input_margin = 25
+    input_box_rect = rl.Rectangle(rect.x + input_margin, rect.y + 160, rect.width - input_margin, 100)
+    self._render_input_area(input_box_rect)
 
-    eased = ease_out_cubic(self._anim.progress)
-    slide_offset = (1.0 - eased) * ANIMATION_OFFSET
-    rect = rl.Rectangle(rect.x, rect.y + slide_offset, rect.width, rect.height)
+    # Process backspace key repeat if it's held down
+    if not self._all_keys[BACKSPACE_KEY].is_pressed:
+      self._backspace_pressed = False
 
-    # top button row (no background container)
-    top_bar_rect = rl.Rectangle(rect.x, rect.y, rect.width, TOP_BAR_HEIGHT)
+    if self._backspace_pressed:
+      current_time = time.monotonic()
+      time_since_press = current_time - self._backspace_press_time
 
-    button_y = top_bar_rect.y + (TOP_BAR_HEIGHT - TOP_BAR_BUTTON_HEIGHT) / 2 - 6
-    cancel_rect = rl.Rectangle(top_bar_rect.x + TOP_BAR_PADDING_X - 12, button_y,
-                   TOP_BAR_BUTTON_WIDTH, TOP_BAR_BUTTON_HEIGHT)
-    done_rect = rl.Rectangle(top_bar_rect.x + top_bar_rect.width - TOP_BAR_PADDING_X - TOP_BAR_BUTTON_WIDTH + 12,
-                 button_y, TOP_BAR_BUTTON_WIDTH, TOP_BAR_BUTTON_HEIGHT)
+      # After initial delay, start repeating with shorter intervals
+      if time_since_press > DELETE_REPEAT_DELAY:
+        time_since_last_repeat = current_time - self._backspace_last_repeat
+        if time_since_last_repeat > DELETE_REPEAT_INTERVAL:
+          self._input_box.delete_char_before_cursor()
+          self._backspace_last_repeat = current_time
 
-    self._cancel_button.set_enabled(not self._dismissing)
-    self._cancel_button.render(cancel_rect)
-    self._done_button.set_enabled((not self._dismissing) and len(self.text) >= self._min_text_size)
-    self._done_button.render(done_rect)
+    layout = KEYBOARD_LAYOUTS[self._layout_name]
 
-    # input
-    input_rect = rl.Rectangle(
-      rect.x + 25,
-      top_bar_rect.y + TOP_BAR_HEIGHT + TOP_BAR_SPACING - 8,
-      rect.width - 50,
-      105,
-    )
-    self._render_input_area(input_rect, eased)
+    h_space, v_space = 15, 15
+    row_y_start = rect.y + 300  # Starting Y position for the first row
+    key_height = (rect.height - 300 - 3 * v_space) / 4
+    key_max_width = (rect.width - (len(layout[2]) - 1) * h_space) / len(layout[2])
 
-    self._update_backspace_repeat()
+    # Iterate over the rows of keys in the current layout
+    for row, keys in enumerate(layout):
+      key_width = min((rect.width - (180 if row == 1 else 0) - h_space * (len(keys) - 1)) / len(keys), key_max_width)
+      start_x = rect.x + (90 if row == 1 else 0)
 
-    # keyboard
-    # ====== KEYBOARD RENDER (with Tizi scaling) ======
+      for i, key in enumerate(keys):
+        if i > 0:
+          start_x += h_space
 
-    kb_height = self._mici_keyboard.get_keyboard_height()
+        new_width = (key_width * 3 + h_space * 2) if key == SPACE_KEY else (key_width * 2 + h_space if key == ENTER_KEY else key_width)
+        key_rect = rl.Rectangle(start_x, row_y_start + row * (key_height + v_space), new_width, key_height)
+        start_x += new_width
 
-    # unscaled keyboard rectangle
-    kb_rect = rl.Rectangle(
-      rect.x,
-      rect.y + rect.height - kb_height - KEYBOARD_BOTTOM_MARGIN,
-      rect.width,
-      kb_height,
-    )
+        is_enabled = key != ENTER_KEY or len(self._input_box.text) >= self._min_text_size
 
-    # pass the real rect through so mouse hit testing matches what is drawn
-    self._mici_keyboard.set_rect(kb_rect)
-    self._mici_keyboard.render(kb_rect)
+        if key == BACKSPACE_KEY and self._all_keys[BACKSPACE_KEY].is_pressed and not self._backspace_pressed:
+          self._backspace_pressed = True
+          self._backspace_press_time = time.monotonic()
+          self._backspace_last_repeat = time.monotonic()
 
-    # sync text
-    new_text = self._mici_keyboard.text()
-    if len(new_text) > self._max_text_size:
-      new_text = new_text[:self._max_text_size]
-      self._mici_keyboard.set_text(new_text)
-
-    self._input_box.text = new_text
+        if key in self._key_icons:
+          if key == SHIFT_ACTIVE_KEY and self._caps_lock:
+            key = CAPS_LOCK_KEY
+          self._all_keys[key].set_enabled(is_enabled)
+          self._all_keys[key].render(key_rect)
+        else:
+          self._all_keys[key].set_enabled(is_enabled)
+          self._all_keys[key].render(key_rect)
 
     return self._render_return_status
 
-
-
-  # ===== Input Field =====
-  def _render_input_area(self, input_rect: rl.Rectangle, eased: float):
-    extra_w = 110
+  def _render_input_area(self, input_rect: rl.Rectangle):
     if self._show_password_toggle:
-      extra_w += 100
+      self._input_box.set_password_mode(self._password_mode)
+      self._input_box.render(rl.Rectangle(input_rect.x, input_rect.y, input_rect.width - 100, input_rect.height))
 
-    box_rect = rl.Rectangle(
-      input_rect.x,
-      input_rect.y,
-      input_rect.width - extra_w,
-      input_rect.height,
-    )
+      # render eye icon
+      eye_texture = self._eye_closed_texture if self._password_mode else self._eye_open_texture
 
-    self._input_box.set_password_mode(self._password_mode and self._show_password_toggle)
-    self._input_box.render(box_rect)
-
-    right_x = box_rect.x + box_rect.width
-
-    # password toggle
-    if self._show_password_toggle:
-      eye_rect = rl.Rectangle(right_x, input_rect.y, 100, input_rect.height)
+      eye_rect = rl.Rectangle(input_rect.x + input_rect.width - 90, input_rect.y, 80, input_rect.height)
       self._eye_button.render(eye_rect)
-      tex = self._eye_closed_texture if self._password_mode else self._eye_open_texture
-      rl.draw_texture_v(
-        tex,
-        rl.Vector2(eye_rect.x + (eye_rect.width - tex.width) / 2,
-                   eye_rect.y + (eye_rect.height - tex.height) / 2),
-        rl.WHITE,
-      )
-      right_x += 100
 
-    # backspace
-    backspace_rect = rl.Rectangle(right_x, input_rect.y, 110, input_rect.height)
+      eye_x = eye_rect.x + (eye_rect.width - eye_texture.width) / 2
+      eye_y = eye_rect.y + (eye_rect.height - eye_texture.height) / 2
 
-    if not self._backspace_button.is_pressed:
-      self._backspace_is_down = False
+      rl.draw_texture_v(eye_texture, rl.Vector2(eye_x, eye_y), rl.WHITE)
+    else:
+      self._input_box.render(input_rect)
 
-    self._backspace_button.render(backspace_rect)
-
-    # underline
-    underline_y = input_rect.y + input_rect.height - 2
     rl.draw_line_ex(
-      rl.Vector2(input_rect.x, underline_y),
-      rl.Vector2(input_rect.x + input_rect.width, underline_y),
-      3.0,
-      _color_with_alpha(rl.Color(189, 189, 189, 255), eased),
+      rl.Vector2(input_rect.x, input_rect.y + input_rect.height - 2),
+      rl.Vector2(input_rect.x + input_rect.width, input_rect.y + input_rect.height - 2),
+      3.0,  # 3 pixel thickness
+      rl.Color(189, 189, 189, 255),
     )
 
+  def handle_key_press(self, key):
+    if key in (CAPS_LOCK_KEY, ABC_KEY):
+      self._caps_lock = False
+      self._layout_name = "lowercase"
+    elif key == SHIFT_INACTIVE_KEY:
+      self._last_shift_press_time = time.monotonic()
+      self._layout_name = "uppercase"
+    elif key == SHIFT_ACTIVE_KEY:
+      if time.monotonic() - self._last_shift_press_time < DOUBLE_CLICK_THRESHOLD:
+        self._caps_lock = True
+      else:
+        self._layout_name = "lowercase"
+    elif key == NUMERIC_KEY:
+      self._layout_name = "numbers"
+    elif key == SYMBOL_KEY:
+      self._layout_name = "specials"
+    elif key == BACKSPACE_KEY:
+      self._input_box.delete_char_before_cursor()
+    else:
+      self._input_box.add_char_at_cursor(key)
+      if not self._caps_lock and self._layout_name == "uppercase":
+        self._layout_name = "lowercase"
+
+  def reset(self, min_text_size: int | None = None):
+    if min_text_size is not None:
+      self._min_text_size = min_text_size
+    self._render_return_status = -1
+    self._last_shift_press_time = 0
+    self._backspace_pressed = False
+    self._backspace_press_time = 0.0
+    self._backspace_last_repeat = 0.0
+    self.clear()
 
 
-  # ===== Backspace hold behavior =====
-  def _update_backspace_repeat(self):
-    if not self._backspace_is_down:
-      return
-
-    now = time.monotonic()
-    if now - self._backspace_down_time < BACKSPACE_HOLD_DELAY:
-      return
-
-    if now - self._backspace_last_repeat >= BACKSPACE_HOLD_INTERVAL:
-      self._mici_keyboard.backspace()
-      self._input_box.text = self._mici_keyboard.text()
-      self._backspace_last_repeat = now
-
-  def _update_animation(self):
-    self._anim.step()
-
-    if self._dismissing and not self._anim.active and self._pending_return_status is not None:
-      self._render_return_status = self._pending_return_status
-
+if __name__ == "__main__":
+  gui_app.init_window("Keyboard")
+  keyboard = Keyboard(min_text_size=8, show_password_toggle=True)
+  for _ in gui_app.render():
+    keyboard.set_title("Keyboard Input", "Type your text below")
+    result = keyboard.render(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
+    if result == 1:
+      print(f"You typed: {keyboard.text}")
+      gui_app.request_close()
+    elif result == 0:
+      print("Canceled")
+      gui_app.request_close()
+  gui_app.close()

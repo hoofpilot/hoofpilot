@@ -12,7 +12,6 @@ from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.selfdrive.ui.widgets.pairing_dialog import PairingDialog
 from openpilot.sunnypilot.sunnylink.api import SunnylinkApi, UNREGISTERED_SUNNYLINK_DONGLE_ID, API_HOST
 from openpilot.system.ui.lib.application import FontWeight, gui_app
-from openpilot.system.ui.lib.animation import ease_out_cubic, LinearAnimation, scale_from_center
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.lib.wrap_text import wrap_text
 from openpilot.system.ui.lib.text_measure import measure_text_cached
@@ -27,8 +26,6 @@ class SunnylinkPairingDialog(PairingDialog):
     PairingDialog.__init__(self)
     self._sponsor_pairing = sponsor_pairing
     self._is_paired_prev = ui_state.sunnylink_state.is_paired()
-    self._anim = LinearAnimation(0.24)
-    self._anim.start('in')
 
   def _get_pairing_url(self) -> str:
     qr_string = "https://github.com/sponsors/sunnyhaibin"

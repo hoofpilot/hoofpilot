@@ -8,8 +8,7 @@ from collections.abc import Callable
 
 import pyray as rl
 from openpilot.common.params import Params
-from openpilot.system.ui.lib.application import MousePos, gui_app
-from openpilot.system.ui.lib.animation import ease_out_back, LinearAnimation
+from openpilot.system.ui.lib.application import MousePos
 from openpilot.system.ui.widgets.toggle import Toggle
 from openpilot.system.ui.sunnypilot.lib.styles import style
 
@@ -24,10 +23,6 @@ class ToggleSP(Toggle):
     if self.param_key:
       initial_state = self.params.get_bool(self.param_key)
     Toggle.__init__(self, initial_state, callback)
-    self._pulse_anim = LinearAnimation(0.16)
-
-  def set_rect(self, rect: rl.Rectangle):
-    self._rect = rl.Rectangle(rect.x, rect.y, style.TOGGLE_WIDTH, style.TOGGLE_HEIGHT)
 
   def set_rect(self, rect: rl.Rectangle):
     self._rect = rl.Rectangle(rect.x, rect.y, style.TOGGLE_WIDTH, style.TOGGLE_HEIGHT)
@@ -36,8 +31,6 @@ class ToggleSP(Toggle):
     super()._handle_mouse_release(mouse_pos)
     if self._enabled and self.param_key:
       self.params.put_bool(self.param_key, self._state)
-    if self._enabled:
-      self._pulse_anim.start('in')
 
   def _render(self, rect: rl.Rectangle):
     self.update()
@@ -63,9 +56,4 @@ class ToggleSP(Toggle):
     knob_x = min_knob_x + knob_travel_distance * self._progress
     knob_y = self._rect.y + style.TOGGLE_BG_HEIGHT / 2
 
-    if gui_app.disable_animations:
-      knob_scale = 1.0
-    else:
-      pulse = ease_out_back(self._pulse_anim.step())
-      knob_scale = 0.96 + 0.06 * pulse
-    rl.draw_circle(int(knob_x), int(knob_y), KNOB_RADIUS * knob_scale, knob_color)
+    rl.draw_circle(int(knob_x), int(knob_y), KNOB_RADIUS, knob_color)
