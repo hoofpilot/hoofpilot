@@ -1,4 +1,5 @@
 import pyray as rl
+import math
 from importlib.resources import as_file, files
 from openpilot.common.params import Params
 from openpilot.system.ui.lib.application import gui_app, FontWeight
@@ -20,7 +21,8 @@ class ExperimentalModeButton(Widget):
     self._card_radius = 0.25
     self._ring_radius = 22
     self._ring_thickness = 6
-    self._text_size = 52
+    self._text_size = 62
+    self._font_load_size = 150
     self._text_margin_x = 28
     self._text_margin_y = 18
     self._mono_font = None
@@ -30,7 +32,8 @@ class ExperimentalModeButton(Widget):
       return
     try:
       with as_file(MONO_FONT) as mono_path:
-        self._mono_font = rl.load_font_ex(mono_path.as_posix(), self._text_size, None, 0)
+        self._mono_font = rl.load_font_ex(mono_path.as_posix(), self._font_load_size, None, 0)
+        rl.set_texture_filter(self._mono_font.texture, rl.TextureFilter.TEXTURE_FILTER_BILINEAR)
     except Exception:
       self._mono_font = gui_app.font(FontWeight.BOLD)
 
@@ -70,11 +73,37 @@ class ExperimentalModeButton(Widget):
       rl.Rectangle(rect.x, rect.y + 2 * (card_h + self._card_gap), rect.width, card_h),
     ]
 
+  def _draw_rounded_gradient(self, rect: rl.Rectangle, roundness: float, left_color: rl.Color, right_color: rl.Color):
+    w = max(1, int(rect.width))
+    h = max(1, int(rect.height))
+    r = int(max(1.0, roundness * min(w, h) * 0.5))
+    x0 = int(rect.x)
+    y0 = int(rect.y)
+
+    for i in range(w):
+      t = i / max(1, w - 1)
+      color = rl.Color(
+        int(left_color.r + (right_color.r - left_color.r) * t),
+        int(left_color.g + (right_color.g - left_color.g) * t),
+        int(left_color.b + (right_color.b - left_color.b) * t),
+        int(left_color.a + (right_color.a - left_color.a) * t),
+      )
+
+      cut = 0
+      if i < r:
+        dx = r - i
+        cut = int(r - math.sqrt(max(0, r * r - dx * dx)))
+      elif i >= w - r:
+        dx = i - (w - r - 1)
+        cut = int(r - math.sqrt(max(0, r * r - dx * dx)))
+
+      y_start = y0 + cut
+      y_end = y0 + h - cut
+      if y_end > y_start:
+        rl.draw_line(x0 + i, y_start, x0 + i, y_end, color)
+
   def _draw_card(self, rect: rl.Rectangle, label: str, selected: bool, left_color: rl.Color, right_color: rl.Color):
-    # Fill with horizontal gradient by clipping rounded shape.
-    rl.begin_scissor_mode(int(rect.x), int(rect.y), int(rect.width), int(rect.height))
-    rl.draw_rectangle_gradient_h(int(rect.x), int(rect.y), int(rect.width), int(rect.height), left_color, right_color)
-    rl.end_scissor_mode()
+    self._draw_rounded_gradient(rect, self._card_radius, left_color, right_color)
 
     border_col = rl.Color(255, 255, 255, 45)
     rl.draw_rectangle_rounded_lines_ex(rect, self._card_radius, 20, 3, border_col)
@@ -82,7 +111,11 @@ class ExperimentalModeButton(Widget):
     self._ensure_mono_font()
     text_x = rect.x + self._text_margin_x
     text_y = rect.y + self._text_margin_y
-    rl.draw_text_ex(self._mono_font, tr(label), rl.Vector2(int(text_x), int(text_y)), self._text_size, 0, rl.Color(230, 236, 240, 255))
+    text = tr(label)
+    color = rl.Color(230, 236, 240, 255)
+    # Faux-bold pass for JetBrains Mono Medium
+    rl.draw_text_ex(self._mono_font, text, rl.Vector2(int(text_x), int(text_y)), self._text_size, 0, color)
+    rl.draw_text_ex(self._mono_font, text, rl.Vector2(int(text_x + 1), int(text_y)), self._text_size, 0, color)
 
     cx = int(rect.x + rect.width - 44)
     cy = int(rect.y + rect.height / 2)
