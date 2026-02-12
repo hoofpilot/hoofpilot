@@ -373,7 +373,9 @@ class Updater:
     run(["git", "config", "--replace-all", "remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*"], OVERLAY_MERGED)
 
     branch = self.target_branch
-    git_fetch_output = run(["git", "fetch", "origin", branch], OVERLAY_MERGED)
+    # Avoid recursive submodule fetches here; submodules are updated explicitly below.
+    # This prevents fetch failures when a remote submodule no longer serves old refs.
+    git_fetch_output = run(["git", "-c", "fetch.recurseSubmodules=false", "fetch", "origin", branch], OVERLAY_MERGED)
     cloudlog.info("git fetch success: %s", git_fetch_output)
 
     cloudlog.info("git reset in progress")
