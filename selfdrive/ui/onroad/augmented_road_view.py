@@ -59,6 +59,7 @@ class AugmentedRoadView(CameraView, AugmentedRoadViewSP):
 
     # debug
     self._pm = messaging.PubMaster(['uiDebug'])
+    self._ui_debug_publish_enabled = True
 
   def _render(self, rect):
     # Only render when system is started to avoid invalid data access
@@ -107,10 +108,15 @@ class AugmentedRoadView(CameraView, AugmentedRoadViewSP):
     # Draw colored border based on driving state
     self._draw_border(rect)
 
-    # publish uiDebug
-    msg = messaging.new_message('uiDebug')
-    msg.uiDebug.drawTimeMillis = (time.monotonic() - start_draw) * 1000
-    self._pm.send('uiDebug', msg)
+    # publish uiDebug (best effort; never crash rendering)
+    if self._ui_debug_publish_enabled:
+      try:
+        msg = messaging.new_message('uiDebug')
+        msg.uiDebug.drawTimeMillis = (time.monotonic() - start_draw) * 1000
+        self._pm.send('uiDebug', msg)
+      except Exception:
+        # Another publisher may already own uiDebug. Disable future sends and keep UI alive.
+        self._ui_debug_publish_enabled = False
 
   def _handle_mouse_press(self, _):
     if not self._hud_renderer.user_interacting() and self._click_callback is not None:
