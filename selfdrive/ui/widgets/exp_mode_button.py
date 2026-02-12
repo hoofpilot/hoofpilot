@@ -1,6 +1,6 @@
 import pyray as rl
 from openpilot.common.params import Params
-from openpilot.system.ui.lib.application import gui_app, FontWeight, FONT_SCALE
+from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets import Widget
 
@@ -9,56 +9,77 @@ class ExperimentalModeButton(Widget):
   def __init__(self):
     super().__init__()
 
-    self.img_width = 80
-    self.horizontal_padding = 25
-    self.button_height = 125
-
     self.params = Params()
     self.experimental_mode = self.params.get_bool("ExperimentalMode")
-
-    self.chill_pixmap = gui_app.texture("icons/couch.png", self.img_width, self.img_width)
-    self.experimental_pixmap = gui_app.texture("icons/experimental_grey.png", self.img_width, self.img_width)
+    self._card_gap = 18
+    self._card_radius = 0.06
+    self._ring_radius = 22
+    self._ring_thickness = 5
 
   def show_event(self):
     self.experimental_mode = self.params.get_bool("ExperimentalMode")
 
-  def _get_gradient_colors(self):
-    alpha = 0xCC if self.is_pressed else 0xFF
+  def _handle_mouse_release(self, mouse_pos):
+    for i, mode_rect in enumerate(self._mode_rects(self._rect)):
+      if not rl.check_collision_point_rec(mouse_pos, mode_rect):
+        continue
+      if i == 0:
+        self.experimental_mode = False
+        self.params.put_bool("ExperimentalMode", False)
+      elif i == 1:
+        self.experimental_mode = True
+        self.params.put_bool("ExperimentalMode", True)
+      break
 
-    if self.experimental_mode:
-      return rl.Color(255, 155, 63, alpha), rl.Color(219, 56, 34, alpha)
-    else:
-      return rl.Color(20, 255, 171, alpha), rl.Color(35, 149, 255, alpha)
+  def _mode_rects(self, rect: rl.Rectangle) -> list[rl.Rectangle]:
+    card_h = (rect.height - 2 * self._card_gap) / 3
+    return [
+      rl.Rectangle(rect.x, rect.y, rect.width, card_h),
+      rl.Rectangle(rect.x, rect.y + card_h + self._card_gap, rect.width, card_h),
+      rl.Rectangle(rect.x, rect.y + 2 * (card_h + self._card_gap), rect.width, card_h),
+    ]
 
-  def _draw_gradient_background(self, rect):
-    start_color, end_color = self._get_gradient_colors()
-    rl.draw_rectangle_gradient_h(int(rect.x), int(rect.y), int(rect.width), int(rect.height),
-                                 start_color, end_color)
-
-  def _render(self, rect):
+  def _draw_card(self, rect: rl.Rectangle, label: str, selected: bool, left_color: rl.Color, right_color: rl.Color):
+    # Fill with horizontal gradient by clipping rounded shape.
     rl.begin_scissor_mode(int(rect.x), int(rect.y), int(rect.width), int(rect.height))
-    self._draw_gradient_background(rect)
-    rl.draw_rectangle_rounded_lines_ex(self._rect, 0.19, 10, 5, rl.BLACK)
+    rl.draw_rectangle_gradient_h(int(rect.x), int(rect.y), int(rect.width), int(rect.height), left_color, right_color)
     rl.end_scissor_mode()
 
-    # Draw vertical separator line
-    line_x = rect.x + rect.width - self.img_width - (2 * self.horizontal_padding)
-    separator_color = rl.Color(0, 0, 0, 77)  # 0x4d = 77
-    rl.draw_line_ex(rl.Vector2(line_x, rect.y), rl.Vector2(line_x, rect.y + rect.height), 3, separator_color)
+    border_col = rl.Color(255, 255, 255, 45)
+    rl.draw_rectangle_rounded_lines_ex(rect, self._card_radius, 20, 3, border_col)
 
-    # Draw text label (left aligned)
-    text = tr("EXPERIMENTAL MODE ON") if self.experimental_mode else tr("CHILL MODE ON")
-    text_x = rect.x + self.horizontal_padding
-    text_y = rect.y + rect.height / 2 - 45 * FONT_SCALE // 2  # Center vertically
+    text_x = rect.x + 28
+    text_y = rect.y + (rect.height - 54) / 2
+    rl.draw_text_ex(gui_app.font(FontWeight.BOLD), tr(label), rl.Vector2(int(text_x), int(text_y)), 54, 0, rl.Color(230, 236, 240, 255))
 
-    rl.draw_text_ex(gui_app.font(FontWeight.NORMAL), text, rl.Vector2(int(text_x), int(text_y)), 45, 0, rl.BLACK)
+    cx = int(rect.x + rect.width - 44)
+    cy = int(rect.y + rect.height / 2)
+    ring_col = rl.Color(20, 20, 20, 255)
+    rl.draw_circle_lines(cx, cy, self._ring_radius, ring_col)
+    rl.draw_circle_lines(cx, cy, self._ring_radius - 1, ring_col)
+    if selected:
+      rl.draw_circle(cx, cy, self._ring_radius - self._ring_thickness, rl.Color(90, 255, 40, 255))
 
-    # Draw icon (right aligned)
-    icon_x = rect.x + rect.width - self.horizontal_padding - self.img_width
-    icon_y = rect.y + (rect.height - self.img_width) / 2
-    icon_rect = rl.Rectangle(icon_x, icon_y, self.img_width, self.img_width)
-
-    # Draw current mode icon
-    current_icon = self.experimental_pixmap if self.experimental_mode else self.chill_pixmap
-    source_rect = rl.Rectangle(0, 0, current_icon.width, current_icon.height)
-    rl.draw_texture_pro(current_icon, source_rect, icon_rect, rl.Vector2(0, 0), 0, rl.WHITE)
+  def _render(self, rect):
+    mode_rects = self._mode_rects(rect)
+    self._draw_card(
+      mode_rects[0],
+      "chill mode",
+      selected=not self.experimental_mode,
+      left_color=rl.Color(45, 222, 210, 255),
+      right_color=rl.Color(6, 176, 225, 255),
+    )
+    self._draw_card(
+      mode_rects[1],
+      "Experimental Mode",
+      selected=self.experimental_mode,
+      left_color=rl.Color(201, 92, 22, 255),
+      right_color=rl.Color(183, 44, 27, 255),
+    )
+    self._draw_card(
+      mode_rects[2],
+      "Stock ADAS Mode",
+      selected=False,
+      left_color=rl.Color(44, 52, 62, 255),
+      right_color=rl.Color(70, 82, 92, 255),
+    )
