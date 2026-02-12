@@ -24,7 +24,6 @@ class OnboardingState(IntEnum):
   TERMS = 0
   ONBOARDING = 1
   DECLINE = 2
-  SUNNYLINK_CONSENT = 3
 
 
 class DriverCameraSetupDialog(DriverCameraDialog):
@@ -470,7 +469,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._sunnylink.completed and self._training_done
+    return self._accepted_terms and self._training_done
 
   def _on_terms_declined(self):
     self._state = OnboardingState.DECLINE
@@ -497,13 +496,6 @@ class OnboardingWindow(Widget):
   def _render(self, _):
     if self._state == OnboardingState.TERMS:
       self._terms.render(self._rect)
-    elif self._state == OnboardingState.SUNNYLINK_CONSENT:
-      self._sunnylink.render(self._rect)
-      if self._sunnylink.completed:
-        if not self._training_done:
-          self._state = OnboardingState.ONBOARDING
-        else:
-          self.close()
     elif self._state == OnboardingState.ONBOARDING:
       if not self._training_done:
         self._training_guide.render(self._rect)
