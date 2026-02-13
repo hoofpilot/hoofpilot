@@ -5,18 +5,14 @@ from openpilot.selfdrive.ui.mici.widgets.button import BigButton
 from openpilot.selfdrive.ui.sunnypilot.mici.layouts.models import ModelsLayoutMici
 from openpilot.selfdrive.ui.sunnypilot.mici.layouts.stable import StableLayoutMici
 from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.system.hardware import PC
 
 ICON_SIZE = 70
 
-OP.PanelType = IntEnum(
-  "PanelType",
-  [es.name for es in OP.PanelType] + [
-    "SUNNYLINK",
-    "STABLE",
-    "MODELS",
-  ],
-  start=0,
-)
+# Extend base PanelType while avoiding duplicate names (base may already include some panels).
+_base_panel_names = [es.name for es in OP.PanelType]
+_extra_panel_names = [name for name in ("SUNNYLINK", "STABLE", "MODELS") if name not in _base_panel_names]
+OP.PanelType = IntEnum("PanelType", _base_panel_names + _extra_panel_names, start=0)
 
 
 class SettingsLayoutSP(OP.SettingsLayout):
@@ -25,7 +21,8 @@ class SettingsLayoutSP(OP.SettingsLayout):
 
     self._stable_btn = BigButton("stable", "", "../../sunnypilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
     self._stable_btn.set_click_callback(lambda: self._set_current_panel(OP.PanelType.STABLE))
-    self._stable_btn.set_visible(ui_state.prime_state.is_paired())
+    # Allow testing on PC without pairing.
+    self._stable_btn.set_visible(PC or ui_state.prime_state.is_paired())
 
     models_btn = BigButton("models", "", "../../sunnypilot/selfdrive/assets/offroad/icon_models.png")
     models_btn.set_click_callback(lambda: self._set_current_panel(OP.PanelType.MODELS))
@@ -46,7 +43,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
   def _update_state(self):
     super()._update_state()
     paired = ui_state.prime_state.is_paired()
-    self._stable_btn.set_visible(paired)
-    if not paired and self._current_panel == OP.PanelType.STABLE:
+    show_stable = PC or paired
+    self._stable_btn.set_visible(show_stable)
+    if not show_stable and self._current_panel == OP.PanelType.STABLE:
       self._set_current_panel(None)
-
