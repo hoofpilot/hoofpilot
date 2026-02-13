@@ -1,1 +1,1 @@
-#define SUNNYPILOT_VERSION "02/2026"
+#define SUNNYPILOT_VERSION "Appaloosa"
