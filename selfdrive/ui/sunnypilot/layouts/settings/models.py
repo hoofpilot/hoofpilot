@@ -1,9 +1,15 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
+﻿import os
+import re
+import time
+import pyray as rl
 
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
+from cereal import custom
+from openpilot.common.constants import CV
+from openpilot.selfdrive.ui.ui_state import device, ui_state
+from openpilot.system.ui.lib.multilang import tr
+from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.widgets import DialogResult, Widget
+from openpilot.system.ui.widgets.confirm_dialog import alert_dialog, ConfirmDialog
 import os
 import re
 import time
@@ -28,11 +34,35 @@ from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeOptionDialog,
 
 if gui_app.sunnypilot_ui():
   from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp as button_item
+from openpilot.system.ui.widgets.toggle import ON_COLOR
+
+from openpilot.sunnypilot.models.runners.constants import CUSTOM_MODEL_PATH
+from openpilot.system.ui.sunnypilot.lib.styles import style
+from openpilot.system.ui.sunnypilot.lib.utils import NoElideButtonAction
+from openpilot.system.ui.sunnypilot.widgets.list_view import ListItemSP, toggle_item_sp, option_item_sp
+from openpilot.system.ui.sunnypilot.widgets.progress_bar import progress_item
+from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
+
+if gui_app.sunnypilot_ui():
+  from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp as button_item
 
 
 class ModelsLayout(Widget):
   def __init__(self):
     super().__init__()
+    self.model_manager = None
+    self.download_status = None
+    self.prev_download_status = None
+    self.model_dialog = None
+    self.last_cache_calc_time = 0
+
+    self._initialize_items()
+
+    self.clear_cache_item.action_item.set_value(f"{self._calculate_cache_size():.2f} MB")
+    for ctrl, key in [(self.lane_turn_value_control, "LaneTurnValue"), (self.delay_control, "LagdToggleDelay")]:
+      ctrl.action_item.set_value(int(float(ui_state.params.get(key, return_default=True)) * 100))
+
+    self._scroller = Scroller(self.items, line_separator=True, spacing=0)
     self.model_manager = None
     self.download_status = None
     self.prev_download_status = None
@@ -252,3 +282,4 @@ class ModelsLayout(Widget):
 
   def show_event(self):
     self._scroller.show_event()
+

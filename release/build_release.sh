@@ -25,7 +25,7 @@ rm -rf $BUILD_DIR
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 git init
-git remote add origin git@github.com:commaai/openpilot.git
+git remote add origin git@github.com:hoofpilot/openpilot.git
 git checkout --orphan $RELEASE_BRANCH
 
 # do the files copy
@@ -42,7 +42,7 @@ rm -f panda/board/obj/panda_h7.bin.signed
 VERSION=$(cat sunnypilot/common/version.h | awk -F[\"-]  '{print $2}')
 echo "[-] committing version $VERSION T=$SECONDS"
 git add -f .
-git commit -a -m "openpilot v$VERSION release"
+git commit -a -m "hoofpilot $VERSION release"
 
 # Build
 export PYTHONPATH="$BUILD_DIR"
@@ -88,7 +88,7 @@ touch prebuilt
 
 # Add built files to git
 git add -f .
-git commit --amend -m "openpilot v$VERSION"
+git commit --amend -m "hoofpilot $VERSION"
 
 # Run tests
 cd $BUILD_DIR

@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from enum import IntEnum
+﻿from enum import IntEnum
 
 from openpilot.selfdrive.ui.mici.layouts.settings import settings as OP
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton
@@ -55,3 +49,4 @@ class SettingsLayoutSP(OP.SettingsLayout):
     self._stable_btn.set_visible(paired)
     if not paired and self._current_panel == OP.PanelType.STABLE:
       self._set_current_panel(None)
+

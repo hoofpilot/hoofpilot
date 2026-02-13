@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from collections.abc import Callable
+﻿from collections.abc import Callable
 
 import pyray as rl
 from cereal import custom
@@ -209,3 +203,4 @@ class SunnylinkPairBigButton(BigButton):
       dlg = SunnylinkPairingDialog(sponsor_pairing=False)
     if dlg:
       gui_app.set_modal_overlay(dlg)
+

@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from collections import deque
+﻿from collections import deque
 import math
 import numpy as np
 
@@ -162,3 +156,4 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
       self._pid_log.error += get_friction(friction_input, self._lateral_accel_deadzone, FRICTION_THRESHOLD, self.lac_torque.torque_params)
 
     self.update_output_torque(CS)
+

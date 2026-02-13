@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import numpy as np
+﻿import numpy as np
 
 from cereal import car, custom
 from opendbc.car import structs
@@ -136,3 +130,4 @@ class VCruiseHelperSP:
 
     self.prev_sla_state = self.sla_state
     self.prev_speed_limit_final_last_kph = self.speed_limit_final_last_kph
+

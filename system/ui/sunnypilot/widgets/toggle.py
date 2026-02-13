@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from collections.abc import Callable
+﻿from collections.abc import Callable
 
 import pyray as rl
 from openpilot.common.params import Params
@@ -57,3 +51,4 @@ class ToggleSP(Toggle):
     knob_y = self._rect.y + style.TOGGLE_BG_HEIGHT / 2
 
     rl.draw_circle(int(knob_x), int(knob_y), KNOB_RADIUS, knob_color)
+

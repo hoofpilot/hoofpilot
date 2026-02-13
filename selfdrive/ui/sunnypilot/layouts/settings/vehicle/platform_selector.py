@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import json
+﻿import json
 import os
 import pyray as rl
 from collections.abc import Callable
@@ -136,3 +130,4 @@ class PlatformSelector(Button):
       self.set_text(self._platform)
       self.color = style.GREEN
     self.set_enabled(True)
+

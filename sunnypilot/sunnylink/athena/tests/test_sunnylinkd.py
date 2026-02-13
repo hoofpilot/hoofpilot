@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from openpilot.sunnypilot.sunnylink.athena import sunnylinkd
+﻿from openpilot.sunnypilot.sunnylink.athena import sunnylinkd
 
 
 class TestSunnylinkdMethods:
@@ -57,3 +51,4 @@ class TestSunnylinkdMethods:
     assert len(self.saved_params) == 1
     assert self.saved_params[0][0] == "SpeedLimitOffset"
     assert self.saved_params[0][1] == "10"
+

@@ -64,7 +64,7 @@ class MetricData:
 
 class Sidebar(Widget):
   def __init__(self):
-    super().__init__()
+    Widget.__init__(self)
     self._net_type = NETWORK_TYPES.get(NetworkType.none)
     self._net_strength = 0
 

@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-from openpilot.common.params import Params
+﻿from openpilot.common.params import Params
 from opendbc.car import structs
 from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.sunnypilot.car.hyundai.values import HyundaiFlagsSP, HyundaiSafetyFlagsSP
@@ -71,3 +64,4 @@ def set_car_specific_params(CP: structs.CarParams, CP_SP: structs.CarParamsSP, p
   # no ACC MAIN button for these brands
   if CP.brand in MADS_NO_ACC_MAIN_BUTTON:
     params.remove("MadsMainCruiseAllowed")
+

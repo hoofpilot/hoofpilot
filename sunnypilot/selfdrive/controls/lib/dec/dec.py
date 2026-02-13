@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, rav4kumar, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-# Version = 2025-6-30
+﻿# Version = 2025-6-30
 
 from cereal import messaging
 from opendbc.car import structs
@@ -386,3 +380,4 @@ class DynamicExperimentalController:
     self._mode_manager.update()
     self._active = sm['selfdriveState'].experimentalMode and self._enabled
     self._frame += 1
+

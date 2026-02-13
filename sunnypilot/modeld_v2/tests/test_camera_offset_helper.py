@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import numpy as np
+﻿import numpy as np
 
 from openpilot.common.transformations.camera import DEVICE_CAMERAS
 from openpilot.common.transformations.model import get_warp_matrix
@@ -82,3 +76,4 @@ class TestCameraOffset:
     assert not np.array_equal(extra_out, extra_transform)
     assert main_out[0, 1] != 0.0
     assert main_out[0, 2] != 0.0
+

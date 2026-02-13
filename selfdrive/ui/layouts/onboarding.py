@@ -118,6 +118,7 @@ class TermsPage(Widget):
 
   def _render(self, _):
     welcome_x = self._rect.x + 95
+    welcome_x = self._rect.x + 95
     welcome_y = self._rect.y + 165
     welcome_rect = rl.Rectangle(welcome_x, welcome_y, self._rect.width - welcome_x, 90)
     self._title.render(welcome_rect)
@@ -179,14 +180,6 @@ class OnboardingWindow(Widget):
     self._terms = TermsPage(on_accept=self._on_terms_accepted, on_decline=self._on_terms_declined)
     self._training_guide: TrainingGuide | None = None
     self._decline_page = DeclinePage(back_callback=self._on_decline_back)
-
-    self._accepted_terms = self._accepted_terms and ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp
-    if not self._accepted_terms:
-      self._state = OnboardingState.TERMS
-    elif not self._training_done:
-      self._state = OnboardingState.ONBOARDING
-    else:
-      self._state = OnboardingState.ONBOARDING
 
   @property
   def completed(self) -> bool:

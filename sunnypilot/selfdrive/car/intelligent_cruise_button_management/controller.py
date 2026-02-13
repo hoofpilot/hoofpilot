@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from cereal import car, custom
+﻿from cereal import car, custom
 from opendbc.car import structs, apply_hysteresis
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_CTRL
@@ -125,3 +119,4 @@ class IntelligentCruiseButtonManagement:
     self.cruise_button = self.update_state_machine()
 
     self.is_ready_prev = self.is_ready
+

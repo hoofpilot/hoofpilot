@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from cereal import car
+﻿from cereal import car
 from enum import IntEnum
 
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -38,7 +32,7 @@ class SteeringLayout(Widget):
 
   def _initialize_items(self):
     self._mads_base_desc = tr("Enable the beloved MADS feature. " +
-                              "Disable toggle to revert back to stock hoofpilot engagement/disengagement.")
+                              "Disable toggle to revert back to stock sunnypilot engagement/disengagement.")
     self._mads_limited_desc = tr("This platform supports limited MADS settings.")
     self._mads_full_desc = tr("This platform supports all MADS settings.")
     self._mads_check_compat_desc = tr("Start the vehicle to check vehicle compatibility.")
@@ -72,10 +66,19 @@ class SteeringLayout(Widget):
       description="",
       label_callback=lambda speed: f'{speed} {"km/h" if ui_state.is_metric else "mph"}',
     )
+    self._blinker_reengage_delay = option_item_sp(
+      param="BlinkerLateralReengageDelay",
+      title=lambda: tr("Post-Blinker Delay"),
+      min_value=0,
+      max_value=10,
+      value_change_step=1,
+      description=lambda: tr("Delay before lateral control resumes after the turn signal ends."),
+      label_callback=lambda delay: f'{delay} {"s"}'
+    )
     self._torque_control_toggle = toggle_item_sp(
       param="EnforceTorqueControl",
       title=lambda: tr("Enforce Torque Lateral Control"),
-      description=lambda: tr("Enable this to enforce hoofpilot to steer with Torque lateral control."),
+      description=lambda: tr("Enable this to enforce sunnypilot to steer with Torque lateral control."),
     )
     self._torque_customization_button = simple_button_item_sp(
       button_text=lambda: tr("Customize Torque Params"),
@@ -96,6 +99,7 @@ class SteeringLayout(Widget):
       LineSeparatorSP(40),
       self._blinker_control_toggle,
       self._blinker_control_options,
+      self._blinker_reengage_delay,
       LineSeparatorSP(40),
       self._torque_control_toggle,
       self._torque_customization_button,
@@ -128,6 +132,7 @@ class SteeringLayout(Widget):
     self._mads_toggle.action_item.set_enabled(ui_state.is_offroad())
     self._mads_settings_button.action_item.set_enabled(ui_state.is_offroad() and self._mads_toggle.action_item.get_state())
     self._blinker_control_options.set_visible(self._blinker_control_toggle.action_item.get_state())
+    self._blinker_reengage_delay.set_visible(self._blinker_control_toggle.action_item.get_state())
 
     enforce_torque_enabled = self._torque_control_toggle.action_item.get_state()
     nnlc_enabled = self._nnlc_toggle.action_item.get_state()
@@ -148,3 +153,4 @@ class SteeringLayout(Widget):
   def show_event(self):
     self._set_current_panel(PanelType.STEERING)
     self._scroller.show_event()
+

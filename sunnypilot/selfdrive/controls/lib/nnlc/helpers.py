@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import os
+﻿import os
 import tomllib
 from difflib import SequenceMatcher
 
@@ -66,3 +60,4 @@ def get_nn_model_path(CP: structs.CarParams) -> tuple[str, str, bool]:
   model_name = os.path.splitext(os.path.basename(model_path))[0]
 
   return model_path, model_name, exact_match
+

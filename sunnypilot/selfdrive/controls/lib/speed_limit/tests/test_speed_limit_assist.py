@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-import pytest
+﻿import pytest
 
 from cereal import custom
 from opendbc.car.car_helpers import interfaces
@@ -276,3 +269,4 @@ class TestSpeedLimitAssist:
         assert self.sla.state in [SpeedLimitAssistState.preActive, SpeedLimitAssistState.active]
       elif initial_state in ACTIVE_STATES:
         assert self.sla.state in ACTIVE_STATES
+

@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from abc import abstractmethod, ABC
+﻿from abc import abstractmethod, ABC
 
 import cereal.messaging as messaging
 from openpilot.common.params import Params
@@ -63,3 +57,4 @@ class BaseMapData(ABC):
     self.sm.update(0)
     self.update_location()
     self.publish()
+

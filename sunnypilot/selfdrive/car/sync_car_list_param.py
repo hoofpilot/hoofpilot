@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
+﻿#!/usr/bin/env python3
 import json
 import os
 
@@ -29,3 +23,4 @@ def update_car_list_param():
 
 if __name__ == "__main__":
   update_car_list_param()
+

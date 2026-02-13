@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 
 #include "cereal/messaging/msgq_to_zmq.h"
 #include "cereal/services.h"
@@ -26,18 +27,23 @@ void msgq_to_zmq(const std::vector<std::string> &endpoints, const std::string &i
 
 void zmq_to_msgq(const std::vector<std::string> &endpoints, const std::string &ip) {
   auto poller = std::make_unique<BridgeZmqPoller>();
-  auto pub_context = std::unique_ptr<Context>(Context::create());
+  std::unique_ptr<Context> pub_context(Context::create());
+  if (!pub_context) {
+    printf("Failed to create MSGQ context\n");
+    return;
+  }
   auto sub_context = std::make_unique<BridgeZmqContext>();
   std::map<BridgeZmqSubSocket *, PubSocket *> sub2pub;
 
   for (auto endpoint : endpoints) {
-    auto pub_sock = PubSocket::create(pub_context.get(), endpoint, true, services.at(endpoint).queue_size);
     auto sub_sock = new BridgeZmqSubSocket();
-    sub_sock->connect(sub_context.get(), endpoint, ip, false);
+    size_t queue_size = services.at(endpoint).queue_size;
+    PubSocket *pub_sock = PubSocket::create(pub_context.get(), endpoint, true, queue_size);
     if (pub_sock == nullptr) {
       delete sub_sock;
       continue;
     }
+    sub_sock->connect(sub_context.get(), endpoint, ip, false);
 
     poller->registerSocket(sub_sock);
     sub2pub[sub_sock] = pub_sock;

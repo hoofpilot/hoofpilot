@@ -414,7 +414,6 @@ class TermsPage(SetupTermsPage):
 
     info_txt = gui_app.texture("icons_mici/setup/green_info.png", 60, 60)
     self._title_header = TermsHeader("terms of service", info_txt)
-    self._title_header = TermsHeader("terms of service", info_txt)
 
     self._terms_label = UnifiedLabel("You must accept the Terms of Service to use hoofpilot. " +
                                      "Read the latest terms online before continuing.", 36,
@@ -450,14 +449,6 @@ class OnboardingWindow(Widget):
     self._terms = TermsPage(on_accept=self._on_terms_accepted, on_decline=self._on_terms_declined)
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._decline_page = DeclinePage(back_callback=self._on_decline_back)
-
-    self._accepted_terms = self._accepted_terms and ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp
-    if not self._accepted_terms:
-      self._state = OnboardingState.TERMS
-    elif not self._training_done:
-      self._state = OnboardingState.ONBOARDING
-    else:
-      self._state = OnboardingState.ONBOARDING
 
   def show_event(self):
     super().show_event()

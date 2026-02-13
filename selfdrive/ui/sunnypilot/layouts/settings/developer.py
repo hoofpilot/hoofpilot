@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import datetime
+﻿import datetime
 import os
 from pathlib import Path
 
@@ -104,3 +98,4 @@ class DeveloperLayoutSP(DeveloperLayout):
     self.enable_copyparty_toggle.set_visible(show_advanced)
     self.enable_github_runner_toggle.set_visible(show_advanced and not self._is_release_branch)
     self.error_log_btn.set_visible(not self._is_release_branch)
+

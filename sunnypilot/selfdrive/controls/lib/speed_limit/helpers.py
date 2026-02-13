@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-from cereal import custom, car
+﻿from cereal import custom, car
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.sunnypilot.selfdrive.controls.lib.speed_limit.common import Mode as SpeedLimitMode
@@ -42,3 +35,4 @@ def set_speed_limit_assist_availability(CP: car.CarParams, CP_SP: custom.CarPara
       params.put("SpeedLimitMode", int(SpeedLimitMode.warning))
 
   return allowed
+

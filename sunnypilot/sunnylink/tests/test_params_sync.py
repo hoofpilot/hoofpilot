@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import json
+﻿import json
 import os
 import pytest
 
@@ -200,3 +194,4 @@ def test_known_params_metadata():
   assert acc_long["min"] == 1
   assert acc_long["max"] == 10
   assert acc_long["step"] == 1
+
