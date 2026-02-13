@@ -14,6 +14,7 @@ from openpilot.selfdrive.ui.mici.layouts.settings.developer import DeveloperLayo
 from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.widgets import Widget, NavWidget
 from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.system.hardware import PC
 
 
 class PanelType(IntEnum):
@@ -62,10 +63,12 @@ class SettingsLayout(NavWidget):
 
     stable_btn = SettingsBigButton("stable", "", "../../sunnypilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
     stable_btn.set_click_callback(lambda: self._set_current_panel(PanelType.STABLE))
-    stable_btn.set_visible(lambda: ui_state.prime_state.is_paired())
+    # Allow testing on PC without pairing.
+    stable_btn.set_visible(lambda: PC or ui_state.prime_state.is_paired())
 
     pair_btn = PairBigButton()
-    pair_btn.set_visible(lambda: not ui_state.prime_state.is_paired())
+    # Pairing is not supported on PC (no keys), so hide the button there.
+    pair_btn.set_visible(lambda: (not PC) and (not ui_state.prime_state.is_paired()))
 
     self._scroller = Scroller([
       toggles_btn,
