@@ -409,22 +409,23 @@ def remotePinVerify(pin: str) -> dict[str, bool | str | int]:
     return {"success": True, "token": token, "expiresInS": ttl}
 
   if not isinstance(pin, str) or not pin.isdigit() or not (4 <= len(pin) <= 12):
-    raise Exception("PIN must be 4-12 digits")
+    # Don't count invalid-format attempts towards lockout.
+    return {"success": False, "error": "PIN must be 4-12 digits"}
 
   params = Params()
   with remote_pin_lock:
     global remote_pin_fails, remote_pin_lock_until
     now = time.monotonic()
     if now < remote_pin_lock_until:
-      raise Exception(f"Locked. Try again in {int(remote_pin_lock_until - now)}s.")
+      return {"success": False, "error": "Locked", "lockRemainingS": int(remote_pin_lock_until - now)}
 
     ok = _remote_pin_verify_locked(params, pin)
     if not ok:
       remote_pin_fails += 1
       if remote_pin_fails % REMOTE_PIN_MAX_FAILS == 0:
         remote_pin_lock_until = now + REMOTE_PIN_LOCKOUT_S
-        raise Exception(f"Too many attempts. Try again in {REMOTE_PIN_LOCKOUT_S}s.")
-      raise Exception("Incorrect PIN")
+        return {"success": False, "error": "Locked", "lockRemainingS": REMOTE_PIN_LOCKOUT_S}
+      return {"success": False, "error": "Incorrect PIN"}
 
     remote_pin_fails = 0
     remote_pin_lock_until = 0.0
