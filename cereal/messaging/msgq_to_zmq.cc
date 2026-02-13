@@ -23,7 +23,11 @@ static std::string recv_zmq_msg(void *sock) {
 
 void MsgqToZmq::run(const std::vector<std::string> &endpoints, const std::string &ip) {
   zmq_context = std::make_unique<BridgeZmqContext>();
+<<<<<<< HEAD
   msgq_context = std::unique_ptr<Context>(Context::create());
+=======
+  msgq_context = std::make_unique<Context>();
+>>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3
 
   // Create ZMQPubSockets for each endpoint
   for (const auto &endpoint : endpoints) {

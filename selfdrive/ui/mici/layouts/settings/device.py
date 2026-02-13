@@ -11,6 +11,7 @@ from openpilot.system.ui.widgets.scroller import Scroller
 from openpilot.system.ui.lib.scroll_panel2 import GuiScrollPanel2
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigCircleButton
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigConfirmationDialogV2
+from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigConfirmationDialogV2
 from openpilot.selfdrive.ui.mici.widgets.pairing_dialog import PairingDialog
 from openpilot.selfdrive.ui.mici.onroad.driver_camera_dialog import DriverCameraDialog
 from openpilot.selfdrive.ui.mici.layouts.onboarding import TrainingGuide
@@ -38,6 +39,7 @@ class MiciFccModal(NavWidget):
     content_height += self._fcc_logo.height + 20
 
     scroll_content_rect = rl.Rectangle(rect.x, rect.y, rect.width, content_height)
+    scroll_offset = round(self._scroll_panel.update(rect, scroll_content_rect.height))
     scroll_offset = round(self._scroll_panel.update(rect, scroll_content_rect.height))
 
     fcc_pos = rl.Vector2(rect.x + 20, rect.y + 20 + scroll_offset)
@@ -157,6 +159,8 @@ class UpdateOpenpilotBigButton(BigButton):
   def __init__(self):
     self._txt_update_icon = gui_app.texture("icons_mici/settings/device/update.png", 64, 75)
     self._txt_reboot_icon = gui_app.texture("icons_mici/settings/device/reboot.png", 64, 70)
+    self._txt_update_icon = gui_app.texture("icons_mici/settings/device/update.png", 64, 75)
+    self._txt_reboot_icon = gui_app.texture("icons_mici/settings/device/reboot.png", 64, 70)
     self._txt_up_to_date_icon = gui_app.texture("icons_mici/settings/device/up_to_date.png", 64, 64)
     super().__init__("update hoofpilot", "", self._txt_update_icon)
 
@@ -224,6 +228,7 @@ class UpdateOpenpilotBigButton(BigButton):
 
       if self._waiting_for_updater_t is not None and rl.get_time() - self._waiting_for_updater_t > UPDATER_TIMEOUT:
         self.set_rotate_icon(False)
+        self.set_value("updater failed\nto respond")
         self.set_value("updater failed\nto respond")
         self._state = UpdaterState.IDLE
         self._hide_value_t = rl.get_time()
@@ -294,14 +299,17 @@ class DeviceLayoutMici(NavWidget):
       ui_state.params.put_bool("DoUninstall", True)
 
     reset_calibration_btn = BigButton("reset calibration", "", "icons_mici/settings/device/lkas.png", icon_size=(114, 60))
+    reset_calibration_btn = BigButton("reset calibration", "", "icons_mici/settings/device/lkas.png", icon_size=(114, 60))
     reset_calibration_btn.set_click_callback(lambda: _engaged_confirmation_callback(reset_calibration_callback, "reset"))
 
     uninstall_openpilot_btn = BigButton("uninstall hoofpilot", "", "icons_mici/settings/device/uninstall.png")
     uninstall_openpilot_btn.set_click_callback(lambda: _engaged_confirmation_callback(uninstall_openpilot_callback, "uninstall"))
 
     reboot_btn = BigCircleButton("icons_mici/settings/device/reboot.png", red=False, icon_size=(64, 70))
+    reboot_btn = BigCircleButton("icons_mici/settings/device/reboot.png", red=False, icon_size=(64, 70))
     reboot_btn.set_click_callback(lambda: _engaged_confirmation_callback(reboot_callback, "reboot"))
 
+    self._power_off_btn = BigCircleButton("icons_mici/settings/device/power.png", red=True, icon_size=(64, 66))
     self._power_off_btn = BigCircleButton("icons_mici/settings/device/power.png", red=True, icon_size=(64, 66))
     self._power_off_btn.set_click_callback(lambda: _engaged_confirmation_callback(power_off_callback, "power off"))
 
@@ -309,9 +317,11 @@ class DeviceLayoutMici(NavWidget):
     regulatory_btn.set_click_callback(self._on_regulatory)
 
     driver_cam_btn = BigButton("driver\ncamera preview", "", "icons_mici/settings/device/cameras.png")
+    driver_cam_btn = BigButton("driver\ncamera preview", "", "icons_mici/settings/device/cameras.png")
     driver_cam_btn.set_click_callback(self._show_driver_camera)
     driver_cam_btn.set_enabled(lambda: ui_state.is_offroad())
 
+    review_training_guide_btn = BigButton("review\ntraining guide", "", "icons_mici/settings/device/info.png")
     review_training_guide_btn = BigButton("review\ntraining guide", "", "icons_mici/settings/device/info.png")
     review_training_guide_btn.set_click_callback(self._on_review_training_guide)
     review_training_guide_btn.set_enabled(lambda: ui_state.is_offroad())
@@ -339,6 +349,7 @@ class DeviceLayoutMici(NavWidget):
   def _on_regulatory(self):
     if not self._fcc_dialog:
       self._fcc_dialog = MiciFccModal(os.path.join(BASEDIR, "selfdrive/assets/offroad/mici_fcc.html"))
+    gui_app.set_modal_overlay(self._fcc_dialog)
     gui_app.set_modal_overlay(self._fcc_dialog)
 
   def _offroad_transition(self):

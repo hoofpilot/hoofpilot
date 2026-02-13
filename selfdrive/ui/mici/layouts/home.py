@@ -4,10 +4,12 @@ from cereal import log
 import pyray as rl
 from collections.abc import Callable
 from openpilot.system.ui.widgets.label import gui_label, MiciLabel, UnifiedLabel
+from openpilot.system.ui.widgets.label import gui_label, MiciLabel, UnifiedLabel
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.application import gui_app, FontWeight, DEFAULT_TEXT_COLOR, MousePos
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.text import wrap_text
+from openpilot.system.version import training_version, RELEASE_BRANCHES
 from openpilot.system.version import training_version, RELEASE_BRANCHES
 
 HEAD_BUTTON_FONT_SIZE = 40
@@ -93,11 +95,16 @@ class MiciHomeLayout(Widget):
     self._settings_txt = gui_app.texture("icons_mici/settings.png", 48, 48)
     self._experimental_txt = gui_app.texture("icons_mici/experimental_mode.png", 48, 48)
     self._mic_txt = gui_app.texture("icons_mici/microphone.png", 32, 46)
+    self._mic_txt = gui_app.texture("icons_mici/microphone.png", 32, 46)
 
     self._net_type = NETWORK_TYPES.get(NetworkType.none)
     self._net_strength = 0
 
     self._wifi_slash_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_slash.png", 50, 44)
+    self._wifi_none_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_none.png", 50, 37)
+    self._wifi_low_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_low.png", 50, 37)
+    self._wifi_medium_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_medium.png", 50, 37)
+    self._wifi_full_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_full.png", 50, 37)
     self._wifi_none_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_none.png", 50, 37)
     self._wifi_low_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_low.png", 50, 37)
     self._wifi_medium_txt = gui_app.texture("icons_mici/settings/network/wifi_strength_medium.png", 50, 37)
@@ -108,11 +115,17 @@ class MiciHomeLayout(Widget):
     self._cell_medium_txt = gui_app.texture("icons_mici/settings/network/cell_strength_medium.png", 54, 36)
     self._cell_high_txt = gui_app.texture("icons_mici/settings/network/cell_strength_high.png", 54, 36)
     self._cell_full_txt = gui_app.texture("icons_mici/settings/network/cell_strength_full.png", 54, 36)
+    self._cell_none_txt = gui_app.texture("icons_mici/settings/network/cell_strength_none.png", 54, 36)
+    self._cell_low_txt = gui_app.texture("icons_mici/settings/network/cell_strength_low.png", 54, 36)
+    self._cell_medium_txt = gui_app.texture("icons_mici/settings/network/cell_strength_medium.png", 54, 36)
+    self._cell_high_txt = gui_app.texture("icons_mici/settings/network/cell_strength_high.png", 54, 36)
+    self._cell_full_txt = gui_app.texture("icons_mici/settings/network/cell_strength_full.png", 54, 36)
 
     self._openpilot_label = MiciLabel("hoofpilot", font_size=90, color=rl.Color(255, 255, 255, int(255 * 0.9)), font_weight=FontWeight.AUDIOWIDE)
     self._version_label = MiciLabel("", font_size=36, font_weight=FontWeight.ROMAN)
     self._large_version_label = MiciLabel("", font_size=64, color=rl.GRAY, font_weight=FontWeight.ROMAN)
     self._date_label = MiciLabel("", font_size=36, color=rl.GRAY, font_weight=FontWeight.ROMAN)
+    self._branch_label = UnifiedLabel("", font_size=36, text_color=rl.GRAY, font_weight=FontWeight.ROMAN, scroll=True)
     self._branch_label = UnifiedLabel("", font_size=36, text_color=rl.GRAY, font_weight=FontWeight.ROMAN, scroll=True)
     self._version_commit_label = MiciLabel("", font_size=36, color=rl.GRAY, font_weight=FontWeight.ROMAN)
 
@@ -190,7 +203,15 @@ class MiciHomeLayout(Widget):
       self._version_label.set_text(self._version_text[0])
       self._version_label.set_position(version_pos.x, version_pos.y)
       self._version_label.render()
+      release_branch = self._version_text[1] in RELEASE_BRANCHES
+      version_pos = rl.Rectangle(text_pos.x, text_pos.y + self._openpilot_label.font_size + 16, 100, 44)
+      self._version_label.set_text(self._version_text[0])
+      self._version_label.set_position(version_pos.x, version_pos.y)
+      self._version_label.render()
 
+      self._date_label.set_text(" " + self._version_text[3])
+      self._date_label.set_position(version_pos.x + self._version_label.rect.width + 10, version_pos.y)
+      self._date_label.render()
       self._date_label.set_text(" " + self._version_text[3])
       self._date_label.set_position(version_pos.x + self._version_label.rect.width + 10, version_pos.y)
       self._date_label.render()
@@ -199,7 +220,12 @@ class MiciHomeLayout(Widget):
       self._branch_label.set_text(" " + ("release" if release_branch else self._version_text[1]))
       self._branch_label.set_position(version_pos.x + self._version_label.rect.width + self._date_label.rect.width + 20, version_pos.y)
       self._branch_label.render()
+      self._branch_label.set_max_width(gui_app.width - self._version_label.rect.width - self._date_label.rect.width - 32)
+      self._branch_label.set_text(" " + ("release" if release_branch else self._version_text[1]))
+      self._branch_label.set_position(version_pos.x + self._version_label.rect.width + self._date_label.rect.width + 20, version_pos.y)
+      self._branch_label.render()
 
+      if not release_branch:
       if not release_branch:
         # 2nd line
         self._version_commit_label.set_text(self._version_text[2])

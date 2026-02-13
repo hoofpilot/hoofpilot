@@ -55,5 +55,36 @@ class ToyotaSettings(BrandSettings):
       ui_state.params.put_bool("ToyotaEnforceStockLongitudinal", False)
       ui_state.params.put_bool("OnroadCycleRequested", True)
 
+    self.enforce_stock_longitudinal = toggle_item_sp(
+      lambda: tr("Enforce Factory Longitudinal Control"),
+      description=lambda: tr(DESCRIPTIONS["enforce_stock_longitudinal"]),
+      initial_state=ui_state.params.get_bool("ToyotaEnforceStockLongitudinal"),
+      callback=self._on_enable_enforce_stock_longitudinal,
+      enabled=lambda: not ui_state.engaged,
+    )
+
+    self.items = [self.enforce_stock_longitudinal, ]
+
+  def _on_enable_enforce_stock_longitudinal(self, state: bool):
+    if state:
+      def confirm_callback(result: int):
+        if result == DialogResult.CONFIRM:
+          ui_state.params.put_bool("ToyotaEnforceStockLongitudinal", True)
+          if ui_state.params.get_bool("AlphaLongitudinalEnabled"):
+            ui_state.params.put_bool("AlphaLongitudinalEnabled", False)
+          ui_state.params.put_bool("OnroadCycleRequested", True)
+        else:
+          self.enforce_stock_longitudinal.action_item.set_state(False)
+
+      content = (f"<h1>{self.enforce_stock_longitudinal.title}</h1><br>" +
+                 f"<p>{self.enforce_stock_longitudinal.description}</p>")
+
+      dlg = ConfirmDialog(content, tr("Enable"), rich=True)
+      gui_app.set_modal_overlay(dlg, callback=confirm_callback)
+
+    else:
+      ui_state.params.put_bool("ToyotaEnforceStockLongitudinal", False)
+      ui_state.params.put_bool("OnroadCycleRequested", True)
+
   def update_settings(self):
     pass

@@ -3,11 +3,17 @@ from enum import IntEnum
 import weakref
 import math
 import numpy as np
+import weakref
+import math
+import numpy as np
 import pyray as rl
+from openpilot.common.filter_simple import FirstOrderFilter
+from openpilot.system.hardware import HARDWARE
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.ui.lib.application import FontWeight, gui_app
 from openpilot.system.ui.widgets import Widget
+from openpilot.system.ui.widgets.button import SmallButton, SmallCircleIconButton
 from openpilot.system.ui.widgets.button import SmallButton, SmallCircleIconButton
 from openpilot.system.ui.widgets.label import UnifiedLabel
 from openpilot.system.ui.widgets.slider import SmallSlider
@@ -24,14 +30,19 @@ class OnboardingState(IntEnum):
   TERMS = 0
   ONBOARDING = 1
   DECLINE = 2
+  SUNNYLINK_CONSENT = 3
 
 
 class DriverCameraSetupDialog(DriverCameraDialog):
   def __init__(self):
+  def __init__(self):
     super().__init__(no_escape=True)
     self.driver_state_renderer = DriverStateRenderer(inset=True)
     self.driver_state_renderer.set_rect(rl.Rectangle(0, 0, 120, 120))
+    self.driver_state_renderer = DriverStateRenderer(inset=True)
+    self.driver_state_renderer.set_rect(rl.Rectangle(0, 0, 120, 120))
     self.driver_state_renderer.load_icons()
+    self.driver_state_renderer.set_force_active(True)
     self.driver_state_renderer.set_force_active(True)
 
   def _render(self, rect):
@@ -49,8 +60,14 @@ class DriverCameraSetupDialog(DriverCameraDialog):
     self.driver_state_renderer.set_position(
       rect.x + 8 if is_rhd else rect.x + rect.width - self.driver_state_renderer.rect.width - 8,
       rect.y + 8,
+    is_rhd = self.driver_state_renderer.is_rhd
+    self.driver_state_renderer.set_position(
+      rect.x + 8 if is_rhd else rect.x + rect.width - self.driver_state_renderer.rect.width - 8,
+      rect.y + 8,
     )
     self.driver_state_renderer.render()
+
+    self._draw_face_detection(rect)
 
     self._draw_face_detection(rect)
 
@@ -118,7 +135,36 @@ class DMBadFaceDetected(SetupTermsPage):
     ))
 
 
+class DMBadFaceDetected(SetupTermsPage):
+  def __init__(self, continue_callback, back_callback):
+    super().__init__(continue_callback, back_callback, continue_text="power off")
+    self._title_header = TermsHeader("make sure comma four can see your face", gui_app.texture("icons_mici/setup/orange_dm.png", 60, 60))
+    self._dm_label = UnifiedLabel("Re-mount if your face is occluded or driver monitoring has difficulty tracking your face.", 42, FontWeight.ROMAN)
+
+  @property
+  def _content_height(self):
+    return self._dm_label.rect.y + self._dm_label.rect.height - self._scroll_panel.get_offset()
+
+  def _render_content(self, scroll_offset):
+    self._title_header.render(rl.Rectangle(
+      self._rect.x + 16,
+      self._rect.y + 16 + scroll_offset,
+      self._title_header.rect.width,
+      self._title_header.rect.height,
+    ))
+
+    self._dm_label.render(rl.Rectangle(
+      self._rect.x + 16,
+      self._title_header.rect.y + self._title_header.rect.height + 16,
+      self._rect.width - 32,
+      self._dm_label.get_content_height(int(self._rect.width - 32)),
+    ))
+
+
 class TrainingGuideDMTutorial(Widget):
+  PROGRESS_DURATION = 4
+  LOOKING_THRESHOLD_DEG = 30.0
+
   PROGRESS_DURATION = 4
   LOOKING_THRESHOLD_DEG = 30.0
 
@@ -127,12 +173,23 @@ class TrainingGuideDMTutorial(Widget):
     self._back_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_question.png", 28, 48))
     self._back_button.set_click_callback(self._show_bad_face_page)
     self._good_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 42, 42))
+    self._back_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_question.png", 28, 48))
+    self._back_button.set_click_callback(self._show_bad_face_page)
+    self._good_button = SmallCircleIconButton(gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 42, 42))
 
     # Wrap the continue callback to restore settings
     def wrapped_continue_callback():
       device.set_offroad_brightness(None)
+      device.set_offroad_brightness(None)
       continue_callback()
 
+    self._good_button.set_click_callback(wrapped_continue_callback)
+    self._good_button.set_enabled(False)
+
+    self._progress = FirstOrderFilter(0.0, 0.5, 1 / gui_app.target_fps)
+    self._dialog = DriverCameraSetupDialog()
+    self._bad_face_page = DMBadFaceDetected(HARDWARE.shutdown, self._hide_bad_face_page)
+    self._should_show_bad_face_page = False
     self._good_button.set_click_callback(wrapped_continue_callback)
     self._good_button.set_enabled(False)
 
@@ -157,9 +214,20 @@ class TrainingGuideDMTutorial(Widget):
     self.show_event()
     self._should_show_bad_face_page = False
 
+  def _show_bad_face_page(self):
+    self._bad_face_page.show_event()
+    self.hide_event()
+    self._should_show_bad_face_page = True
+
+  def _hide_bad_face_page(self):
+    self._bad_face_page.hide_event()
+    self.show_event()
+    self._should_show_bad_face_page = False
+
   def show_event(self):
     super().show_event()
     self._dialog.show_event()
+    self._progress.x = 0.0
     self._progress.x = 0.0
 
     device.set_offroad_brightness(100)
@@ -192,13 +260,97 @@ class TrainingGuideDMTutorial(Widget):
       self._progress.update(0.0)
 
     self._good_button.set_enabled(self._progress.x >= 0.999)
+    if device.awake and not ui_state.params.get_bool("IsDriverViewEnabled"):
+      ui_state.params.put_bool_nonblocking("IsDriverViewEnabled", True)
+
+    sm = ui_state.sm
+    if sm.recv_frame.get("driverMonitoringState", 0) == 0:
+      return
+
+    dm_state = sm["driverMonitoringState"]
+    driver_data = self._dialog.driver_state_renderer.get_driver_data()
+
+    if len(driver_data.faceOrientation) == 3:
+      pitch, yaw, _ = driver_data.faceOrientation
+      looking_center = abs(math.degrees(pitch)) < self.LOOKING_THRESHOLD_DEG and abs(math.degrees(yaw)) < self.LOOKING_THRESHOLD_DEG
+    else:
+      looking_center = False
+
+    # stay at 100% once reached
+    if (dm_state.faceDetected and looking_center) or self._progress.x > 0.99:
+      slow = self._progress.x < 0.25
+      duration = self.PROGRESS_DURATION * 2 if slow else self.PROGRESS_DURATION
+      self._progress.x += 1.0 / (duration * gui_app.target_fps)
+      self._progress.x = min(1.0, self._progress.x)
+    else:
+      self._progress.update(0.0)
+
+    self._good_button.set_enabled(self._progress.x >= 0.999)
 
   def _render(self, _):
     if self._should_show_bad_face_page:
       return self._bad_face_page.render(self._rect)
 
+    if self._should_show_bad_face_page:
+      return self._bad_face_page.render(self._rect)
+
     self._dialog.render(self._rect)
 
+    rl.draw_rectangle_gradient_v(int(self._rect.x), int(self._rect.y + self._rect.height - 80),
+                                 int(self._rect.width), 80, rl.BLANK, rl.BLACK)
+
+    # draw white ring around dm icon to indicate progress
+    ring_thickness = 8
+
+    # DM icon is 120x120, positioned on opposite side from driver
+    dm_size = 120
+    is_rhd = self._dialog.driver_state_renderer._is_rhd
+    dm_center_x = (self._rect.x + dm_size / 2 + 8) if is_rhd else (self._rect.x + self._rect.width - dm_size / 2 - 8)
+    dm_center_y = self._rect.y + dm_size / 2 + 8
+    icon_edge_radius = dm_size / 2
+    outer_radius = icon_edge_radius + 1  # 2px outward from icon edge
+    inner_radius = outer_radius - ring_thickness  # Inset by ring_thickness
+    start_angle = 90.0  # Start from bottom
+    end_angle = start_angle + self._progress.x * 360.0  # Clockwise
+
+    # Fade in alpha
+    current_angle = end_angle - start_angle
+    alpha = int(np.interp(current_angle, [0.0, 45.0], [0, 255]))
+
+    # White to green
+    color_t = np.clip(np.interp(current_angle, [45.0, 360.0], [0.0, 1.0]), 0.0, 1.0)
+    r = int(np.interp(color_t, [0.0, 1.0], [255, 0]))
+    g = int(np.interp(color_t, [0.0, 1.0], [255, 255]))
+    b = int(np.interp(color_t, [0.0, 1.0], [255, 64]))
+    ring_color = rl.Color(r, g, b, alpha)
+
+    rl.draw_ring(
+      rl.Vector2(dm_center_x, dm_center_y),
+      inner_radius,
+      outer_radius,
+      start_angle,
+      end_angle,
+      36,
+      ring_color,
+    )
+
+    if self._dialog._camera_view.frame:
+      self._back_button.render(rl.Rectangle(
+        self._rect.x + 8,
+        self._rect.y + self._rect.height - self._back_button.rect.height,
+        self._back_button.rect.width,
+        self._back_button.rect.height,
+      ))
+
+      self._good_button.render(rl.Rectangle(
+        self._rect.x + self._rect.width - self._good_button.rect.width - 8,
+        self._rect.y + self._rect.height - self._good_button.rect.height,
+        self._good_button.rect.width,
+        self._good_button.rect.height,
+      ))
+
+    # rounded border
+    rl.draw_rectangle_rounded_lines_ex(self._rect, 0.2 * 1.02, 10, 50, rl.BLACK)
     rl.draw_rectangle_gradient_v(int(self._rect.x), int(self._rect.y + self._rect.height - 80),
                                  int(self._rect.width), 80, rl.BLANK, rl.BLACK)
 
@@ -270,6 +422,7 @@ class TrainingGuideRecordFront(SetupTermsPage):
     self._title_header = TermsHeader("improve driver monitoring", gui_app.texture("icons_mici/setup/green_dm.png", 60, 60))
 
     self._dm_label = UnifiedLabel("Do you want to upload driver camera data?", 42,
+    self._dm_label = UnifiedLabel("Do you want to upload driver camera data?", 42,
                                   FontWeight.ROMAN)
 
   def show_event(self):
@@ -339,7 +492,26 @@ class TrainingGuide(Widget):
       if obj := self_ref():
         obj._advance_step()
 
+    self_ref = weakref.ref(self)
+
+    def on_continue():
+      if obj := self_ref():
+        obj._advance_step()
+
     self._steps = [
+      TrainingGuideAttentionNotice(continue_callback=on_continue),
+      TrainingGuidePreDMTutorial(continue_callback=on_continue),
+      TrainingGuideDMTutorial(continue_callback=on_continue),
+      TrainingGuideRecordFront(continue_callback=on_continue),
+    ]
+
+  def show_event(self):
+    super().show_event()
+    device.set_override_interactive_timeout(300)
+
+  def hide_event(self):
+    super().hide_event()
+    device.set_override_interactive_timeout(None)
       TrainingGuideAttentionNotice(continue_callback=on_continue),
       TrainingGuidePreDMTutorial(continue_callback=on_continue),
       TrainingGuideDMTutorial(continue_callback=on_continue),
@@ -469,7 +641,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._training_done
+    return self._accepted_terms and self._sunnylink.completed and self._training_done
 
   def _on_terms_declined(self):
     self._state = OnboardingState.DECLINE
@@ -496,7 +668,18 @@ class OnboardingWindow(Widget):
   def _render(self, _):
     if self._state == OnboardingState.TERMS:
       self._terms.render(self._rect)
+    elif self._state == OnboardingState.SUNNYLINK_CONSENT:
+      self._sunnylink.render(self._rect)
+      if self._sunnylink.completed:
+        if not self._training_done:
+          self._state = OnboardingState.ONBOARDING
+        else:
+          self.close()
     elif self._state == OnboardingState.ONBOARDING:
+      if not self._training_done:
+        self._training_guide.render(self._rect)
+      else:
+        self.close()
       if not self._training_done:
         self._training_guide.render(self._rect)
       else:

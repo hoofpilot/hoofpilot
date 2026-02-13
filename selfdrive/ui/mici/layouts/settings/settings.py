@@ -33,6 +33,11 @@ class SettingsBigButton(BigButton):
     return 64
 
 
+class SettingsBigButton(BigButton):
+  def _get_label_font_size(self):
+    return 64
+
+
 class SettingsLayout(NavWidget):
   def __init__(self):
     super().__init__()
@@ -40,11 +45,15 @@ class SettingsLayout(NavWidget):
     self._current_panel = None  # PanelType.DEVICE
 
     toggles_btn = SettingsBigButton("toggles", "", "icons_mici/settings.png")
+    toggles_btn = SettingsBigButton("toggles", "", "icons_mici/settings.png")
     toggles_btn.set_click_callback(lambda: self._set_current_panel(PanelType.TOGGLES))
+    network_btn = SettingsBigButton("network", "", "icons_mici/settings/network/wifi_strength_full.png", icon_size=(76, 56))
     network_btn = SettingsBigButton("network", "", "icons_mici/settings/network/wifi_strength_full.png", icon_size=(76, 56))
     network_btn.set_click_callback(lambda: self._set_current_panel(PanelType.NETWORK))
     device_btn = SettingsBigButton("device", "", "icons_mici/settings/device_icon.png", icon_size=(74, 60))
+    device_btn = SettingsBigButton("device", "", "icons_mici/settings/device_icon.png", icon_size=(74, 60))
     device_btn.set_click_callback(lambda: self._set_current_panel(PanelType.DEVICE))
+    developer_btn = SettingsBigButton("developer", "", "icons_mici/settings/developer_icon.png", icon_size=(64, 60))
     developer_btn = SettingsBigButton("developer", "", "icons_mici/settings/developer_icon.png", icon_size=(64, 60))
     developer_btn.set_click_callback(lambda: self._set_current_panel(PanelType.DEVELOPER))
 

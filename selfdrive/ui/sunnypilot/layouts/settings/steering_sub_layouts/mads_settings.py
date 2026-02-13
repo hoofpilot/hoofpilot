@@ -9,6 +9,10 @@ import pyray as rl
 
 from opendbc.sunnypilot.car.tesla.values import TeslaFlagsSP
 from openpilot.selfdrive.ui.ui_state import ui_state
+<<<<<<< HEAD
+=======
+from openpilot.sunnypilot.mads.helpers import MadsSteeringModeOnBrake
+>>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3
 from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.network import NavButton
@@ -99,7 +103,11 @@ class MadsSettingsLayout(Widget):
     return False
 
   def _update_steering_mode_description(self, button_index: int):
+<<<<<<< HEAD
     base_desc = tr("Choose how Automatic Lane Centering (ALC) behaves after the brake pedal is manually pressed in hoofpilot.")
+=======
+    base_desc = tr("Choose how Automatic Lane Centering (ALC) behaves after the brake pedal is manually pressed in sunnypilot.")
+>>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3
     result = base_desc + "<br><br>"
     for opt in MADS_STEERING_MODE_OPTIONS:
       desc = "<b>" + opt[1] + "</b>" if button_index == MADS_STEERING_MODE_OPTIONS.index(opt) else opt[1]
@@ -112,7 +120,11 @@ class MadsSettingsLayout(Widget):
     if self._mads_limited_settings():
       ui_state.params.remove("MadsMainCruiseAllowed")
       ui_state.params.put_bool("MadsUnifiedEngagementMode", True)
+<<<<<<< HEAD
       ui_state.params.put("MadsSteeringMode", 2)
+=======
+      ui_state.params.put("MadsSteeringMode", MadsSteeringModeOnBrake.DISENGAGE)
+>>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3
 
       self._main_cruise_toggle.action_item.set_enabled(False)
       self._main_cruise_toggle.action_item.set_state(False)
@@ -122,9 +134,15 @@ class MadsSettingsLayout(Widget):
       self._unified_engagement_toggle.action_item.set_state(True)
       self._unified_engagement_toggle.set_description("<b>" + DEFAULT_TO_ON + "</b><br>" + MADS_UNIFIED_ENGAGEMENT_MODE_BASE_DESC)
 
+<<<<<<< HEAD
       self._steering_mode.action_item.set_enabled(False)
       self._steering_mode.set_description(STATUS_DISENGAGE_ONLY)
       self._steering_mode.action_item.set_selected_button(2)
+=======
+      self._steering_mode.set_description(STATUS_DISENGAGE_ONLY)
+      self._steering_mode.action_item.set_selected_button(MadsSteeringModeOnBrake.DISENGAGE)
+      self._steering_mode.action_item.set_enabled_buttons({MadsSteeringModeOnBrake.DISENGAGE})
+>>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3
     else:
       self._main_cruise_toggle.action_item.set_enabled(True)
       self._main_cruise_toggle.set_description(MADS_MAIN_CRUISE_BASE_DESC)
@@ -133,3 +151,7 @@ class MadsSettingsLayout(Widget):
       self._unified_engagement_toggle.set_description(MADS_UNIFIED_ENGAGEMENT_MODE_BASE_DESC)
 
       self._steering_mode.action_item.set_enabled(True)
+<<<<<<< HEAD
+=======
+      self._steering_mode.action_item.set_enabled_buttons(None)
+>>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3

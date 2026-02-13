@@ -6,6 +6,7 @@ from enum import IntEnum
 from openpilot.common.params import Params
 from openpilot.selfdrive.selfdrived.alertmanager import OFFROAD_ALERTS
 from openpilot.system.hardware import HARDWARE
+from openpilot.system.hardware import HARDWARE
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.label import UnifiedLabel
 from openpilot.system.ui.widgets.scroller import Scroller
@@ -222,6 +223,7 @@ class MiciOffroadAlerts(Widget):
     self.sorted_alerts.append(update_alert_data)
     update_alert_item = AlertItem(update_alert_data)
     update_alert_item.set_click_callback(lambda: HARDWARE.reboot())
+    update_alert_item.set_click_callback(lambda: HARDWARE.reboot())
     self.alert_items.append(update_alert_item)
     self._scroller.add_widget(update_alert_item)
 
@@ -247,10 +249,12 @@ class MiciOffroadAlerts(Widget):
     if update_alert_data:
       if update_available:
         version_string = ""
+        version_string = ""
 
         # Get new version description and parse version and date
         new_desc = self.params.get("UpdaterNewDescription") or ""
         if new_desc:
+          # format: "version / branch / commit / date"
           # format: "version / branch / commit / date"
           parts = new_desc.split(" / ")
           if len(parts) > 3:

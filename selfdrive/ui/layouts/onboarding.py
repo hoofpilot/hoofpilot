@@ -33,6 +33,7 @@ class OnboardingState(IntEnum):
   TERMS = 0
   ONBOARDING = 1
   DECLINE = 2
+  SUNNYLINK_CONSENT = 3
 
 
 class TrainingGuide(Widget):
@@ -118,6 +119,7 @@ class TermsPage(Widget):
 
   def _render(self, _):
     welcome_x = self._rect.x + 95
+    welcome_x = self._rect.x + 95
     welcome_y = self._rect.y + 165
     welcome_rect = rl.Rectangle(welcome_x, welcome_y, self._rect.width - welcome_x, 90)
     self._title.render(welcome_rect)
@@ -190,7 +192,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._training_done
+    return self._accepted_terms and self._sunnylink.completed and self._training_done
 
   def _on_terms_declined(self):
     self._state = OnboardingState.DECLINE
