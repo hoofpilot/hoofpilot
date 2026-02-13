@@ -33,15 +33,7 @@ jobs:
       pull-requests: write
       actions: read
     steps:
-<<<<<<< HEAD
-<<<<<<< HEAD
-      - uses: actions/checkout@v4
-=======
       - uses: actions/checkout@v6
->>>>>>> sunnypilot/master
-=======
-      - uses: actions/checkout@v6
->>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3
         with:
           submodules: true
 
@@ -70,15 +62,7 @@ jobs:
           path: ${{ github.workspace }}/pr_ui
 
       - name: Getting master ui  # filename: master_ui_raylib/mici_ui_replay.mp4
-<<<<<<< HEAD
-<<<<<<< HEAD
-        uses: actions/checkout@v4
-=======
         uses: actions/checkout@v6
->>>>>>> sunnypilot/master
-=======
-        uses: actions/checkout@v6
->>>>>>> b3878fb211f3a3a03acd061096da049cae17f6c3
         with:
           repository: sunnypilot/ci-artifacts
           ssh-key: ${{ secrets.CI_ARTIFACTS_DEPLOY_KEY }}
