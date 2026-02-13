@@ -11,9 +11,10 @@ import os
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.sunnypilot.widgets.input_dialog import InputDialogSP
-from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp, toggle_item_sp
+from openpilot.system.ui.sunnypilot.widgets.list_view import dual_button_item_sp, button_item_sp, toggle_item_sp, Spacer
 from openpilot.system.ui.widgets import DialogResult
-from openpilot.system.ui.widgets.confirm_dialog import alert_dialog
+from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog, alert_dialog
+from openpilot.system.ui.widgets.button import ButtonStyle, Button
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
@@ -28,8 +29,20 @@ class StableLayout(Widget):
       ui_state.params.put_bool("RemoteSshEnabled", False)
       ui_state.params.put_bool("LiveView", False)
 
+    self._reset_pin_buttons = dual_button_item_sp(
+      left_text=lambda: tr("Reset PIN"),
+      right_text=lambda: "",
+      left_callback=self._on_reset_pin_pressed,
+      right_callback=None,
+      enabled=lambda: ui_state.is_offroad() and self._remote_pin_is_set(),
+      border_radius=20,
+    )
+    self._reset_pin_btn: Button = self._reset_pin_buttons.action_item.left_button
+    self._reset_pin_btn.set_button_style(ButtonStyle.DANGER)
+    self._reset_pin_buttons.action_item.right_button.set_visible(False)
+
     self._remote_pin_button = button_item_sp(
-      title=lambda: tr("Remote Access PIN"),
+      title=lambda: tr("PIN"),
       button_text=self._remote_pin_button_text,
       description=lambda: tr("Set or change the PIN required to use Remote SSH and Live View from Konik Stable."),
       callback=self._on_remote_pin_pressed,
@@ -53,7 +66,22 @@ class StableLayout(Widget):
       enabled=lambda: self._remote_pin_is_set(),
     )
 
-    self._scroller = Scroller([self._remote_pin_button, self._live_view_toggle, self._remote_ssh_toggle], line_separator=True, spacing=0)
+    self._scroller = Scroller([self._remote_pin_button, self._remote_pin_reset_button, self._live_view_toggle, self._remote_ssh_toggle], line_separator=True, spacing=0)
+    # put destructive reset at the bottom like other device controls
+    self._scroller = Scroller([self._remote_pin_button, self._live_view_toggle, self._remote_ssh_toggle, Spacer(10), self._reset_pin_buttons],
+                              line_separator=True, spacing=0)
+
+  @staticmethod
+  def _remote_pin_clear() -> None:
+    params = ui_state.params
+    params.put_bool("RemoteAccessPinEnabled", False)
+    params.remove("RemoteAccessPinSalt")
+    params.remove("RemoteAccessPinHash")
+    params.put("RemoteAccessPinIterations", 150000)
+    # Factory state for remote access features.
+    params.put_bool("LiveViewEnabled", False)
+    params.put_bool("RemoteSshEnabled", False)
+    params.put_bool("LiveView", False)
 
   @staticmethod
   def _remote_pin_is_set() -> bool:
@@ -109,6 +137,9 @@ class StableLayout(Widget):
     # - If not set: enter new pin, confirm new pin.
     # - If set: enter old pin, then enter new pin, confirm.
 
+    def _numbers_only_alert() -> None:
+      self._show_alert(tr("Numbers only. No characters allowed."))
+
     def prompt_pin(title: str, subtitle: str, min_len: int, cb):
       dialog = InputDialogSP(title=title, sub_title=subtitle, current_text="", callback=cb, min_text_size=min_len, password_mode=True)
       dialog.show()
@@ -116,12 +147,23 @@ class StableLayout(Widget):
     def handle_new_pin(_result: DialogResult, new_pin: str):
       if _result != DialogResult.CONFIRM:
         return
+      if new_pin == "":
+        # Treat empty input as "clear PIN" and return to factory state.
+        self._remote_pin_clear()
+        self._show_alert(tr("PIN cleared."))
+        return
+      if not new_pin.isdigit():
+        _numbers_only_alert()
+        return
       if not new_pin.isdigit() or not (4 <= len(new_pin) <= 12):
         self._show_alert(tr("PIN must be 4-12 digits."))
         return
 
       def handle_confirm(_r2: DialogResult, confirm_pin: str):
         if _r2 != DialogResult.CONFIRM:
+          return
+        if not confirm_pin.isdigit():
+          _numbers_only_alert()
           return
         if new_pin != confirm_pin:
           self._show_alert(tr("PINs do not match."))
@@ -131,20 +173,38 @@ class StableLayout(Widget):
         except ValueError:
           self._show_alert(tr("PIN must be 4-12 digits."))
 
-      prompt_pin(tr("Remote Access PIN"), tr("Confirm new PIN (4-12 digits)"), 4, handle_confirm)
+      prompt_pin(tr("PIN"), tr("Confirm new PIN (4-12 digits)"), 4, handle_confirm)
 
     def handle_old_pin(_result: DialogResult, old_pin: str):
       if _result != DialogResult.CONFIRM:
         return
-      if not self._remote_pin_verify(old_pin):
-        self._show_alert(tr("Incorrect PIN."))
+      if not old_pin.isdigit():
+        _numbers_only_alert()
         return
-      prompt_pin(tr("Remote Access PIN"), tr("Enter new PIN (4-12 digits)"), 4, handle_new_pin)
+      if not self._remote_pin_verify(old_pin):
+        self._show_alert(tr("Wrong PIN."))
+        return
+      prompt_pin(tr("PIN"), tr("Enter new PIN (4-12 digits)"), 4, handle_new_pin)
 
     if self._remote_pin_is_set():
-      prompt_pin(tr("Remote Access PIN"), tr("Enter current PIN"), 4, handle_old_pin)
+      prompt_pin(tr("PIN"), tr("Enter current PIN"), 4, handle_old_pin)
     else:
-      prompt_pin(tr("Remote Access PIN"), tr("Enter new PIN (4-12 digits)"), 4, handle_new_pin)
+      # min_text_size=0 so the user can submit empty to clear and return to factory state
+      prompt_pin(tr("PIN"), tr("Enter new PIN (4-12 digits) or leave blank to clear"), 0, handle_new_pin)
+
+  def _on_reset_pin_pressed(self) -> None:
+    if not self._remote_pin_is_set():
+      return
+    from openpilot.system.ui.lib.application import gui_app
+
+    dlg = ConfirmDialog(tr("Reset PIN?"), tr("Reset"), tr("Cancel"))
+
+    def cb(res: DialogResult):
+      if res == DialogResult.CONFIRM:
+        self._remote_pin_clear()
+        self._show_alert(tr("PIN reset."))
+
+    gui_app.set_modal_overlay(dlg, cb)
 
   @staticmethod
   def _on_live_view_toggled(enabled: bool):
