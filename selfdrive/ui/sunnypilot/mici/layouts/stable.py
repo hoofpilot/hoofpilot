@@ -1,30 +1,13 @@
-﻿from collections.abc import Callable
+"""
+Sunnypilot mici Stable panel.
 
-import pyray as rl
-from openpilot.selfdrive.ui.mici.widgets.button import BigParamControl
-from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.system.ui.widgets import NavWidget
-from openpilot.system.ui.widgets.scroller import Scroller
+Keep this as a thin wrapper around the base mici Stable panel so behavior stays consistent
+across platforms (PIN, Live View, Remote SSH, Reset PIN).
+"""
+
+from openpilot.selfdrive.ui.mici.layouts.settings.stable import StableLayoutMici as _BaseStableLayoutMici
 
 
-class StableLayoutMici(NavWidget):
-  def __init__(self, back_callback: Callable):
-    super().__init__()
-    self.set_back_callback(back_callback)
-
-    self._live_view_toggle = BigParamControl("live view", "LiveViewEnabled", toggle_callback=self._on_live_view_toggled)
-    self._scroller = Scroller([self._live_view_toggle], snap_items=False)
-
-  @staticmethod
-  def _on_live_view_toggled(enabled: bool):
-    if not enabled:
-      ui_state.params.put_bool("LiveView", False)
-
-  def show_event(self):
-    super().show_event()
-    self._scroller.show_event()
-
-  def _render(self, rect: rl.Rectangle):
-    self._scroller.render(rect)
-
+class StableLayoutMici(_BaseStableLayoutMici):
+  pass
 
