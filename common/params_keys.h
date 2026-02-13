@@ -111,6 +111,10 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"RecordAudioFeedback", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"RecordFront", {PERSISTENT | BACKUP, BOOL}},
     {"RecordFrontLock", {PERSISTENT, BOOL}},  // for the internal fleet
+    {"RemoteAccessPinEnabled", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"RemoteAccessPinIterations", {PERSISTENT | BACKUP, INT, "150000"}},
+    {"RemoteAccessPinSalt", {PERSISTENT | BACKUP | DONT_LOG, BYTES}},
+    {"RemoteAccessPinHash", {PERSISTENT | BACKUP | DONT_LOG, BYTES}},
     {"RemoteSshEnabled", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"SecOCKey", {PERSISTENT | DONT_LOG | BACKUP, STRING}},
     {"ShowDebugInfo", {PERSISTENT, BOOL}},

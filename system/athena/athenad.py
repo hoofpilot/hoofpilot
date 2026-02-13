@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import fcntl
 import hashlib
+import hmac
 import io
 import json
 import os
@@ -65,6 +66,9 @@ DEVICE_STATE_UPDATE_INTERVAL = 1.0  # in seconds
 DEFAULT_UPLOAD_PRIORITY = 99  # higher number = lower priority
 REMOTE_SSH_IDLE_TIMEOUT_S = 10 * 60
 REMOTE_SSH_MAX_READ_BYTES = 1024 * 1024
+REMOTE_PIN_TOKEN_TTL_S = 5 * 60
+REMOTE_PIN_LOCKOUT_S = 30
+REMOTE_PIN_MAX_FAILS = 5
 
 # https://bytesolutions.com/dscp-tos-cos-precedence-conversion-chart,
 # https://en.wikipedia.org/wiki/Differentiated_services
@@ -145,6 +149,10 @@ sdp_send_queue: Queue[str] = queue.Queue()
 ice_send_queue: Queue[str] = queue.Queue()
 remote_ssh_sessions: dict[str, dict] = {}
 remote_ssh_sessions_lock = threading.RLock()
+remote_pin_tokens: dict[str, float] = {}
+remote_pin_lock = threading.RLock()
+remote_pin_fails = 0
+remote_pin_lock_until = 0.0
 
 cur_upload_items: dict[int, UploadItem | None] = {}
 
@@ -233,6 +241,74 @@ def _assert_remote_ssh_enabled() -> None:
     raise Exception("Remote SSH is disabled")
 
 
+def _remote_pin_is_set() -> bool:
+  params = Params()
+  if not params.get_bool("RemoteAccessPinEnabled"):
+    return False
+  salt = params.get("RemoteAccessPinSalt")
+  hsh = params.get("RemoteAccessPinHash")
+  iters = params.get("RemoteAccessPinIterations")
+  return bool(salt) and bool(hsh) and isinstance(iters, int) and iters > 0
+
+
+def _remote_pin_cleanup_tokens_locked(now: float) -> None:
+  for tok, exp in list(remote_pin_tokens.items()):
+    if exp <= now:
+      remote_pin_tokens.pop(tok, None)
+
+
+def _remote_pin_issue_token_locked(now: float) -> tuple[str, int]:
+  token = base64.urlsafe_b64encode(os.urandom(24)).decode("utf-8").rstrip("=")
+  remote_pin_tokens[token] = now + REMOTE_PIN_TOKEN_TTL_S
+  return token, REMOTE_PIN_TOKEN_TTL_S
+
+
+def _remote_pin_require_auth(auth_token: str | None) -> None:
+  if not _remote_pin_is_set():
+    return
+  if not auth_token:
+    raise Exception("PIN required")
+  now = time.monotonic()
+  with remote_pin_lock:
+    _remote_pin_cleanup_tokens_locked(now)
+    exp = remote_pin_tokens.get(auth_token)
+    if exp is None or exp <= now:
+      raise Exception("PIN required")
+
+
+def _remote_pin_hash(pin: str, salt: bytes, iterations: int) -> bytes:
+  return hashlib.pbkdf2_hmac("sha256", pin.encode("utf-8"), salt, iterations, dklen=32)
+
+
+def _remote_pin_clear_locked(params: Params) -> None:
+  params.put_bool("RemoteAccessPinEnabled", False)
+  params.remove("RemoteAccessPinSalt")
+  params.remove("RemoteAccessPinHash")
+  params.put("RemoteAccessPinIterations", 150000)
+
+
+def _remote_pin_set_locked(params: Params, pin: str) -> None:
+  if not isinstance(pin, str) or not pin.isdigit() or not (4 <= len(pin) <= 12):
+    raise Exception("PIN must be 4-12 digits")
+  iterations = 150000
+  salt = os.urandom(16)
+  hsh = _remote_pin_hash(pin, salt, iterations)
+  params.put("RemoteAccessPinSalt", salt)
+  params.put("RemoteAccessPinHash", hsh)
+  params.put("RemoteAccessPinIterations", iterations)
+  params.put_bool("RemoteAccessPinEnabled", True)
+
+
+def _remote_pin_verify_locked(params: Params, pin: str) -> bool:
+  salt = params.get("RemoteAccessPinSalt") or b""
+  expected = params.get("RemoteAccessPinHash") or b""
+  iterations = params.get("RemoteAccessPinIterations") or 0
+  if not salt or not expected or not isinstance(iterations, int) or iterations <= 0:
+    return False
+  actual = _remote_pin_hash(pin, salt, iterations)
+  return hmac.compare_digest(expected, actual)
+
+
 def handle_long_poll(ws: WebSocket, exit_event: threading.Event | None) -> None:
   end_event = threading.Event()
 
@@ -279,12 +355,14 @@ def rtc_handler(exit_event: threading.Event | None, sdp_send_queue: queue.Queue,
 
 
 @dispatcher.add_method
-def setSdpAnswer(answer):
+def setSdpAnswer(answer, authToken: str | None = None):
+  _remote_pin_require_auth(authToken)
   sdp_recv_queue.put_nowait(answer)
 
 
 @dispatcher.add_method
-def getSdp():
+def getSdp(authToken: str | None = None):
+  _remote_pin_require_auth(authToken)
   start_time = time.time()
   timeout = 10
   while time.time() - start_time < timeout:
@@ -298,7 +376,8 @@ def getSdp():
 
 
 @dispatcher.add_method
-def getIce():
+def getIce(authToken: str | None = None):
+  _remote_pin_require_auth(authToken)
   candidates = []
   while not ice_send_queue.empty():
     try:
@@ -311,7 +390,110 @@ def getIce():
 
 
 @dispatcher.add_method
-def remoteSshStart(cols: int = 120, rows: int = 32) -> dict[str, str | bool]:
+def remotePinStatus() -> dict[str, bool | int]:
+  with remote_pin_lock:
+    now = time.monotonic()
+    lock_remaining_s = max(0, int(remote_pin_lock_until - now))
+  return {
+    "set": _remote_pin_is_set(),
+    "locked": lock_remaining_s > 0,
+    "lockRemainingS": lock_remaining_s,
+  }
+
+
+@dispatcher.add_method
+def remotePinVerify(pin: str) -> dict[str, bool | str | int]:
+  if not _remote_pin_is_set():
+    with remote_pin_lock:
+      token, ttl = _remote_pin_issue_token_locked(time.monotonic())
+    return {"success": True, "token": token, "expiresInS": ttl}
+
+  if not isinstance(pin, str) or not pin.isdigit() or not (4 <= len(pin) <= 12):
+    raise Exception("PIN must be 4-12 digits")
+
+  params = Params()
+  with remote_pin_lock:
+    global remote_pin_fails, remote_pin_lock_until
+    now = time.monotonic()
+    if now < remote_pin_lock_until:
+      raise Exception(f"Locked. Try again in {int(remote_pin_lock_until - now)}s.")
+
+    ok = _remote_pin_verify_locked(params, pin)
+    if not ok:
+      remote_pin_fails += 1
+      if remote_pin_fails % REMOTE_PIN_MAX_FAILS == 0:
+        remote_pin_lock_until = now + REMOTE_PIN_LOCKOUT_S
+        raise Exception(f"Too many attempts. Try again in {REMOTE_PIN_LOCKOUT_S}s.")
+      raise Exception("Incorrect PIN")
+
+    remote_pin_fails = 0
+    remote_pin_lock_until = 0.0
+    token, ttl = _remote_pin_issue_token_locked(now)
+    return {"success": True, "token": token, "expiresInS": ttl}
+
+
+@dispatcher.add_method
+def remotePinSet(pin: str) -> dict[str, bool]:
+  if _remote_pin_is_set():
+    raise Exception("PIN already set")
+  params = Params()
+  with remote_pin_lock:
+    _remote_pin_set_locked(params, pin)
+  return {"success": True}
+
+
+@dispatcher.add_method
+def remotePinChange(oldPin: str, newPin: str) -> dict[str, bool]:
+  if not _remote_pin_is_set():
+    raise Exception("PIN not set")
+  if not isinstance(oldPin, str) or not isinstance(newPin, str):
+    raise Exception("Invalid PIN")
+
+  params = Params()
+  with remote_pin_lock:
+    global remote_pin_fails, remote_pin_lock_until
+    now = time.monotonic()
+    if now < remote_pin_lock_until:
+      raise Exception(f"Locked. Try again in {int(remote_pin_lock_until - now)}s.")
+    if not _remote_pin_verify_locked(params, oldPin):
+      remote_pin_fails += 1
+      if remote_pin_fails % REMOTE_PIN_MAX_FAILS == 0:
+        remote_pin_lock_until = now + REMOTE_PIN_LOCKOUT_S
+        raise Exception(f"Too many attempts. Try again in {REMOTE_PIN_LOCKOUT_S}s.")
+      raise Exception("Incorrect PIN")
+
+    _remote_pin_set_locked(params, newPin)
+    remote_pin_fails = 0
+    remote_pin_lock_until = 0.0
+    return {"success": True}
+
+
+@dispatcher.add_method
+def remotePinClear(force: bool = False, pin: str | None = None) -> dict[str, bool]:
+  params = Params()
+  with remote_pin_lock:
+    global remote_pin_fails, remote_pin_lock_until
+    now = time.monotonic()
+    if not force and _remote_pin_is_set():
+      if now < remote_pin_lock_until:
+        raise Exception(f"Locked. Try again in {int(remote_pin_lock_until - now)}s.")
+      if pin is None or not _remote_pin_verify_locked(params, pin):
+        remote_pin_fails += 1
+        if remote_pin_fails % REMOTE_PIN_MAX_FAILS == 0:
+          remote_pin_lock_until = now + REMOTE_PIN_LOCKOUT_S
+          raise Exception(f"Too many attempts. Try again in {REMOTE_PIN_LOCKOUT_S}s.")
+        raise Exception("Incorrect PIN")
+
+    _remote_pin_clear_locked(params)
+    remote_pin_fails = 0
+    remote_pin_lock_until = 0.0
+    remote_pin_tokens.clear()
+    return {"success": True}
+
+
+@dispatcher.add_method
+def remoteSshStart(cols: int = 120, rows: int = 32, authToken: str | None = None) -> dict[str, str | bool]:
+  _remote_pin_require_auth(authToken)
   _assert_remote_ssh_enabled()
   _cleanup_remote_ssh_sessions()
 
@@ -348,7 +530,8 @@ def remoteSshStart(cols: int = 120, rows: int = 32) -> dict[str, str | bool]:
 
 
 @dispatcher.add_method
-def remoteSshWrite(sessionId: str, data: str) -> dict[str, bool | int]:
+def remoteSshWrite(sessionId: str, data: str, authToken: str | None = None) -> dict[str, bool | int]:
+  _remote_pin_require_auth(authToken)
   _assert_remote_ssh_enabled()
   _cleanup_remote_ssh_sessions()
 
@@ -379,7 +562,8 @@ def remoteSshWrite(sessionId: str, data: str) -> dict[str, bool | int]:
 
 
 @dispatcher.add_method
-def remoteSshRead(sessionId: str, maxBytes: int = 65536) -> dict[str, bool | int | str | None]:
+def remoteSshRead(sessionId: str, maxBytes: int = 65536, authToken: str | None = None) -> dict[str, bool | int | str | None]:
+  _remote_pin_require_auth(authToken)
   _assert_remote_ssh_enabled()
   _cleanup_remote_ssh_sessions()
 
@@ -424,7 +608,8 @@ def remoteSshRead(sessionId: str, maxBytes: int = 65536) -> dict[str, bool | int
 
 
 @dispatcher.add_method
-def remoteSshResize(sessionId: str, cols: int = 120, rows: int = 32) -> dict[str, bool]:
+def remoteSshResize(sessionId: str, cols: int = 120, rows: int = 32, authToken: str | None = None) -> dict[str, bool]:
+  _remote_pin_require_auth(authToken)
   _assert_remote_ssh_enabled()
   _cleanup_remote_ssh_sessions()
 
@@ -443,7 +628,8 @@ def remoteSshResize(sessionId: str, cols: int = 120, rows: int = 32) -> dict[str
 
 
 @dispatcher.add_method
-def remoteSshStop(sessionId: str) -> dict[str, bool]:
+def remoteSshStop(sessionId: str, authToken: str | None = None) -> dict[str, bool]:
+  _remote_pin_require_auth(authToken)
   with remote_ssh_sessions_lock:
     if sessionId not in remote_ssh_sessions:
       return {"success": False}
