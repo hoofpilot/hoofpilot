@@ -61,12 +61,13 @@ class StableLayoutMici(NavWidget):
     self._reset_pin_btn.set_click_callback(self._on_reset_pin_pressed)
     self._reset_pin_btn.set_enabled(lambda: ui_state.is_offroad() and self._remote_pin_is_set())
 
+    # Horizontal layout: keep controls side-by-side instead of stacked vertically.
     self._scroller = Scroller([
       self._pin_btn,
       self._live_view_toggle,
       self._remote_ssh_toggle,
       self._reset_pin_btn,
-    ], horizontal=False, snap_items=False, line_separator=True, spacing=0, pad_start=0, pad_end=0, scroll_indicator=False)
+    ], horizontal=True, snap_items=False, line_separator=False, spacing=20, pad_start=20, pad_end=20, scroll_indicator=True)
 
   def show_event(self):
     super().show_event()

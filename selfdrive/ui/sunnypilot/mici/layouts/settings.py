@@ -6,6 +6,7 @@ from openpilot.selfdrive.ui.sunnypilot.mici.layouts.models import ModelsLayoutMi
 from openpilot.selfdrive.ui.sunnypilot.mici.layouts.stable import StableLayoutMici
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.hardware import PC
+from openpilot.selfdrive.ui.mici.layouts.settings.device import PairBigButton
 
 ICON_SIZE = 70
 
@@ -45,5 +46,12 @@ class SettingsLayoutSP(OP.SettingsLayout):
     paired = ui_state.prime_state.is_paired()
     show_stable = PC or paired
     self._stable_btn.set_visible(show_stable)
+
+    # Pairing requires device keys; hide the pair button on PC.
+    if PC:
+      for item in self._scroller._items:
+        if isinstance(item, PairBigButton):
+          item.set_visible(False)
+
     if not show_stable and self._current_panel == OP.PanelType.STABLE:
       self._set_current_panel(None)
