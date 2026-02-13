@@ -38,7 +38,6 @@ OP.PANEL_COLOR = rl.Color(10, 10, 10, 255)
 ICON_SIZE = 70
 
 OP.PanelType = IntEnum(
-OP.PanelType = IntEnum(
   "PanelType",
   [es.name for es in OP.PanelType] + [
     "SUNNYLINK",
