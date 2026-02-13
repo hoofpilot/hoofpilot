@@ -9,9 +9,11 @@ from openpilot.selfdrive.ui.mici.widgets.button import BigButton
 from openpilot.selfdrive.ui.mici.layouts.settings.toggles import TogglesLayoutMici
 from openpilot.selfdrive.ui.mici.layouts.settings.network import NetworkLayoutMici
 from openpilot.selfdrive.ui.mici.layouts.settings.device import DeviceLayoutMici, PairBigButton
+from openpilot.selfdrive.ui.mici.layouts.settings.stable import StableLayoutMici
 from openpilot.selfdrive.ui.mici.layouts.settings.developer import DeveloperLayoutMici
 from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.widgets import Widget, NavWidget
+from openpilot.selfdrive.ui.ui_state import ui_state
 
 
 class PanelType(IntEnum):
@@ -20,6 +22,7 @@ class PanelType(IntEnum):
   DEVICE = 2
   DEVELOPER = 3
   USER_MANUAL = 4
+  STABLE = 5
 
 
 @dataclass
@@ -48,11 +51,19 @@ class SettingsLayout(NavWidget):
     developer_btn = SettingsBigButton("developer", "", "icons_mici/settings/developer_icon.png", icon_size=(64, 60))
     developer_btn.set_click_callback(lambda: self._set_current_panel(PanelType.DEVELOPER))
 
+    stable_btn = SettingsBigButton("stable", "", "../../sunnypilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
+    stable_btn.set_click_callback(lambda: self._set_current_panel(PanelType.STABLE))
+    stable_btn.set_visible(lambda: ui_state.prime_state.is_paired())
+
+    pair_btn = PairBigButton()
+    pair_btn.set_visible(lambda: not ui_state.prime_state.is_paired())
+
     self._scroller = Scroller([
       toggles_btn,
       network_btn,
       device_btn,
-      PairBigButton(),
+      pair_btn,
+      stable_btn,
       #BigDialogButton("manual", "", "icons_mici/settings/manual_icon.png", "Check out the mici user\nmanual at comma.ai/setup"),
       developer_btn,
     ], snap_items=False)
@@ -65,6 +76,7 @@ class SettingsLayout(NavWidget):
       PanelType.TOGGLES: PanelInfo("Toggles", TogglesLayoutMici(back_callback=lambda: self._set_current_panel(None))),
       PanelType.NETWORK: PanelInfo("Network", NetworkLayoutMici(back_callback=lambda: self._set_current_panel(None))),
       PanelType.DEVICE: PanelInfo("Device", DeviceLayoutMici(back_callback=lambda: self._set_current_panel(None))),
+      PanelType.STABLE: PanelInfo("Stable", StableLayoutMici(back_callback=lambda: self._set_current_panel(None))),
       PanelType.DEVELOPER: PanelInfo("Developer", DeveloperLayoutMici(back_callback=lambda: self._set_current_panel(None))),
     }
 
