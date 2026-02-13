@@ -66,7 +66,6 @@ class StableLayout(Widget):
       enabled=lambda: self._remote_pin_is_set(),
     )
 
-    self._scroller = Scroller([self._remote_pin_button, self._remote_pin_reset_button, self._live_view_toggle, self._remote_ssh_toggle], line_separator=True, spacing=0)
     # put destructive reset at the bottom like other device controls
     self._scroller = Scroller([self._remote_pin_button, self._live_view_toggle, self._remote_ssh_toggle, Spacer(10), self._reset_pin_buttons],
                               line_separator=True, spacing=0)
