@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from cereal import car
+﻿from cereal import car
 
 from openpilot.common.params import Params
 
@@ -38,3 +32,4 @@ class QuietMode:
       return bool(current_alert != AudibleAlert.none)
 
     return current_alert in ALERTS_ALWAYS_PLAY
+

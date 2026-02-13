@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import numpy as np
+﻿import numpy as np
 
 import pyray as rl
 from openpilot.common.constants import CV
@@ -145,3 +139,4 @@ class ChevronMetrics:
       d_rel_diff = abs(lead_one.dRel - lead_two.dRel) if has_lead_one else float('inf')
       if d_rel_diff > 3.0:
         self._draw_lead(lead_two, lead_vehicles[1], v_ego, rect)
+

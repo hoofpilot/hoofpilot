@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import json
+﻿import json
 
 from openpilot.sunnypilot.sunnylink.athena.sunnylinkd import getParamsAllKeysV1, METADATA_PATH
 
@@ -84,3 +78,4 @@ def test_get_params_all_keys_v1():
     assert param["_extra"]["min"] == metadata[key]["min"]
     assert param["_extra"]["max"] == metadata[key]["max"]
     assert param["_extra"]["step"] == metadata[key]["step"]
+

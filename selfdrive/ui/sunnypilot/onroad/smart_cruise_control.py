@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import pyray as rl
+﻿import pyray as rl
 
 from openpilot.selfdrive.ui.onroad.hud_renderer import COLORS
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -129,3 +123,4 @@ class SmartCruiseControlRenderer(Widget):
     scc_map_pulse = self._pulse_element(self.map_frame)
     if (self.map_enabled and not self.map_active) or (self.map_active and scc_map_pulse):
       self._draw_icon(rect.x + rect.width / 2, rect.height, x_offset, y_scc_m, "SCC-M")
+

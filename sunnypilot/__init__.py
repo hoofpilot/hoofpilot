@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-from enum import IntEnum
+﻿from enum import IntEnum
 import hashlib
 
 PARAMS_UPDATE_PERIOD = 3  # seconds
@@ -37,3 +30,4 @@ def get_sanitize_int_param(key: str, min_val: int, max_val: int, params) -> int:
     params.put(key, clipped_val)
 
   return clipped_val
+

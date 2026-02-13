@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-from cereal import car, custom
+﻿from cereal import car, custom
 from opendbc.car import structs
 from openpilot.common.params import Params
 
@@ -48,3 +41,4 @@ class CruiseHelper:
       self.params.put_bool_nonblocking("ExperimentalMode", self._experimental_mode)
       events.add(EventNameSP.experimentalModeSwitched)
       self.experimental_mode_switched = True
+

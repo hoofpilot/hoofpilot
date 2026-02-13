@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from collections.abc import Callable
+﻿from collections.abc import Callable
 from enum import IntEnum
 
 import pyray as rl
@@ -176,3 +170,4 @@ class SpeedLimitSettingsLayout(Widget):
   def hide_event(self):
     self._current_panel = PanelType.SETTINGS
     self._scroller.hide_event()
+

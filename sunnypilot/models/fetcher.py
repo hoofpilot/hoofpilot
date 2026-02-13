@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-import time
+﻿import time
 
 import requests
 from requests.exceptions import (SSLError, RequestException, HTTPError)
@@ -185,3 +178,4 @@ if __name__ == "__main__":
       print(f"Artifact: {model.artifact.fileName}, Download URI: {model.artifact.downloadUri.uri}")
       # Print metadata details
       print(f"Metadata: {model.metadata.fileName}, Download URI: {model.metadata.downloadUri.uri}")
+

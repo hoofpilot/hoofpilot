@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-from Crypto.Cipher import AES
+﻿from Crypto.Cipher import AES
 
 
 class AESCipher:
@@ -32,3 +25,4 @@ class AESCipher:
     decrypted_data = cipher.decrypt(encrypted_data)
     padding_length = decrypted_data[-1]
     return decrypted_data[:-padding_length]
+

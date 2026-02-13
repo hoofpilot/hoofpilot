@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import pyray as rl
+﻿import pyray as rl
 
 from cereal import log
 from openpilot.selfdrive.ui import UI_BORDER_SIZE
@@ -138,3 +132,4 @@ class CircularAlertsRenderer:
         line_x = center.x - measure.x / 2
         rl.draw_text_ex(font, line, rl.Vector2(line_x, current_y), text_size, spacing, txt_color)
         current_y += text_size * FONT_SCALE
+

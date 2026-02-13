@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-from parameterized import parameterized
+﻿from parameterized import parameterized
 
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper, LaneChangeState, LaneChangeDirection
@@ -211,3 +204,4 @@ class TestAutoLaneChangeController:
 
     # Lane change should never be allowed
     assert not self.alc.auto_lane_change_allowed
+

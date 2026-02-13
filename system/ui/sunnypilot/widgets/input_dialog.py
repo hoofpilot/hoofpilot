@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from collections.abc import Callable
+﻿from collections.abc import Callable
 
 from openpilot.common.params import Params
 from openpilot.system.ui.lib.application import gui_app
@@ -40,3 +34,4 @@ class InputDialogSP:
         self.callback(result, text)
 
     gui_app.set_modal_overlay(self.keyboard, internal_callback)
+

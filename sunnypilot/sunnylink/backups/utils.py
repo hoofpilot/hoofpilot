@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import base64
+﻿import base64
 import hashlib
 import os
 import zlib
@@ -186,3 +180,4 @@ class SnakeCaseEncoder(json.JSONEncoder):
   def encode(self, obj):
     transformed_obj = transform_dict(obj)
     return super().encode(transformed_obj)
+

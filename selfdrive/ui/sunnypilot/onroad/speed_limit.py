@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from dataclasses import dataclass
+﻿from dataclasses import dataclass
 import math
 import pyray as rl
 
@@ -279,3 +273,4 @@ class SpeedLimitRenderer(Widget):
       return f"{int(round(d_ft / 50) * 50)} ft"
 
     return f"{int(round(d_ft / 100) * 100)} ft"
+

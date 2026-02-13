@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from typing import Any
+﻿from typing import Any
 
 from opendbc.car import structs
 from opendbc.car.interfaces import CarInterfaceBase
@@ -134,3 +128,4 @@ def initialize_params(params) -> list[dict[str, Any]]:
   ])
 
   return [{k: params.get(k, return_default=True)} for k in keys]
+

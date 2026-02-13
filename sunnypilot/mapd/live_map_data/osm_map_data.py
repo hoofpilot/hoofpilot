@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import json
+﻿import json
 import math
 import platform
 
@@ -59,3 +53,4 @@ class OsmMapData(BaseMapData):
       next_speed_limit_distance = (self.last_position or Coordinate(0, 0)).distance_to(next_speed_limit_coordinates)
 
     return next_speed_limit, next_speed_limit_distance
+

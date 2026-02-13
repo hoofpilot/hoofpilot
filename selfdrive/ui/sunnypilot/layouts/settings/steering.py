@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from cereal import car
+﻿from cereal import car
 from enum import IntEnum
 
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -159,3 +153,4 @@ class SteeringLayout(Widget):
   def show_event(self):
     self._set_current_panel(PanelType.STEERING)
     self._scroller.show_event()
+

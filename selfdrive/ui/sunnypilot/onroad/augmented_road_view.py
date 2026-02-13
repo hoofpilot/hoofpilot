@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import pyray as rl
+﻿import pyray as rl
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.selfdrive.ui.ui_state import UIStatus, ui_state
 from openpilot.system.ui.lib.application import gui_app
@@ -29,3 +23,4 @@ class AugmentedRoadViewSP:
                           rl.Rectangle(0, 0, self._fade_texture.width, self._fade_texture.height),
                           _content_rect, rl.Vector2(0, 0), 0.0,
                           rl.Color(255, 255, 255, int(255 * fade_alpha)))
+

@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import requests
+﻿import requests
 import threading
 import time
 import pyray as rl
@@ -149,3 +143,4 @@ class TripsLayout(Widget):
     y = self._render_stat_group(x, y, w, card_height, tr("PAST WEEK"), week, is_metric)
 
     return -1
+

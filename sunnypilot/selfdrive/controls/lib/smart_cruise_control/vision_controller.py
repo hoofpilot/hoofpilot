@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import numpy as np
+﻿import numpy as np
 
 import cereal.messaging as messaging
 from cereal import custom
@@ -201,3 +195,4 @@ class SmartCruiseControlVision:
     self.output_a_target = self.get_a_target_from_control()
 
     self.frame += 1
+

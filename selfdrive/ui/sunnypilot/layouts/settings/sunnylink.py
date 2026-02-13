@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import pyray as rl
+﻿import pyray as rl
 from cereal import custom
 from openpilot.selfdrive.ui.sunnypilot.layouts.onboarding import SunnylinkConsentPage
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -28,7 +22,7 @@ class SunnylinkHeader(Widget):
     super().__init__()
 
     self._title = UnifiedLabel(
-      text="🚀 sunnylink 🚀",
+      text="ðŸš€ sunnylink ðŸš€",
       font_size=90,
       font_weight=FontWeight.AUDIOWIDE,
       text_color=rl.WHITE,
@@ -323,7 +317,7 @@ class SunnylinkLayout(Widget):
         "Welcome back!! We're excited to see you've enabled sunnylink again!")
       color = rl.Color(0, 255, 0, 255)  # Green
     else:
-      description = ("😢 " + tr("Not going to lie, it's sad to see you disabled sunnylink") +
+      description = ("ðŸ˜¢ " + tr("Not going to lie, it's sad to see you disabled sunnylink") +
                      tr(", but we'll be here when you're ready to come back."))
       color = rl.Color(255, 165, 0, 255)  # Orange
     self._sunnylink_description.set_text(description)
@@ -340,7 +334,7 @@ class SunnylinkLayout(Widget):
     self._sunnylink_uploader_toggle.action_item.set_enabled(self._sunnylink_enabled)
     self.handle_backup_restore_progress()
 
-    sponsor_btn_text = tr("THANKS ♥") if ui_state.sunnylink_state.is_sponsor() else tr("SPONSOR")
+    sponsor_btn_text = tr("THANKS â™¥") if ui_state.sunnylink_state.is_sponsor() else tr("SPONSOR")
     tier_name = ui_state.sunnylink_state.get_sponsor_tier().name.capitalize() or tr("Not Sponsor")
     self._sponsor_btn.action_item.set_text(sponsor_btn_text)
     self._sponsor_btn.action_item.set_value(tier_name, ui_state.sunnylink_state.get_sponsor_tier_color())
@@ -357,3 +351,4 @@ class SunnylinkLayout(Widget):
     super().show_event()
     self._scroller.show_event()
     self._sunnylink_description.set_visible(False)
+

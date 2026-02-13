@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from enum import Enum
+﻿from enum import Enum
 
 from cereal import messaging, log, custom
 from openpilot.common.params import Params
@@ -185,3 +179,4 @@ class DeviceSP:
         if _ui_state.onroad_brightness_timer_expired:
           gui_app.mouse_events.clear()
         _ui_state.reset_onroad_sleep_timer()
+

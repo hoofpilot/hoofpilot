@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import math
+﻿import math
 import numpy as np
 
 from openpilot.common.pid import PIDController
@@ -134,3 +128,4 @@ class LatControlTorqueExtBase:
         self.lat_accel_friction_factor = 1.0
       self.lateral_jerk_setpoint = self.lat_jerk_friction_factor * self.lookahead_lateral_jerk
       self.lateral_jerk_measurement = self.lat_jerk_friction_factor * self.actual_lateral_jerk
+

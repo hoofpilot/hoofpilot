@@ -1,16 +1,10 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from json import load
+﻿from json import load
 import numpy as np
 
 from openpilot.selfdrive.modeld.parse_model_outputs import safe_exp
 
 # dict used to rename activation functions whose names aren't valid python identifiers
-ACTIVATION_FUNCTION_NAMES = {'σ': 'sigmoid'}
+ACTIVATION_FUNCTION_NAMES = {'Ïƒ': 'sigmoid'}
 
 
 class NNTorqueModel:
@@ -81,3 +75,4 @@ class NNTorqueModel:
   def check_for_friction_override(self):
     y = self.evaluate([10.0, 0.0, 0.2])
     self.friction_override = (y < 0.1)
+

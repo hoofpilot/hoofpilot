@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import numpy as np
+﻿import numpy as np
 
 from openpilot.common.transformations.camera import DEVICE_CAMERAS
 
@@ -37,3 +31,4 @@ class CameraOffsetHelper:
     intrinsics_extra = dc.ecam.intrinsics
     model_transform_extra = self.apply_camera_offset(model_transform_extra, intrinsics_extra, height, self.actual_camera_offset)
     return model_transform_main, model_transform_extra
+

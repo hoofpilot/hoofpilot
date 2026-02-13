@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import pyray as rl
+﻿import pyray as rl
 from dataclasses import dataclass
 
 from openpilot.common.constants import CV
@@ -122,7 +116,7 @@ class SteeringAngleElement(LateralControlElement):
     lat_active = sm['carControl'].latActive
     steer_override = car_state.steeringPressed
 
-    value = f"{angle_steers:.1f}°"
+    value = f"{angle_steers:.1f}Â°"
     color = self.get_lat_color(lat_active, steer_override, angle_steers, check_angle=True)
 
     return UiElement(value, "REAL STEER", self.unit, color)
@@ -139,7 +133,7 @@ class DesiredSteeringAngleElement(LateralControlElement):
     angle_steers = car_state.steeringAngleDeg
     steer_angle_desired = controls_state.lateralControlState.angleState.steeringAngleDeg
 
-    value = f"{steer_angle_desired:.1f}°" if lat_active else "-"
+    value = f"{steer_angle_desired:.1f}Â°" if lat_active else "-"
 
     color = rl.WHITE
     if lat_active:
@@ -202,7 +196,7 @@ class DesiredSteeringPIDElement(LateralControlElement):
     angle_steers = car_state.steeringAngleDeg
     steer_angle_desired = controls_state.lateralControlState.pidState.steeringAngleDesiredDeg
 
-    value = f"{steer_angle_desired:.1f}°" if lat_active else "-"
+    value = f"{steer_angle_desired:.1f}Â°" if lat_active else "-"
 
     color = rl.WHITE
     if lat_active:
@@ -273,7 +267,7 @@ class LatAccelFactorElement:
 
 class SteeringTorqueEpsElement:
   def __init__(self):
-    self.unit = "N·dm"
+    self.unit = "NÂ·dm"
 
   def update(self, sm, is_metric: bool) -> UiElement:
     steering_torque_eps = sm['carState'].steeringTorqueEps
@@ -304,7 +298,7 @@ class BearingDegElement(GpsInfoElement):
     bearing_deg = gps_data.bearingDeg
 
     if bearing_accuracy_deg != 180.0:
-      value = f"{bearing_deg:.0f}°"
+      value = f"{bearing_deg:.0f}Â°"
       if (337.5 <= bearing_deg <= 360) or (0 <= bearing_deg <= 22.5):
         dir_value = "N"
       elif 22.5 < bearing_deg < 67.5:
@@ -347,3 +341,4 @@ class AltitudeElement(GpsInfoElement):
 
     value = f"{altitude:.1f}" if gps_accuracy != 0.0 else "-"
     return UiElement(value, "ALT.", self.unit, rl.WHITE)
+

@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import platform
+﻿import platform
 
 from cereal import custom
 from openpilot.common.params import Params
@@ -56,3 +50,4 @@ class TestSmartCruiseControlMap:
     assert self.scc_m.state == VisionState.enabled
 
   # TODO-SP: mock data from modelV2 to test other states
+

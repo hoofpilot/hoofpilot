@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from enum import IntEnum
+﻿from enum import IntEnum
 import threading
 import requests
 import time
@@ -222,3 +216,4 @@ class SunnylinkState:
 
   def __del__(self):
     self.stop()
+

@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-from collections.abc import Callable
+﻿from collections.abc import Callable
 
 import pyray as rl
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -63,3 +57,4 @@ class SpeedLimitPolicyLayout(Widget):
   def show_event(self):
     self._scroller.show_event()
     self._speed_limit_policy.show_description(True)
+

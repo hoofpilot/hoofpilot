@@ -1,10 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-import os
+﻿import os
 
 import pyray as rl
 
@@ -38,3 +32,4 @@ class GuiApplicationExt:
 
   def set_show_mouse_coords(self, show: bool):
     self._show_mouse_coords = show
+

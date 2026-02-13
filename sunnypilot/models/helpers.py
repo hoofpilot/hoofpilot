@@ -1,11 +1,4 @@
-"""
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
-
-This file is part of sunnypilot and is licensed under the MIT License.
-See the LICENSE.md file in the root directory for more details.
-"""
-
-import hashlib
+﻿import hashlib
 import os
 import pickle
 import numpy as np
@@ -209,3 +202,4 @@ def plan_x_idxs_helper(constants, plan, model_output) -> list[float]:
       next_x_val - current_x_val) > 1e-9 else float('nan')
     LINE_T_IDXS[xidx] = p * constants.T_IDXS[tidx + 1] + (1 - p) * constants.T_IDXS[tidx]
   return LINE_T_IDXS
+
