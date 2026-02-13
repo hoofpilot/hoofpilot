@@ -7,7 +7,7 @@ from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets import Widget
 
 ASSETS_DIR = files("openpilot.selfdrive").joinpath("assets")
-MONO_FONT = ASSETS_DIR.joinpath("fonts").joinpath("JetBrainsMono-Medium.ttf")
+MONO_FONT = ASSETS_DIR.joinpath("fonts").joinpath("Inter-Bold.ttf")
 
 
 class ExperimentalModeButton(Widget):
