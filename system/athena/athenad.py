@@ -149,6 +149,7 @@ sdp_send_queue: Queue[str] = queue.Queue()
 ice_send_queue: Queue[str] = queue.Queue()
 remote_ssh_sessions: dict[str, dict] = {}
 remote_ssh_sessions_lock = threading.RLock()
+remote_ssh_active_prev = False
 remote_pin_tokens: dict[str, float] = {}
 remote_pin_lock = threading.RLock()
 remote_pin_fails = 0
@@ -194,6 +195,18 @@ def _is_remote_ssh_enabled() -> bool:
   return Params().get_bool("RemoteSshEnabled")
 
 
+def _set_remote_ssh_active_param_locked(active: bool) -> None:
+  # Best-effort: used to drive an offroad alert via hardwared.
+  global remote_ssh_active_prev
+  if active == remote_ssh_active_prev:
+    return
+  remote_ssh_active_prev = active
+  try:
+    Params().put_bool("RemoteSsh", active)
+  except Exception:
+    pass
+
+
 def _close_remote_ssh_session_locked(session_id: str) -> None:
   session = remote_ssh_sessions.pop(session_id, None)
   if session is None:
@@ -218,11 +231,14 @@ def _close_remote_ssh_session_locked(session_id: str) -> None:
       except subprocess.TimeoutExpired:
         pass
 
+  _set_remote_ssh_active_param_locked(bool(remote_ssh_sessions))
+
 
 def _close_all_remote_ssh_sessions() -> None:
   with remote_ssh_sessions_lock:
     for session_id in list(remote_ssh_sessions.keys()):
       _close_remote_ssh_session_locked(session_id)
+    _set_remote_ssh_active_param_locked(False)
 
 
 def _cleanup_remote_ssh_sessions() -> None:
@@ -233,6 +249,7 @@ def _cleanup_remote_ssh_sessions() -> None:
       last_activity = session["last_activity"]
       if proc.poll() is not None or (now - last_activity) > REMOTE_SSH_IDLE_TIMEOUT_S:
         _close_remote_ssh_session_locked(session_id)
+    _set_remote_ssh_active_param_locked(bool(remote_ssh_sessions))
 
 
 def _assert_remote_ssh_enabled() -> None:
@@ -526,6 +543,7 @@ def remoteSshStart(cols: int = 120, rows: int = 32, authToken: str | None = None
       "proc": proc,
       "last_activity": time.monotonic(),
     }
+    _set_remote_ssh_active_param_locked(True)
 
   return {"success": True, "sessionId": session_id}
 

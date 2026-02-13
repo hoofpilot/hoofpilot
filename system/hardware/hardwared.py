@@ -312,6 +312,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     startup_conditions["not_driver_view"] = not params.get_bool("IsDriverViewEnabled")
     startup_conditions["not_taking_snapshot"] = not params.get_bool("IsTakingSnapshot")
     set_offroad_alert_if_changed("Offroad_IsViewingLive", params.get_bool("LiveView"))
+    set_offroad_alert_if_changed("Offroad_IsRemoteSshActive", params.get_bool("RemoteSsh"))
 
     # must be at an engageable thermal band to go onroad
     startup_conditions["device_temp_engageable"] = thermal_status < ThermalStatus.red
