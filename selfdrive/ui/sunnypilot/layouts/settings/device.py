@@ -159,7 +159,7 @@ class DeviceLayoutSP(DeviceLayout):
         ), callback=_do_reset)
 
     gui_app.set_modal_overlay(ConfirmDialog(
-      text=tr("Are you sure you want to reset all sunnypilot settings to default? Once the settings are reset, there is no going back."),
+      text=tr("Are you sure you want to reset all hoofpilot settings to default? Once the settings are reset, there is no going back."),
       confirm_text=tr("Reset")
     ), callback=_second_confirm)
 
