@@ -512,7 +512,9 @@ def remotePinClear(force: bool = False, pin: str | None = None) -> dict[str, boo
 @dispatcher.add_method
 def remoteSshStart(cols: int = 120, rows: int = 32, authToken: str | None = None) -> dict[str, str | bool]:
   _remote_pin_require_auth(authToken)
-  _assert_remote_ssh_enabled()
+  if not _is_remote_ssh_enabled():
+    _close_all_remote_ssh_sessions()
+    return {"success": False, "error": "Remote SSH disabled"}
   _cleanup_remote_ssh_sessions()
 
   cols = max(10, min(cols, 500))
@@ -551,7 +553,9 @@ def remoteSshStart(cols: int = 120, rows: int = 32, authToken: str | None = None
 @dispatcher.add_method
 def remoteSshWrite(sessionId: str, data: str, authToken: str | None = None) -> dict[str, bool | int]:
   _remote_pin_require_auth(authToken)
-  _assert_remote_ssh_enabled()
+  if not _is_remote_ssh_enabled():
+    _close_all_remote_ssh_sessions()
+    return {"success": False, "error": "Remote SSH disabled"}
   _cleanup_remote_ssh_sessions()
 
   if not isinstance(data, str):
@@ -583,7 +587,9 @@ def remoteSshWrite(sessionId: str, data: str, authToken: str | None = None) -> d
 @dispatcher.add_method
 def remoteSshRead(sessionId: str, maxBytes: int = 65536, authToken: str | None = None) -> dict[str, bool | int | str | None]:
   _remote_pin_require_auth(authToken)
-  _assert_remote_ssh_enabled()
+  if not _is_remote_ssh_enabled():
+    _close_all_remote_ssh_sessions()
+    return {"success": False, "error": "Remote SSH disabled", "data": "", "closed": True, "exitCode": None}
   _cleanup_remote_ssh_sessions()
 
   if maxBytes <= 0:
@@ -629,7 +635,9 @@ def remoteSshRead(sessionId: str, maxBytes: int = 65536, authToken: str | None =
 @dispatcher.add_method
 def remoteSshResize(sessionId: str, cols: int = 120, rows: int = 32, authToken: str | None = None) -> dict[str, bool]:
   _remote_pin_require_auth(authToken)
-  _assert_remote_ssh_enabled()
+  if not _is_remote_ssh_enabled():
+    _close_all_remote_ssh_sessions()
+    return {"success": False, "error": "Remote SSH disabled"}
   _cleanup_remote_ssh_sessions()
 
   cols = max(10, min(cols, 500))
@@ -649,6 +657,9 @@ def remoteSshResize(sessionId: str, cols: int = 120, rows: int = 32, authToken: 
 @dispatcher.add_method
 def remoteSshStop(sessionId: str, authToken: str | None = None) -> dict[str, bool]:
   _remote_pin_require_auth(authToken)
+  if not _is_remote_ssh_enabled():
+    _close_all_remote_ssh_sessions()
+    return {"success": False, "error": "Remote SSH disabled"}
   with remote_ssh_sessions_lock:
     if sessionId not in remote_ssh_sessions:
       return {"success": False}

@@ -121,6 +121,9 @@ class DualButtonActionSP(DualButtonAction):
       left_rect.width = rect.width
 
     # Render buttons
+    enabled = _resolve_value(self.enabled)
+    self.left_button.set_enabled(enabled)
+    self.right_button.set_enabled(enabled)
     self.left_button.render(left_rect)
     self.right_button.render(right_rect)
 
