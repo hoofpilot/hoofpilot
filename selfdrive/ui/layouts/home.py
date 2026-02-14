@@ -8,6 +8,7 @@ from openpilot.selfdrive.ui.widgets.offroad_alerts import UpdateAlert, OffroadAl
 from openpilot.selfdrive.ui.widgets.exp_mode_button import ExperimentalModeButton
 from openpilot.selfdrive.ui.widgets.setup import SetupWidget
 from openpilot.selfdrive.ui.widgets.trips import TripsWidget
+from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.lib.application import gui_app, FontWeight, MousePos
 from openpilot.system.ui.lib.multilang import tr, trn
