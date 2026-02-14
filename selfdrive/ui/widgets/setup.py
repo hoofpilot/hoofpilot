@@ -24,7 +24,8 @@ class SetupWidget(Widget):
     self._render_setup_card(rect, title=tr("Finish Setup"), description=tr("Pair your device with Konik Stable."))
 
   def _render_setup_card(self, rect: rl.Rectangle, title: str, description: str):
-    rl.draw_rectangle_rounded(rect, 0.083, 24, rl.Color(51, 51, 51, 255))
+    # Match Trips card styling
+    rl.draw_rectangle_rounded(rect, 0.05, 10, rl.Color(30, 30, 30, 255))
 
     content_w = rect.width - 64
     x = rect.x + 32
