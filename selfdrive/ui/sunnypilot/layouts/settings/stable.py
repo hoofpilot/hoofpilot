@@ -145,11 +145,6 @@ class StableLayout(Widget):
     def handle_new_pin(_result: DialogResult, new_pin: str):
       if _result != DialogResult.CONFIRM:
         return
-      if new_pin == "":
-        # Treat empty input as "clear PIN" and return to factory state.
-        self._remote_pin_clear()
-        self._show_alert(tr("PIN cleared."))
-        return
       if not new_pin.isdigit():
         _numbers_only_alert()
         return
@@ -187,8 +182,7 @@ class StableLayout(Widget):
     if self._remote_pin_is_set():
       prompt_pin(tr("PIN"), tr("Enter current PIN"), 4, handle_old_pin)
     else:
-      # min_text_size=0 so the user can submit empty to clear and return to factory state
-      prompt_pin(tr("PIN"), tr("Enter new PIN (4-12 digits) or leave blank to clear"), 0, handle_new_pin)
+      prompt_pin(tr("PIN"), tr("Enter new PIN (4-12 digits)"), 4, handle_new_pin)
 
   @staticmethod
   def _on_live_view_toggled(enabled: bool):
