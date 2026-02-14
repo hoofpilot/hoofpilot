@@ -8,6 +8,7 @@ import traceback
 
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
+from openpilot.common.boot_logo import ensure_boot_background
 from openpilot.common.utils import atomic_write
 from openpilot.common.params import Params, ParamKeyFlag
 from openpilot.common.text_window import TextWindow
@@ -25,6 +26,8 @@ from openpilot.system.hardware import PC
 
 def manager_init() -> None:
   save_bootlog()
+
+  ensure_boot_background("selfdrive/assets/images/bg.jpg")
 
   build_metadata = get_build_metadata()
 
