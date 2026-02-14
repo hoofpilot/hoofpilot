@@ -86,7 +86,10 @@ class TripsWidget(Widget):
     rl.draw_rectangle_rounded(rl.Rectangle(x, y, width, height), 0.05, 10, rl.Color(30, 30, 30, 255))
 
     title_font = gui_app.font(FontWeight.BOLD)
-    rl.draw_text_ex(title_font, title, rl.Vector2(x + 60, y + 30), 50 * FONT_SCALE, 0, rl.Color(200, 200, 200, 255))
+    title_font_size = 50 * FONT_SCALE
+    title_size = measure_text_cached(title_font, title, title_font_size)
+    title_x = x + (width - title_size.x) / 2
+    rl.draw_text_ex(title_font, title, rl.Vector2(int(round(title_x)), y + 30), title_font_size, 0, rl.Color(200, 200, 200, 255))
 
     content_y = y + (height / 2) - (140 * FONT_SCALE)
     col_width = width / 3
@@ -145,4 +148,3 @@ class TripsWidget(Widget):
     y = self._render_stat_group(x, y, w, card_height, tr("ALL TIME"), all_time, is_metric)
     y += spacing
     self._render_stat_group(x, y, w, card_height, tr("PAST WEEK"), week, is_metric)
-
