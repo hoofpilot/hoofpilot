@@ -121,7 +121,7 @@ class MiciHomeLayout(Widget):
     self._cell_high_txt = gui_app.texture("icons_mici/settings/network/cell_strength_high.png", 54, 36)
     self._cell_full_txt = gui_app.texture("icons_mici/settings/network/cell_strength_full.png", 54, 36)
 
-    self._openpilot_label = MiciLabel("hoofpilot", font_size=90, color=rl.Color(255, 255, 255, int(255 * 0.9)), font_weight=FontWeight.AUDIOWIDE)
+    self._openpilot_label = MiciLabel("hoofpilot", font_size=90, color=rl.Color(255, 255, 255, int(255 * 0.9)), font_weight=FontWeight.JETBRAINS_MONO)
     self._version_label = MiciLabel("", font_size=36, font_weight=FontWeight.ROMAN)
     self._large_version_label = MiciLabel("", font_size=64, color=rl.GRAY, font_weight=FontWeight.ROMAN)
     self._date_label = MiciLabel("", font_size=36, color=rl.GRAY, font_weight=FontWeight.ROMAN)

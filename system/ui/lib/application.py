@@ -103,6 +103,7 @@ class FontWeight(StrEnum):
   MEDIUM = "Inter-Medium.fnt"
   BOLD = "Inter-Bold.fnt"
   SEMI_BOLD = "Inter-SemiBold.fnt"
+  JETBRAINS_MONO = "JetBrainsMono-Medium.fnt"
   UNIFONT = "unifont.fnt"
   AUDIOWIDE = "Audiowide-Regular.fnt"
 
