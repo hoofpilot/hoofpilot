@@ -995,14 +995,15 @@ bool SpectraCamera::openSensor() {
   };
 
   // Figure out which sensor we have
-  if (!init_sensor_lambda(new OS04C10) &&
+    if (!init_sensor_lambda(new AR0231) &&
+      !init_sensor_lambda(new OS04C10) &&
       !init_sensor_lambda(new OX03C10)) {
     LOGE("** sensor %d FAILED bringup, disabling", cc.camera_num);
     enabled = false;
     return false;
   }
   LOGD("-- Probing sensor %d success", cc.camera_num);
-
+  
   // create session
   struct cam_req_mgr_session_info session_info = {};
   int ret = do_cam_control(m->video0_fd, CAM_REQ_MGR_CREATE_SESSION, &session_info, sizeof(session_info));

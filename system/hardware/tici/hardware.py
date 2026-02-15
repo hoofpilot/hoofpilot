@@ -125,7 +125,7 @@ class Tici(HardwareBase):
       return int(f.read())
 
   def set_ir_power(self, percent: int):
-    if self.get_device_type() == "tizi":
+    if self.get_device_type() in ("tici", "tizi"):
       return
 
     value = int((percent / 100) * 300)
@@ -464,20 +464,22 @@ class Tici(HardwareBase):
 
     cmds = []
 
-    if self.get_device_type() in ("tizi", ):
+    if self.get_device_type() in ("tici", "tizi"):
       # clear out old blue prime initial APN
       os.system('mmcli -m any --3gpp-set-initial-eps-bearer-settings="apn="')
 
       cmds += [
-        # SIM hot swap
-        'AT+QSIMDET=1,0',
-        'AT+QSIMSTAT=1',
-
         # configure modem as data-centric
         'AT+QNVW=5280,0,"0102000000000000"',
         'AT+QNVFW="/nv/item_files/ims/IMS_enable",00',
         'AT+QNVFW="/nv/item_files/modem/mmode/ue_usage_setting",01',
       ]
+      if self.get_device_type() == "tizi":
+        # SIM hot swap, not routed on tici
+        cmds += [
+          'AT+QSIMDET=1,0',
+          'AT+QSIMSTAT=1',
+        ]
     elif manufacturer == 'Cavli Inc.':
       cmds += [
         'AT^SIMSWAP=1',     # use SIM slot, instead of internal eSIM

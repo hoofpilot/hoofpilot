@@ -22,12 +22,20 @@ env.Command(
 with open(File("translations/languages.json").abspath) as f:
   languages = json.loads(f.read())
 
+msgfmt_cmd = "msgfmt -o $TARGET $SOURCE"
+msgfmt_deps = []
+if env.WhereIs("msgfmt") is None:
+  # C3 images don't ship with gettext's msgfmt; use a tiny Python fallback.
+  msgfmt_py = File("#tools/msgfmt.py")
+  msgfmt_cmd = f"python3 {msgfmt_py} -o $TARGET $SOURCE"
+  msgfmt_deps = [msgfmt_py]
+
 po_sources = [f"#selfdrive/ui/translations/app_{l}.po" for l in languages.values()]
 po_sources = [src for src in po_sources if os.path.exists(File(src).abspath)]
 mo_targets = [src.replace(".po", ".mo") for src in po_sources]
 mo_build = []
 for src, tgt in zip(po_sources, mo_targets):
-  mo_build.append(env.Command(tgt, src, "msgfmt -o $TARGET $SOURCE"))
+  mo_build.append(env.Command(tgt, [src] + msgfmt_deps, msgfmt_cmd))
 mo_alias = env.Alias('mo', mo_build)
 env.AlwaysBuild(mo_alias)
 
