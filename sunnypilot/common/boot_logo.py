@@ -4,14 +4,25 @@ from pathlib import Path
 
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.utils import run_cmd_default
+from openpilot.system.hardware import HARDWARE
 
 
-def ensure_boot_background(source_relpath: str = "selfdrive/assets/images/bg.jpg",
+def _default_bg_relpath() -> str:
+  try:
+    return "sunnypilot/selfdrive/assets/images/bg_tici.jpg" if HARDWARE.get_device_type() == "tici" else "sunnypilot/selfdrive/assets/images/bg.jpg"
+  except Exception:
+    return "sunnypilot/selfdrive/assets/images/bg.jpg"
+
+
+def ensure_boot_background(source_relpath: str | None = None,
                            dest_path: str = "/usr/comma/bg.jpg") -> None:
 
   # Don’t attempt on non-POSIX (e.g., local dev on Windows/macOS).
   if os.name != "posix":
     return
+
+  if source_relpath is None:
+    source_relpath = _default_bg_relpath()
 
   dest = Path(dest_path)
   if not dest.exists():
@@ -43,4 +54,3 @@ def ensure_boot_background(source_relpath: str = "selfdrive/assets/images/bg.jpg
 
   if not restored:
     print("warning: failed to restore original mount options for /")
-
