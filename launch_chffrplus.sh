@@ -22,7 +22,7 @@ function agnos_init {
     
     RAW_MODEL=$(tr -d '\0' < /sys/firmware/devicetree/base/model 2>/dev/null || true)
     if echo "$RAW_MODEL" | grep -qi "tici"; then
-      MANIFEST="$DIR/system/hardware/tici/agnos_tici.json"
+      MANIFEST="$DIR/sunnypilot/system/hardware/c3/agnos.json"
     else
       MANIFEST="$DIR/system/hardware/tici/agnos.json"
     fi
@@ -35,6 +35,9 @@ function agnos_init {
 }
 
 function launch {
+  # Ensure we always run from repo root even if invoked from elsewhere.
+  cd "$DIR"
+
   # Remove orphaned git lock if it exists on boot
   [ -f "$DIR/.git/index.lock" ] && rm -f $DIR/.git/index.lock
 
@@ -86,7 +89,7 @@ function launch {
   tmux capture-pane -pq -S-1000 > /tmp/launch_log
 
   # start manager
-  cd system/manager
+  cd "$DIR/system/manager"
   if [ ! -f $DIR/prebuilt ]; then
     ./build.py
   fi
