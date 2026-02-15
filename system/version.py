@@ -16,16 +16,6 @@ MASTER_SP_BRANCHES = ['master']
 RELEASE_BRANCHES = ['release']
 TESTED_BRANCHES = RELEASE_SP_BRANCHES + TESTED_SP_BRANCHES + RELEASE_BRANCHES
 
-SP_BRANCH_MIGRATIONS = {
-  ("tici", "staging-c3-new"): "staging-tici",
-  ("tici", "dev-c3-new"): "staging-tici",
-  ("tici", "master"): "master-tici",
-  ("tici", "master-dev-c3-new"): "master-tici",
-  ("tizi", "staging-c3-new"): "staging",
-  ("tizi", "dev-c3-new"): "dev",
-  ("tizi", "master-dev-c3-new"): "master-dev",
-}
-
 BUILD_METADATA_FILENAME = "build.json"
 
 training_version: str = "0.2.0"
@@ -148,9 +138,7 @@ class BuildMetadata:
 
   @property
   def channel_type(self) -> str:
-    if self.channel.endswith("-tici"):
-      return "tici"
-    elif self.development_channel:
+    if self.development_channel:
       return "development"
     elif self.tested_channel:
       return "staging"
