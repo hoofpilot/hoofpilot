@@ -9,7 +9,8 @@
 
 namespace CommaApi {
 
-const QString BASE_URL = util::getenv("API_HOST", "https://api.commadotai.com").c_str();
+// Default to Konik stable (override via `API_HOST`).
+const QString BASE_URL = util::getenv("API_HOST", "https://api.konik.ai").c_str();
 QByteArray rsa_sign(const QByteArray &data);
 QString create_jwt(const QJsonObject &payloads = {}, int expiry = 3600);
 

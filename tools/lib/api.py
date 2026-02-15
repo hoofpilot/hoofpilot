@@ -1,7 +1,10 @@
 import os
 import requests
 from requests.adapters import HTTPAdapter, Retry
-API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
+from urllib.parse import urljoin
+
+# Base URL for the Konik stable API (override via `API_HOST`).
+API_HOST = os.getenv('API_HOST', 'https://api.konik.ai/')
 
 # TODO: this should be merged into common.api
 
@@ -16,7 +19,11 @@ class CommaApi:
     self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
   def request(self, method, endpoint, **kwargs):
-    with self.session.request(method, API_HOST + '/' + endpoint, **kwargs) as resp:
+    base = API_HOST
+    if not base.endswith('/'):
+      base += '/'
+    url = urljoin(base, endpoint)
+    with self.session.request(method, url, **kwargs) as resp:
       resp_json = resp.json()
       if isinstance(resp_json, dict) and resp_json.get('error'):
         if resp.status_code in [401, 403]:

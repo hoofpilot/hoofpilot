@@ -2,12 +2,12 @@
 """
 Usage::
 
-  usage: auth.py [-h] [{google,apple,github,jwt}] [jwt]
+  usage: auth.py [-h] [{github,jwt}] [jwt]
 
   Login to your comma account
 
   positional arguments:
-    {google,apple,github,jwt}
+    {github,jwt}
     jwt
 
   optional arguments:
@@ -16,33 +16,44 @@ Usage::
 
 Examples::
 
-  ./auth.py  # Log in with google account
-  ./auth.py github  # Log in with GitHub Account
+  ./auth.py  # Log in with GitHub account
+  ./auth.py github  # Log in with GitHub account
   ./auth.py jwt ey......hw  # Log in with a JWT from https://jwt.comma.ai, for use in CI
 """
 
 import argparse
+import os
 import sys
 import pprint
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
-from urllib.parse import parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode, urljoin
 
 from openpilot.tools.lib.api import APIError, CommaApi, UnauthorizedError
 from openpilot.tools.lib.auth_config import set_token, get_token
 
-PORT = 3000
+PREFERRED_PORT = 3000
+DEFAULT_API_HOST = 'https://api.konik.ai/'
+
+
+def _api_base() -> str:
+  base = os.getenv('API_HOST', DEFAULT_API_HOST)
+  if not base.endswith('/'):
+    base += '/'
+  return base
 
 
 class ClientRedirectServer(HTTPServer):
   query_params: dict[str, Any] = {}
+  allow_reuse_address = True
 
 
 class ClientRedirectHandler(BaseHTTPRequestHandler):
   def do_GET(self):
     if not self.path.startswith('/auth'):
       self.send_response(204)
+      self.end_headers()
       return
 
     query = self.path.split('?', 1)[-1]
@@ -58,72 +69,77 @@ class ClientRedirectHandler(BaseHTTPRequestHandler):
     pass  # this prevent http server from dumping messages to stdout
 
 
-def auth_redirect_link(method):
-  provider_id = {
-    'google': 'g',
-    'apple': 'a',
-    'github': 'h',
-  }[method]
+def auth_redirect_link(method: str, port: int) -> str:
+  if method != 'github':
+    raise NotImplementedError(f"only github auth is supported (got {method})")
+  provider_id = 'h'
 
+  redirect_uri = urljoin(_api_base(), f"v2/auth/{provider_id}/redirect/")
   params = {
-    'redirect_uri': f"https://api.comma.ai/v2/auth/{provider_id}/redirect/",
-    'state': f'service,localhost:{PORT}',
+    'redirect_uri': redirect_uri,
+    'state': f'service,localhost:{port}',
   }
 
-  if method == 'google':
-    params.update({
-      'type': 'web_server',
-      'client_id': '45471411055-ornt4svd2miog6dnopve7qtmh5mnu6id.apps.googleusercontent.com',
-      'response_type': 'code',
-      'scope': 'https://www.googleapis.com/auth/userinfo.email',
-      'prompt': 'select_account',
-    })
-    return 'https://accounts.google.com/o/oauth2/auth?' + urlencode(params)
-  elif method == 'github':
-    params.update({
-      'client_id': '28c4ecb54bb7272cb5a4',
-      'scope': 'read:user',
-    })
-    return 'https://github.com/login/oauth/authorize?' + urlencode(params)
-  elif method == 'apple':
-    params.update({
-      'client_id': 'ai.comma.login',
-      'response_type': 'code',
-      'response_mode': 'form_post',
-      'scope': 'name email',
-    })
-    return 'https://appleid.apple.com/auth/authorize?' + urlencode(params)
-  else:
-    raise NotImplementedError(f"no redirect implemented for method {method}")
+  params.update({
+    'client_id': 'Ov23liy0AI1YCd15pypf',
+    'scope': 'read:user',
+  })
+  return 'https://github.com/login/oauth/authorize?' + urlencode(params)
+
+
+def _first_param(params: dict[str, list[str]], name: str) -> str | None:
+  v = params.get(name)
+  if not v:
+    return None
+  return v[0]
+
+
+def _create_redirect_server(preferred_port: int) -> ClientRedirectServer:
+  for port in (preferred_port, 0):
+    try:
+      return ClientRedirectServer(('localhost', port), ClientRedirectHandler)
+    except OSError as e:
+      # EADDRINUSE; retry with an ephemeral port.
+      if port != 0:
+        continue
+      raise e
 
 
 def login(method):
-  oauth_uri = auth_redirect_link(method)
+  web_server = _create_redirect_server(PREFERRED_PORT)
+  port = web_server.server_address[1]
+  oauth_uri = auth_redirect_link(method, port)
 
-  web_server = ClientRedirectServer(('localhost', PORT), ClientRedirectHandler)
   print(f'To sign in, use your browser and navigate to {oauth_uri}')
   webbrowser.open(oauth_uri, new=2)
 
-  while True:
-    web_server.handle_request()
-    if 'code' in web_server.query_params:
-      break
-    elif 'error' in web_server.query_params:
-      print('Authentication Error: "{}". Description: "{}" '.format(
-        web_server.query_params['error'],
-        web_server.query_params.get('error_description')), file=sys.stderr)
-      break
+  try:
+    while True:
+      web_server.handle_request()
+      if 'code' in web_server.query_params:
+        break
+      elif 'error' in web_server.query_params:
+        print('Authentication Error: "{}". Description: "{}" '.format(
+          _first_param(web_server.query_params, 'error'),
+          _first_param(web_server.query_params, 'error_description')), file=sys.stderr)
+        return
+  finally:
+    web_server.server_close()
 
   try:
-    auth_resp = CommaApi().post('v2/auth/', data={'code': web_server.query_params['code'], 'provider': web_server.query_params['provider']})
+    code = _first_param(web_server.query_params, 'code')
+    provider = _first_param(web_server.query_params, 'provider')
+    if code is None or provider is None:
+      raise APIError("missing required query params from redirect (expected code and provider)")
+    auth_resp = CommaApi().post('v2/auth/', data={'code': code, 'provider': provider})
     set_token(auth_resp['access_token'])
   except APIError as e:
     print(f'Authentication Error: {e}', file=sys.stderr)
 
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description='Login to your comma account')
-  parser.add_argument('method', default='google', const='google', nargs='?', choices=['google', 'apple', 'github', 'jwt'])
+  parser = argparse.ArgumentParser(description='Login to your Konik account')
+  parser.add_argument('method', default='github', const='github', nargs='?', choices=['github', 'jwt'])
   parser.add_argument('jwt', nargs='?')
 
   args = parser.parse_args()
