@@ -17,6 +17,17 @@ CACHE_DIR = Path("/data/scons_cache" if AGNOS else "/tmp/scons_cache")
 TOTAL_SCONS_NODES = 2705
 MAX_BUILD_PROGRESS = 100
 
+def _is_tici() -> bool:
+  try:
+    return HARDWARE.get_device_type() == "tici"
+  except Exception:
+    return False
+
+
+def _agnos_manifest_file() -> str:
+  # tici (comma 3) uses agnos_tici.json; everything else uses agnos.json
+  return "system/hardware/tici/agnos_tici.json" if _is_tici() else "system/hardware/tici/agnos.json"
+
 def _parse_version_tuple(v: str) -> tuple[int, ...] | None:
   # Accept "16", "10.1", "12.8.3", etc.
   parts = []
@@ -55,6 +66,16 @@ def _required_agnos_version() -> str | None:
 def _ensure_agnos_matches_required() -> None:
   if not AGNOS:
     return
+
+  # Ensure the correct manifest exists for this device type in the repo.
+  # (Updater/installer will use it; this makes failures obvious during bring-up.)
+  manifest = os.path.join(BASEDIR, _agnos_manifest_file())
+  if not os.path.exists(manifest):
+    msg = f"Missing AGNOS manifest: {manifest}"
+    if not os.getenv("CI"):
+      with TextWindow(msg) as t:
+        t.wait_for_exit()
+    raise SystemExit(msg)
 
   cur = (HARDWARE.get_os_version() or "").strip()
   req = (_required_agnos_version() or "").strip()

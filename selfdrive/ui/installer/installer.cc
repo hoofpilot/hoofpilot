@@ -93,14 +93,12 @@ static bool maybeRunAgnosUpdater() {
     return false;
   }
 
-  // SunnyPilot's launcher uses the c3 env/manifest for devices reporting "comma tici".
-  const std::string model = util::strip(util::read_file("/sys/firmware/devicetree/base/model"));
-  const bool use_c3 = (model == "comma tici") && util::file_exists(INSTALL_PATH + "/sunnypilot/system/hardware/c3/launch_env.sh");
+  // Use the normal launch_env.sh, which already handles device-specific AGNOS selection.
+  const std::string env_path = INSTALL_PATH + "/launch_env.sh";
 
-  const std::string env_path = use_c3 ? (INSTALL_PATH + "/sunnypilot/system/hardware/c3/launch_env.sh")
-                                      : (INSTALL_PATH + "/launch_env.sh");
-  const std::string manifest_path = use_c3 ? (INSTALL_PATH + "/sunnypilot/system/hardware/c3/agnos.json")
-                                           : (INSTALL_PATH + "/system/hardware/tici/agnos.json");
+  const bool is_tici = Hardware::get_device_type() == cereal::InitData::DeviceType::TICI;
+  const std::string manifest_path = is_tici ? (INSTALL_PATH + "/system/hardware/tici/agnos_tici.json")
+                                            : (INSTALL_PATH + "/system/hardware/tici/agnos.json");
 
   if (!util::file_exists(env_path) || !util::file_exists(manifest_path)) {
     return false;
