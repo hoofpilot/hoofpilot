@@ -48,19 +48,12 @@ Font font_display;
 const bool tici_device = Hardware::get_device_type() == cereal::InitData::DeviceType::TICI ||
                          Hardware::get_device_type() == cereal::InitData::DeviceType::TIZI;
 
-std::vector<std::string> tici_prebuilt_branches = {"release3", "release-tizi", "release3-staging", "nightly", "nightly-dev"};
 std::string migrated_branch;
 
 void branchMigration() {
   migrated_branch = BRANCH_STR;
   cereal::InitData::DeviceType device_type = Hardware::get_device_type();
-  if (device_type == cereal::InitData::DeviceType::TICI) {
-    if (std::find(tici_prebuilt_branches.begin(), tici_prebuilt_branches.end(), BRANCH_STR) != tici_prebuilt_branches.end()) {
-      migrated_branch = "release-tici";
-    } else if (BRANCH_STR == "master") {
-      migrated_branch = "master-tici";
-    }
-  } else if (device_type == cereal::InitData::DeviceType::TIZI) {
+  if (device_type == cereal::InitData::DeviceType::TIZI) {
     if (BRANCH_STR == "release3") {
       migrated_branch = "release-tizi";
     } else if (BRANCH_STR == "release3-staging") {

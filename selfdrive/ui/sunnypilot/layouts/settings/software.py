@@ -51,10 +51,6 @@ class SoftwareLayoutSP(SoftwareLayout):
     current_target = ui_state.params.get("UpdaterTargetBranch") or ""
     top_level_branches = [current_git_branch, "release-mici", "release-tizi", "staging", "dev", "master"]
 
-    if HARDWARE.get_device_type() == "tici":
-      top_level_branches = ["release-tici", "staging-tici"]
-      branches = [b for b in branches if b.endswith("-tici")]
-
     top_level_nodes = [TreeNode(b, {'display_name': b}) for b in top_level_branches if b in branches]
     remaining_branches = [b for b in branches if b not in top_level_branches]
     prebuilt_nodes = [TreeNode(b, {'display_name': b}) for b in remaining_branches if b.endswith("-prebuilt")]
@@ -88,4 +84,3 @@ class SoftwareLayoutSP(SoftwareLayout):
 
     disable_updates_desc = tr(DESCRIPTIONS["disable_updates_offroad"] if ui_state.is_offroad() else DESCRIPTIONS["disable_updates_onroad"])
     self.disable_updates_toggle.set_description(disable_updates_desc)
-
