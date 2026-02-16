@@ -181,6 +181,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"OnroadScreenOffBrightness", {PERSISTENT | BACKUP, INT, "0"}},
     {"OnroadScreenOffTimer", {PERSISTENT | BACKUP, INT, "15"}},
     {"OnroadUploads", {PERSISTENT | BACKUP, BOOL, "1"}},
+    {"OnboardingLocationSetupDone", {PERSISTENT, BOOL, "0"}},
     {"QuickBootToggle", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"QuietMode", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"RainbowMode", {PERSISTENT | BACKUP, BOOL, "0"}},
