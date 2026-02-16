@@ -329,6 +329,10 @@ class LocationSetupPage(Widget):
     def _cb(res: int):
       if res == DialogResult.CONFIRM:
         self._skip_callback()
+      else:
+        # Keep onboarding active when user cancels skip.
+        if self._restore_overlay_callback is not None:
+          self._restore_overlay_callback()
 
     gui_app.set_modal_overlay(
       ConfirmDialog(
