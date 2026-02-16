@@ -3,11 +3,10 @@
 
 ## ❔ Supported devices
 
-**hoofpilot** is designed around Konik.ai's A1 and A1M. **hoofpilot** supports the comma 3x.
+**hoofpilot** is designed around Konik.ai's A1 and A1M. **hoofpilot** also supports the comma 3x and the comma three devkit.
 
 **Additional notes:**
 * The comma four is not supported at the moment. However, support for the comma four will come in the near future.
-* The comma three devkit is not supported as of August 21, 2025.
 
 ## 🔧 Branches
 
@@ -39,7 +38,7 @@ Read `docs/SAFETY.md` for more information.
 
 ## 🛠️ Contributing
 
-If you have any bugs, issues, or ideas for new features, please post about them on the **[Konik.ai Discord](https://discord.com/invite/vXG2eq5KSZ)**! 
+If you have any bugs, issues, or ideas for new features, please post about them on the **[Konik.ai Discord](https://discord.com/invite/vXG2eq5KSZ)** in the appropriate channel! 
 
 Please include as much detail as possible! Photos, videos, log files, or anything that can help explain the issue or idea are very helpful!
 

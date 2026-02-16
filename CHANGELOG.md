@@ -1,8 +1,7 @@
 hoofpilot Version Appaloosa
 ========================
 * What's New?
-  * Support for Konik Stable
-  * With Konik Stable, we now have Live View and Remote SSH!
-  * Complete raylib UI overhaul
-  * Ignition Check for Mazda by @mzdnick
-  * Support for BYD Sealion 7!
+  * This is our initial release of hoofpilot! :D
+  * Added support for Konik Stable!
+  * Remote SSH and Live View hosted by Konik Stable
+  * Support for comma three
