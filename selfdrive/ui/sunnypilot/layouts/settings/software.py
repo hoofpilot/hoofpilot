@@ -49,17 +49,12 @@ class SoftwareLayoutSP(SoftwareLayout):
     branches_str = ui_state.params.get("UpdaterAvailableBranches") or ""
     branches = [b for b in branches_str.split(",") if b]
     current_target = ui_state.params.get("UpdaterTargetBranch") or ""
-    top_level_branches = [current_git_branch, "release-mici", "release-tizi", "staging", "dev", "master"]
 
-    top_level_nodes = [TreeNode(b, {'display_name': b}) for b in top_level_branches if b in branches]
-    remaining_branches = [b for b in branches if b not in top_level_branches]
-    prebuilt_nodes = [TreeNode(b, {'display_name': b}) for b in remaining_branches if b.endswith("-prebuilt")]
-    non_prebuilt_nodes = [TreeNode(b, {'display_name': b}) for b in remaining_branches if not b.endswith("-prebuilt")]
+    # Create nodes for all branches without categorization
+    all_nodes = [TreeNode(b, {'display_name': b}) for b in branches]
 
     folders = [
-      TreeFolder("", top_level_nodes),
-      TreeFolder("Prebuilt Branches", prebuilt_nodes),
-      TreeFolder("Non-Prebuilt Branches", non_prebuilt_nodes),
+      TreeFolder("", all_nodes),
     ]
 
     def _on_branch_selected(result):
