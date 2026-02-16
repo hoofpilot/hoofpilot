@@ -253,6 +253,9 @@ class LocationSetupPage(Widget):
     dialog = TreeOptionDialog(tr(title), folders, current_ref=current_ref, search_prompt=tr("Perform a search"))
 
     def _handle_exit(res):
+      # Ignore internal overlay swaps (e.g., opening search keyboard), which emit NO_ACTION.
+      if res == DialogResult.NO_ACTION:
+        return
       on_done(res, dialog.selection_ref)
       # Restore onboarding overlay so cancel/back from selector doesn't drop to home UI.
       if self._restore_overlay_callback is not None:
