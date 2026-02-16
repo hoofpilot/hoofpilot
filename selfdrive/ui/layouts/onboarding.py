@@ -192,10 +192,9 @@ class LocationSetupPage(Widget):
     self._desc = Label(tr("Select your country and state/province. This helps set units and optionally download local maps."),
                        font_size=70, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
 
-    self._country_btn = Button(tr("Select Country"), button_style=ButtonStyle.PRIMARY, click_callback=self._on_select_country_clicked)
-    self._country_btn.set_font_size(56)
-    self._state_btn = Button(tr("State/Province (Optional)"), click_callback=self._on_select_state_clicked)
-    self._state_btn.set_font_size(50)
+    self._country_btn = Button(tr("Select Country"), button_style=ButtonStyle.PRIMARY,
+                               click_callback=self._on_select_country_clicked, font_size=56)
+    self._state_btn = Button(tr("State/Province (Optional)"), click_callback=self._on_select_state_clicked, font_size=50)
     self._continue_btn = Button(tr("Continue"), button_style=ButtonStyle.PRIMARY, click_callback=self._on_continue_clicked)
     self._skip_btn = Button(tr("Skip"), click_callback=self._on_skip_clicked)
 
