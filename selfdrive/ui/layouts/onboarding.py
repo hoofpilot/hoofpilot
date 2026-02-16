@@ -176,10 +176,11 @@ class DeclinePage(Widget):
 
 
 class LocationSetupPage(Widget):
-  def __init__(self, continue_callback=None, skip_callback=None):
+  def __init__(self, continue_callback=None, skip_callback=None, restore_overlay_callback=None):
     super().__init__()
     self._continue_callback = continue_callback
     self._skip_callback = skip_callback
+    self._restore_overlay_callback = restore_overlay_callback
 
     self._country_ref = ""
     self._country_title = ""
@@ -192,12 +193,11 @@ class LocationSetupPage(Widget):
                        font_size=70, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
 
     self._country_btn = Button(tr("Select Country"), button_style=ButtonStyle.PRIMARY, click_callback=self._on_select_country_clicked)
+    self._country_btn.set_font_size(56)
     self._state_btn = Button(tr("State/Province (Optional)"), click_callback=self._on_select_state_clicked)
+    self._state_btn.set_font_size(50)
     self._continue_btn = Button(tr("Continue"), button_style=ButtonStyle.PRIMARY, click_callback=self._on_continue_clicked)
     self._skip_btn = Button(tr("Skip"), click_callback=self._on_skip_clicked)
-
-    self._country_btn_sub = Label("", font_size=52, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
-    self._state_btn_sub = Label("", font_size=52, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
 
   def _fetch_location_nodes(self, region_type: str, callback):
     def _worker():
@@ -234,10 +234,33 @@ class LocationSetupPage(Widget):
 
     threading.Thread(target=_worker, daemon=True).start()
 
-  def _open_selection_dialog(self, title: str, nodes: list[TreeNode], current_ref: str, on_done):
-    dialog = TreeOptionDialog(tr(title), [TreeFolder(folder="", nodes=nodes)], current_ref=current_ref, search_prompt=tr("Perform a search"))
-    dialog.on_exit = lambda res: on_done(res, dialog.selection_ref)
-    gui_app.set_modal_overlay(dialog, callback=lambda res: on_done(res, dialog.selection_ref))
+  @staticmethod
+  def _group_nodes_alpha(nodes: list[TreeNode]) -> list[TreeFolder]:
+    buckets: dict[str, list[TreeNode]] = {}
+    for n in nodes:
+      name = n.data.get("display_name", n.ref)
+      key = (name[:1].upper() if name else "#")
+      if not key.isalpha():
+        key = "#"
+      buckets.setdefault(key, []).append(n)
+
+    folders: list[TreeFolder] = []
+    for key in sorted(buckets.keys()):
+      folders.append(TreeFolder(folder=key, nodes=buckets[key]))
+    return folders
+
+  def _open_selection_dialog(self, title: str, nodes: list[TreeNode], current_ref: str, on_done, use_alpha_folders: bool = True):
+    folders = self._group_nodes_alpha(nodes) if use_alpha_folders else [TreeFolder(folder="", nodes=nodes)]
+    dialog = TreeOptionDialog(tr(title), folders, current_ref=current_ref, search_prompt=tr("Perform a search"))
+
+    def _handle_exit(res):
+      on_done(res, dialog.selection_ref)
+      # Restore onboarding overlay so cancel/back from selector doesn't drop to home UI.
+      if self._restore_overlay_callback is not None:
+        self._restore_overlay_callback()
+
+    dialog.on_exit = _handle_exit
+    gui_app.set_modal_overlay(dialog, callback=_handle_exit)
 
   def _on_select_country_clicked(self):
     self._country_btn.set_enabled(False)
@@ -259,7 +282,7 @@ class LocationSetupPage(Widget):
         self._state_ref = ""
         self._state_title = ""
 
-      self._open_selection_dialog("Select Country", nodes, self._country_ref, _on_done)
+      self._open_selection_dialog("Select Country", nodes, self._country_ref, _on_done, use_alpha_folders=True)
 
     self._fetch_location_nodes("Country", _after_fetch)
 
@@ -286,7 +309,7 @@ class LocationSetupPage(Widget):
         self._state_ref = ref
         self._state_title = node.data.get("display_name", ref) if node else ref
 
-      self._open_selection_dialog("Select State/Province", nodes, self._state_ref, _on_done)
+      self._open_selection_dialog("Select State/Province", nodes, self._state_ref, _on_done, use_alpha_folders=False)
 
     region_type = "State-US" if self._country_ref == "US" else "Province-CA"
     self._fetch_location_nodes(region_type, _after_fetch)
@@ -322,21 +345,21 @@ class LocationSetupPage(Widget):
     desc_rect = rl.Rectangle(self._rect.x + 95, self._rect.y + 250, self._rect.width - 190, 220)
     self._desc.render(desc_rect)
 
-    country_rect = rl.Rectangle(self._rect.x + 95, self._rect.y + 520, self._rect.width - 190, 140)
+    country_rect = rl.Rectangle(self._rect.x + 95, self._rect.y + 500, self._rect.width - 190, 140)
+    country_text = self._country_title if self._country_title else tr("Select Country")
+    self._country_btn.set_text(country_text)
     self._country_btn.render(country_rect)
-    self._country_btn_sub.set_text(self._country_title or tr("No country selected"))
-    self._country_btn_sub.render(rl.Rectangle(country_rect.x + 30, country_rect.y + 145, country_rect.width - 60, 70))
 
-    state_rect = rl.Rectangle(self._rect.x + 95, self._rect.y + 700, self._rect.width - 190, 140)
+    state_rect = rl.Rectangle(self._rect.x + 95, self._rect.y + 680, self._rect.width - 190, 140)
     self._state_btn.set_enabled(bool(self._country_ref) and self._country_ref in {"US", "CA"})
-    self._state_btn.render(state_rect)
     if not self._country_ref:
-      self._state_btn_sub.set_text(tr("Select country first"))
+      self._state_btn.set_text(tr("State/Province (Select country first)"))
     elif self._country_ref not in {"US", "CA"}:
-      self._state_btn_sub.set_text(tr("Not required for this country"))
+      self._state_btn.set_text(tr("State/Province (Not required)"))
     else:
-      self._state_btn_sub.set_text(self._state_title or tr("Optional"))
-    self._state_btn_sub.render(rl.Rectangle(state_rect.x + 30, state_rect.y + 145, state_rect.width - 60, 70))
+      state_text = self._state_title if self._state_title else tr("State/Province (Optional)")
+      self._state_btn.set_text(state_text)
+    self._state_btn.render(state_rect)
 
     btn_y = self._rect.y + self._rect.height - 160 - 45
     btn_width = (self._rect.width - 45 * 3) / 2
@@ -393,12 +416,16 @@ class OnboardingWindow(Widget):
       self._state = OnboardingState.ONBOARDING
 
     # Windows
+    def _restore_overlay():
+      gui_app.set_modal_overlay(self)
+
     self._terms = TermsPage(on_accept=self._on_terms_accepted, on_decline=self._on_terms_declined)
     self._training_guide: TrainingGuide | None = None
     self._decline_page = DeclinePage(back_callback=self._on_decline_back)
     self._location_page = LocationSetupPage(
       continue_callback=self._on_location_selected,
       skip_callback=self._on_location_skipped,
+      restore_overlay_callback=_restore_overlay,
     )
     self._maps_page = MapDownloadPage(yes_callback=self._on_maps_download_yes, no_callback=self._on_maps_download_no)
 
