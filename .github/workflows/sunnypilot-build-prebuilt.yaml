@@ -79,7 +79,7 @@ jobs:
             is_stable_branch="$(echo "$CONFIG" | jq -r '.stable_branch // false')";
             echo "is_stable_branch=$is_stable_branch" >> $GITHUB_OUTPUT
 
-            stable_version=$(cat sunnypilot/common/version.h | grep SUNNYPILOT_VERSION | sed -e 's/[^0-9|.]//g');
+            stable_version=$(cat hoofpilot/common/version.h | grep SUNNYPILOT_VERSION | sed -e 's/[^0-9|.]//g');
             echo "version=$([ "$is_stable_branch" = "true" ] && echo "$stable_version" || echo "$BUILD")" >> $GITHUB_OUTPUT
             echo "extra_version_identifier=${environment}" >> $GITHUB_OUTPUT
           fi
@@ -181,11 +181,11 @@ jobs:
           cd $BUILD_DIR
           sed -i '/from .board.jungle import PandaJungle, PandaJungleDFU/s/^/#/' panda/__init__.py
           echo "Building sunnypilot's modeld..."
-          scons -j$(nproc) cache_dir=${{env.SCONS_CACHE_DIR}} --minimal sunnypilot/modeld
+          scons hoofpilot/modeld
           echo "Building sunnypilot's modeld_v2..."
-          scons -j$(nproc) cache_dir=${{env.SCONS_CACHE_DIR}} --minimal sunnypilot/modeld_v2
+          scons hoofpilot/modeld_v2
           echo "Building sunnypilot's locationd..."
-          scons -j2 cache_dir=${{env.SCONS_CACHE_DIR}} --minimal sunnypilot/selfdrive/locationd
+          scons hoofpilot/selfdrive/locationd
           echo "Building openpilot's locationd..."
           scons -j$(nproc) cache_dir=${{env.SCONS_CACHE_DIR}} --minimal selfdrive/locationd
           echo "Building rest of sunnypilot"
@@ -219,7 +219,7 @@ jobs:
             --exclude='**/.venv/' \
             --exclude='selfdrive/modeld/models/driving_vision.onnx' \
             --exclude='selfdrive/modeld/models/driving_policy.onnx' \
-            --exclude='sunnypilot/modeld*/models/supercombo.onnx' \
+            --exclude='hoofpilot/modeld*/models/supercombo.onnx' \
             --exclude='third_party/*x86*' \
             --exclude='third_party/*Darwin*' \
             --delete-excluded \

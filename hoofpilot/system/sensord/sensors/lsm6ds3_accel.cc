@@ -1,4 +1,4 @@
-#include "sunnypilot/system/sensord/sensors/lsm6ds3_accel.h"
+#include "hoofpilot/system/sensord/sensors/lsm6ds3_accel.h"
 
 #include <cassert>
 #include <cmath>

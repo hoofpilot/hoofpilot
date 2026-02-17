@@ -5,7 +5,7 @@ from opendbc.car import structs
 from numpy import interp
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL
-from openpilot.sunnypilot.selfdrive.controls.lib.dec.constants import WMACConstants
+from hoofpilot.selfdrive.controls.lib.dec.constants import WMACConstants
 from typing import Literal
 
 # d-e2e, from modeldata.h

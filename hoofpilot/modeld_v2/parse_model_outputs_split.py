@@ -1,5 +1,5 @@
 import numpy as np
-from openpilot.sunnypilot.models.split_model_constants import SplitModelConstants
+from hoofpilot.models.split_model_constants import SplitModelConstants
 
 
 def safe_exp(x, out=None):

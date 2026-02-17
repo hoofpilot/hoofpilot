@@ -2,14 +2,14 @@
 
 from openpilot.common.constants import CV
 from openpilot.selfdrive.ui.mici.onroad.torque_bar import TorqueBar
-from openpilot.selfdrive.ui.sunnypilot.onroad.developer_ui import DeveloperUiRenderer
-from openpilot.selfdrive.ui.sunnypilot.onroad.road_name import RoadNameRenderer
-from openpilot.selfdrive.ui.sunnypilot.onroad.rocket_fuel import RocketFuel
-from openpilot.selfdrive.ui.sunnypilot.onroad.speed_limit import SpeedLimitRenderer
-from openpilot.selfdrive.ui.sunnypilot.onroad.smart_cruise_control import SmartCruiseControlRenderer
-from openpilot.selfdrive.ui.sunnypilot.onroad.turn_signal import TurnSignalController
-from openpilot.selfdrive.ui.sunnypilot.onroad.circular_alerts import CircularAlertsRenderer
-from openpilot.selfdrive.ui.sunnypilot.onroad.speed_renderer import SpeedRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.developer_ui import DeveloperUiRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.road_name import RoadNameRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.rocket_fuel import RocketFuel
+from openpilot.selfdrive.ui.hoofpilot.onroad.speed_limit import SpeedLimitRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.smart_cruise_control import SmartCruiseControlRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.turn_signal import TurnSignalController
+from openpilot.selfdrive.ui.hoofpilot.onroad.circular_alerts import CircularAlertsRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.speed_renderer import SpeedRenderer
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer, UI_CONFIG, FONT_SIZES, COLORS, CRUISE_DISABLED_CHAR
 from openpilot.system.ui.lib.application import gui_app

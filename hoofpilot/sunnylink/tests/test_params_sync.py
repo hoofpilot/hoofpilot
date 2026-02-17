@@ -3,7 +3,7 @@ import os
 import pytest
 
 from openpilot.common.params import Params
-from openpilot.sunnypilot.sunnylink.athena.sunnylinkd import METADATA_PATH
+from hoofpilot.sunnylink.athena.sunnylinkd import METADATA_PATH
 
 
 def test_metadata_json_exists():
@@ -15,7 +15,7 @@ def test_metadata_json_exists():
   If it's missing, the UI will not be able to display rich information for parameters.
 
   Expected:
-  The file should exist at sunnypilot/sunnylink/params_metadata.json.
+  The file should exist at hoofpilot/sunnylink/params_metadata.json.
   """
   assert os.path.exists(METADATA_PATH), f"Metadata file not found at {METADATA_PATH}"
 
@@ -50,7 +50,7 @@ def test_all_params_have_metadata():
 
   Expected:
   There should be no parameters in Params() that are missing from the metadata file.
-  If this fails, run 'python3 sunnypilot/sunnylink/tools/update_params_metadata.py'.
+  If this fails, run 'python3 hoofpilot/sunnylink/tools/update_params_metadata.py'.
   """
   params = Params()
   all_keys = [k.decode('utf-8') for k in params.all_keys()]
@@ -63,7 +63,7 @@ def test_all_params_have_metadata():
   if missing_keys:
     pytest.fail(
       f"The following parameters are missing from metadata: {missing_keys}. "
-      + "Please run 'python3 sunnypilot/sunnylink/tools/update_params_metadata.py' to update."
+      + "Please run 'python3 hoofpilot/sunnylink/tools/update_params_metadata.py' to update."
     )
 
 

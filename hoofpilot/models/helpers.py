@@ -5,8 +5,8 @@ import numpy as np
 
 from openpilot.common.params import Params
 from cereal import custom
-from openpilot.sunnypilot.modeld.constants import Meta, MetaTombRaider, MetaSimPose
-from openpilot.sunnypilot.modeld.runners import ModelRunner
+from hoofpilot.modeld.constants import Meta, MetaTombRaider, MetaSimPose
+from hoofpilot.modeld.runners import ModelRunner
 from openpilot.system.hardware import PC
 from openpilot.system.hardware.hw import Paths
 from pathlib import Path

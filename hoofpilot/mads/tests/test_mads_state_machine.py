@@ -3,9 +3,9 @@ from pytest_mock import MockerFixture
 
 from cereal import custom
 from openpilot.common.realtime import DT_CTRL
-from openpilot.sunnypilot.mads.state import StateMachine, SOFT_DISABLE_TIME
+from hoofpilot.mads.state import StateMachine, SOFT_DISABLE_TIME
 from openpilot.selfdrive.selfdrived.events import ET, NormalPermanentAlert, Events
-from openpilot.sunnypilot.selfdrive.selfdrived.events import EventsSP, EVENTS_SP
+from hoofpilot.selfdrive.selfdrived.events import EventsSP, EVENTS_SP
 
 State = custom.ModularAssistiveDrivingSystem.ModularAssistiveDrivingSystemState
 EventNameSP = custom.OnroadEventSP.EventName

@@ -10,7 +10,7 @@ from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.widgets import DialogResult
 
 if gui_app.sunnypilot_ui():
-  from openpilot.system.ui.sunnypilot.widgets.list_view import toggle_item_sp as toggle_item
+  from openpilot.system.ui.hoofpilot.widgets.list_view import toggle_item_sp as toggle_item
 
 # Description constants
 DESCRIPTIONS = {

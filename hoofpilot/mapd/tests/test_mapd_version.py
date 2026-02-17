@@ -1,6 +1,6 @@
-﻿from openpilot.sunnypilot import get_file_hash
-from openpilot.sunnypilot.mapd import MAPD_PATH
-from openpilot.sunnypilot.mapd.update_version import MAPD_HASH_PATH
+﻿from hoofpilot import get_file_hash
+from hoofpilot.mapd import MAPD_PATH
+from hoofpilot.mapd.update_version import MAPD_HASH_PATH
 
 
 class TestMapdVersion:
@@ -10,5 +10,5 @@ class TestMapdVersion:
     with open(MAPD_HASH_PATH) as f:
       current_hash = f.read().strip()
 
-    assert current_hash == mapd_hash, "Run sunnypilot/mapd/update_version.py to update the current mapd version and hash"
+    assert current_hash == mapd_hash, "Run hoofpilot/mapd/update_version.py to update the current mapd version and hash"
 

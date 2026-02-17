@@ -11,7 +11,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, ec
 
 from openpilot.common.api.base import KEYS
-from openpilot.sunnypilot.sunnylink.backups.AESCipher import AESCipher
+from hoofpilot.sunnylink.backups.AESCipher import AESCipher
 from openpilot.system.hardware.hw import Paths
 
 

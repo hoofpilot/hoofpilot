@@ -1,4 +1,4 @@
-#include "sunnypilot/selfdrive/locationd/locationd.h"
+#include "hoofpilot/selfdrive/locationd/locationd.h"
 
 #include <sys/time.h>
 #include <sys/resource.h>

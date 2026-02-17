@@ -2,7 +2,7 @@
 
 from openpilot.common.transformations.camera import DEVICE_CAMERAS
 from openpilot.common.transformations.model import get_warp_matrix
-from openpilot.sunnypilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
+from hoofpilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
 
 
 class MockStruct:

@@ -22,7 +22,7 @@ function agnos_init {
     
     RAW_MODEL=$(tr -d '\0' < /sys/firmware/devicetree/base/model 2>/dev/null || true)
     if echo "$RAW_MODEL" | grep -qi "tici"; then
-      MANIFEST="$DIR/sunnypilot/system/hardware/c3/agnos.json"
+      MANIFEST="$DIR/hoofpilot/system/hardware/c3/agnos.json"
     else
       MANIFEST="$DIR/system/hardware/tici/agnos.json"
     fi

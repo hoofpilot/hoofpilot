@@ -10,7 +10,7 @@
 #include "common/util.h"
 #include "common/version.h"
 
-#include "sunnypilot/common/version.h"
+#include "hoofpilot/common/version.h"
 
 namespace {
 

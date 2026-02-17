@@ -2,7 +2,7 @@
 import time
 from dataclasses import dataclass
 from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.sunnypilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
+from hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
 from openpilot.system.ui.lib.multilang import tr_noop
 
 

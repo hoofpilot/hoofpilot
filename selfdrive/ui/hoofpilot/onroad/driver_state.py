@@ -2,7 +2,7 @@
 
 from openpilot.selfdrive.ui import UI_BORDER_SIZE
 from openpilot.selfdrive.ui.onroad.driver_state import DriverStateRenderer, BTN_SIZE, ARC_LENGTH
-from openpilot.selfdrive.ui.sunnypilot.onroad.developer_ui import DeveloperUiRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.developer_ui import DeveloperUiRenderer
 
 
 class DriverStateRendererSP(DriverStateRenderer):

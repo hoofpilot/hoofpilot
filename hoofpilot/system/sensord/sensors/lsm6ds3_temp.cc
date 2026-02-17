@@ -1,4 +1,4 @@
-#include "sunnypilot/system/sensord/sensors/lsm6ds3_temp.h"
+#include "hoofpilot/system/sensord/sensors/lsm6ds3_temp.h"
 
 #include <cassert>
 

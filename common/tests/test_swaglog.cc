@@ -9,7 +9,7 @@
 #include "system/hardware/hw.h"
 #include "third_party/json11/json11.hpp"
 
-#include "sunnypilot/common/version.h"
+#include "hoofpilot/common/version.h"
 
 std::string daemon_name = "testy";
 std::string dongle_id = "test_dongle_id";

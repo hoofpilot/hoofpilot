@@ -65,9 +65,9 @@ cppcheck_report.txt
 comma*.sh
 
 selfdrive/modeld/models/*.pkl
-sunnypilot/modeld*/thneed/compile
-sunnypilot/modeld*/models/*.thneed
-sunnypilot/modeld*/models/*.pkl
+hoofpilot/modeld*/thneed/compile
+hoofpilot/modeld*/models/*.thneed
+hoofpilot/modeld*/models/*.pkl
 
 # openpilot log files
 *.bz2

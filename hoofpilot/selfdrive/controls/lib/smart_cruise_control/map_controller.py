@@ -6,9 +6,9 @@ from cereal import custom
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.car.cruise import V_CRUISE_UNSET
-from openpilot.sunnypilot import PARAMS_UPDATE_PERIOD
-from openpilot.sunnypilot.navd.helpers import coordinate_from_param, Coordinate
-from openpilot.sunnypilot.selfdrive.controls.lib.smart_cruise_control import MIN_V
+from hoofpilot import PARAMS_UPDATE_PERIOD
+from hoofpilot.navd.helpers import coordinate_from_param, Coordinate
+from hoofpilot.selfdrive.controls.lib.smart_cruise_control import MIN_V
 
 MapState = VisionState = custom.LongitudinalPlanSP.SmartCruiseControl.MapState
 

@@ -2,9 +2,9 @@ import numpy as np
 import pytest
 from typing import Any
 
-import openpilot.sunnypilot.models.helpers as helpers
-import openpilot.sunnypilot.models.runners.helpers as runner_helpers
-import openpilot.sunnypilot.modeld_v2.modeld as modeld_module
+import hoofpilot.models.helpers as helpers
+import hoofpilot.models.runners.helpers as runner_helpers
+import hoofpilot.modeld_v2.modeld as modeld_module
 
 ModelState = modeld_module.ModelState
 

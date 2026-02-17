@@ -1,13 +1,13 @@
 ﻿import pyray as rl
 from cereal import custom
-from openpilot.selfdrive.ui.sunnypilot.layouts.onboarding import SunnylinkConsentPage
+from openpilot.selfdrive.ui.hoofpilot.layouts.onboarding import SunnylinkConsentPage
 from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.sunnypilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
+from hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
 from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.lib.multilang import tr
-from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp
-from openpilot.system.ui.sunnypilot.widgets.list_view import toggle_item_sp
-from openpilot.system.ui.sunnypilot.widgets.sunnylink_pairing_dialog import SunnylinkPairingDialog
+from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp
+from openpilot.system.ui.hoofpilot.widgets.list_view import toggle_item_sp
+from openpilot.system.ui.hoofpilot.widgets.sunnylink_pairing_dialog import SunnylinkPairingDialog
 from openpilot.system.ui.widgets import Widget, DialogResult
 from openpilot.system.ui.widgets.button import ButtonStyle, Button
 from openpilot.system.ui.widgets.confirm_dialog import alert_dialog, ConfirmDialog

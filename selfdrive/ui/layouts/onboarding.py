@@ -15,7 +15,7 @@ from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog
 from openpilot.system.ui.widgets.label import Label
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.version import terms_version, training_version, terms_version_sp
-from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeFolder, TreeNode, TreeOptionDialog
+from openpilot.system.ui.hoofpilot.widgets.tree_dialog import TreeFolder, TreeNode, TreeOptionDialog
 
 DEBUG = False
 IMPERIAL_COUNTRIES = {"US", "GB", "BS"}  # United States, United Kingdom, The Bahamas

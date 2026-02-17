@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 from opendbc.car import structs
 from openpilot.common.basedir import BASEDIR
 
-TORQUE_NN_MODEL_PATH = os.path.join(BASEDIR, "sunnypilot", "neural_network_data", "neural_network_lateral_control")
+TORQUE_NN_MODEL_PATH = os.path.join(BASEDIR, "hoofpilot", "neural_network_data", "neural_network_lateral_control")
 TORQUE_NN_MODEL_SUBSTITUTE_PATH = os.path.join(BASEDIR, "opendbc", "car", "torque_data/substitute.toml")
 MOCK_MODEL_PATH = os.path.join(TORQUE_NN_MODEL_PATH, "MOCK.json")
 

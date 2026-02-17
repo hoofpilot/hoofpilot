@@ -1,4 +1,4 @@
-#include "sunnypilot/system/sensord/sensors/bmx055_magn.h"
+#include "hoofpilot/system/sensord/sensors/bmx055_magn.h"
 
 #include <unistd.h>
 

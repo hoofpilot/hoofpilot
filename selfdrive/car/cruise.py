@@ -3,7 +3,7 @@ import numpy as np
 
 from cereal import car
 from openpilot.common.constants import CV
-from openpilot.sunnypilot.selfdrive.car.cruise_ext import VCruiseHelperSP
+from hoofpilot.selfdrive.car.cruise_ext import VCruiseHelperSP
 
 
 # WARNING: this value was determined based on the model's training distribution,

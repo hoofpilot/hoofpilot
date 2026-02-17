@@ -1,4 +1,4 @@
-#include "sunnypilot/system/sensord/sensors/bmx055_gyro.h"
+#include "hoofpilot/system/sensord/sensors/bmx055_gyro.h"
 
 #include <cassert>
 #include <cmath>

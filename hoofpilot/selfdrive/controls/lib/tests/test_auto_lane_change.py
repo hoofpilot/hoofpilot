@@ -2,7 +2,7 @@
 
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper, LaneChangeState, LaneChangeDirection
-from openpilot.sunnypilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeController, AutoLaneChangeMode, \
+from hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeController, AutoLaneChangeMode, \
   AUTO_LANE_CHANGE_TIMER, ONE_SECOND_DELAY
 
 AUTO_LANE_CHANGE_TIMER_COMBOS = [

@@ -4,7 +4,7 @@ import cereal.messaging as messaging
 from openpilot.common.params import Params
 from openpilot.common.constants import CV
 from openpilot.selfdrive.car.cruise import V_CRUISE_UNSET
-from openpilot.sunnypilot.navd.helpers import coordinate_from_param
+from hoofpilot.navd.helpers import coordinate_from_param
 
 MAX_SPEED_LIMIT = V_CRUISE_UNSET * CV.KPH_TO_MS
 

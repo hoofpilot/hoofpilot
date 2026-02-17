@@ -1,6 +1,6 @@
 #define _USE_MATH_DEFINES
 
-#include "sunnypilot/common/transformations/coordinates.hpp"
+#include "hoofpilot/common/transformations/coordinates.hpp"
 
 #include <iostream>
 #include <cmath>

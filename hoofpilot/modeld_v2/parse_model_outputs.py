@@ -1,5 +1,5 @@
 import numpy as np
-from openpilot.sunnypilot.modeld_v2.constants import ModelConstants
+from hoofpilot.modeld_v2.constants import ModelConstants
 
 def safe_exp(x, out=None):
   # -11 is around 10**14, more causes float16 overflow

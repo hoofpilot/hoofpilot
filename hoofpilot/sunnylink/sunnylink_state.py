@@ -8,8 +8,8 @@ import pyray as rl
 from cereal import messaging
 from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
-from openpilot.sunnypilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID, SunnylinkApi
-from openpilot.system.ui.sunnypilot.lib.styles import style
+from hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID, SunnylinkApi
+from openpilot.system.ui.hoofpilot.lib.styles import style
 
 
 class RoleType(IntEnum):

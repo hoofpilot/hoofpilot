@@ -2,9 +2,9 @@ import os
 import capnp
 import numpy as np
 from cereal import log
-from openpilot.sunnypilot.modeld.constants import ModelConstants, Plan
-from openpilot.sunnypilot.models.helpers import plan_x_idxs_helper
-from openpilot.sunnypilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_lag_adjusted_curvature, MIN_SPEED
+from hoofpilot.modeld.constants import ModelConstants, Plan
+from hoofpilot.models.helpers import plan_x_idxs_helper
+from hoofpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_lag_adjusted_curvature, MIN_SPEED
 
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 

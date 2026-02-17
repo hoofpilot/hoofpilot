@@ -213,7 +213,7 @@ SConscript(['third_party/SConscript'])
 
 SConscript(['selfdrive/SConscript'])
 
-SConscript(['sunnypilot/SConscript'])
+SConscript(['hoofpilot/SConscript'])
 
 if Dir('#tools/cabana/').exists() and GetOption('extras'):
   SConscript(['tools/replay/SConscript'])

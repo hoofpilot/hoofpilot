@@ -34,10 +34,10 @@ tinygrad_files = ["#"+x for x in glob.glob(env.Dir("#tinygrad_repo").relpath + "
 # Get model metadata
 PC = not os.path.isfile('/TICI')
 if PC:
-  inputs = tinygrad_files + [File(Dir("#sunnypilot/modeld_v2").File("install_models_pc.py").abspath)]
+  inputs = tinygrad_files + [File(Dir("#hoofpilot/modeld_v2").File("install_models_pc.py").abspath)]
   outputs = []
   model_dir = Dir("models").abspath
-  cmd = f'python3 {Dir("#sunnypilot/modeld_v2").abspath}/install_models_pc.py {model_dir}'
+  cmd = f'python3 {Dir("#hoofpilot/modeld_v2").abspath}/install_models_pc.py {model_dir}'
 
   for model_name in ['supercombo', 'driving_vision', 'driving_off_policy', 'driving_policy']:
     if File(f"models/{model_name}.onnx").exists():

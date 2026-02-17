@@ -26,7 +26,7 @@ def _is_tici() -> bool:
 
 def _agnos_manifest_file() -> str:
   # tici (comma 3) uses the c3 manifest; everything else uses the normal tici manifest.
-  return "sunnypilot/system/hardware/c3/agnos.json" if _is_tici() else "system/hardware/tici/agnos.json"
+  return "hoofpilot/system/hardware/c3/agnos.json" if _is_tici() else "system/hardware/tici/agnos.json"
 
 def _parse_version_tuple(v: str) -> tuple[int, ...] | None:
   # Accept "16", "10.1", "12.8.3", etc.

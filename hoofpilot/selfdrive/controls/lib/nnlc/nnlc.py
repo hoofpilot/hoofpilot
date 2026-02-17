@@ -3,14 +3,14 @@ import math
 import numpy as np
 
 from opendbc.car.lateral import FRICTION_THRESHOLD, get_friction
-from opendbc.sunnypilot.car.interfaces import LatControlInputs
-from opendbc.sunnypilot.car.lateral_ext import get_friction as get_friction_in_torque_space
+from opendbc.hoofpilot.car.interfaces import LatControlInputs
+from opendbc.hoofpilot.car.lateral_ext import get_friction as get_friction_in_torque_space
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.params import Params
 from openpilot.selfdrive.modeld.constants import ModelConstants
-from openpilot.sunnypilot.selfdrive.controls.lib.latcontrol_torque_ext_base import LatControlTorqueExtBase, sign
-from openpilot.sunnypilot.selfdrive.controls.lib.nnlc.helpers import MOCK_MODEL_PATH
-from openpilot.sunnypilot.selfdrive.controls.lib.nnlc.model import NNTorqueModel
+from hoofpilot.selfdrive.controls.lib.latcontrol_torque_ext_base import LatControlTorqueExtBase, sign
+from hoofpilot.selfdrive.controls.lib.nnlc.helpers import MOCK_MODEL_PATH
+from hoofpilot.selfdrive.controls.lib.nnlc.model import NNTorqueModel
 
 LOW_SPEED_X = [0, 10, 20, 30]
 LOW_SPEED_Y = [12, 3, 1, 0]

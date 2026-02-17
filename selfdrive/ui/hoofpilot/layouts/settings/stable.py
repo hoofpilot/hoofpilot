@@ -4,8 +4,8 @@ import os
 
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.multilang import tr
-from openpilot.system.ui.sunnypilot.widgets.input_dialog import InputDialogSP
-from openpilot.system.ui.sunnypilot.widgets.list_view import dual_button_item_sp, button_item_sp, toggle_item_sp, Spacer
+from openpilot.system.ui.hoofpilot.widgets.input_dialog import InputDialogSP
+from openpilot.system.ui.hoofpilot.widgets.list_view import dual_button_item_sp, button_item_sp, toggle_item_sp, Spacer
 from openpilot.system.ui.widgets import DialogResult
 from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog, alert_dialog
 from openpilot.system.ui.widgets.button import ButtonStyle, Button

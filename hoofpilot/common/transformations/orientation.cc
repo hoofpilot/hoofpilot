@@ -4,8 +4,8 @@
 #include <cmath>
 #include <eigen3/Eigen/Dense>
 
-#include "sunnypilot/common/transformations/orientation.hpp"
-#include "sunnypilot/common/transformations/coordinates.hpp"
+#include "hoofpilot/common/transformations/orientation.hpp"
+#include "hoofpilot/common/transformations/coordinates.hpp"
 
 Eigen::Quaterniond ensure_unique(const Eigen::Quaterniond &quat) {
   if (quat.w() > 0){

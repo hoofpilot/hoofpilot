@@ -3,10 +3,10 @@ import os
 import hashlib
 
 from openpilot.common.basedir import BASEDIR
-from openpilot.sunnypilot import get_file_hash
+from hoofpilot import get_file_hash
 
 DEFAULT_MODEL_NAME_PATH = os.path.join(BASEDIR, "common", "model.h")
-MODEL_HASH_PATH = os.path.join(BASEDIR, "sunnypilot", "models", "tests", "model_hash")
+MODEL_HASH_PATH = os.path.join(BASEDIR, "hoofpilot", "models", "tests", "model_hash")
 VISION_ONNX_PATH = os.path.join(BASEDIR, "selfdrive", "modeld", "models", "driving_vision.onnx")
 POLICY_ONNX_PATH = os.path.join(BASEDIR, "selfdrive", "modeld", "models", "driving_policy.onnx")
 

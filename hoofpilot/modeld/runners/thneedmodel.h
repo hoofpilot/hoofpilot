@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "sunnypilot/modeld/runners/runmodel.h"
-#include "sunnypilot/modeld/thneed/thneed.h"
+#include "hoofpilot/modeld/runners/runmodel.h"
+#include "hoofpilot/modeld/thneed/thneed.h"
 
 class ThneedModel : public RunModel {
 public:

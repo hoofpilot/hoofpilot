@@ -20,15 +20,15 @@ from openpilot.system import sentry
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 from openpilot.selfdrive.controls.lib.drive_helpers import get_accel_from_plan, smooth_value
 
-from openpilot.sunnypilot.livedelay.helpers import get_lat_delay
-from openpilot.sunnypilot.modeld.runners import ModelRunner, Runtime
-from openpilot.sunnypilot.modeld.parse_model_outputs import Parser
-from openpilot.sunnypilot.modeld.fill_model_msg import fill_model_msg, fill_pose_msg, PublishState
-from openpilot.sunnypilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
-from openpilot.sunnypilot.modeld.constants import ModelConstants, Plan
-from openpilot.sunnypilot.models.helpers import get_active_bundle, get_model_path, load_metadata, prepare_inputs, load_meta_constants
-from openpilot.sunnypilot.modeld.models.commonmodel_pyx import ModelFrame, CLContext
-from openpilot.sunnypilot.modeld.modeld_base import ModelStateBase
+from hoofpilot.livedelay.helpers import get_lat_delay
+from hoofpilot.modeld.runners import ModelRunner, Runtime
+from hoofpilot.modeld.parse_model_outputs import Parser
+from hoofpilot.modeld.fill_model_msg import fill_model_msg, fill_pose_msg, PublishState
+from hoofpilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
+from hoofpilot.modeld.constants import ModelConstants, Plan
+from hoofpilot.models.helpers import get_active_bundle, get_model_path, load_metadata, prepare_inputs, load_meta_constants
+from hoofpilot.modeld.models.commonmodel_pyx import ModelFrame, CLContext
+from hoofpilot.modeld.modeld_base import ModelStateBase
 
 
 PROCESS_NAME = "selfdrive.modeld.modeld_snpe"

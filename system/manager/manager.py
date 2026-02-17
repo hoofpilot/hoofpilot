@@ -8,7 +8,7 @@ import traceback
 
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
-from openpilot.sunnypilot.common.boot_logo import ensure_boot_background
+from hoofpilot.common.boot_logo import ensure_boot_background
 from openpilot.common.utils import atomic_write
 from openpilot.common.params import Params, ParamKeyFlag
 from openpilot.common.text_window import TextWindow

@@ -6,7 +6,7 @@ from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.common.filter_simple import FirstOrderFilter
 
-from openpilot.selfdrive.ui.sunnypilot.mici.onroad.confidence_ball import ConfidenceBallSP
+from openpilot.selfdrive.ui.hoofpilot.mici.onroad.confidence_ball import ConfidenceBallSP
 
 
 def draw_circle_gradient(center_x: float, center_y: float, radius: int,

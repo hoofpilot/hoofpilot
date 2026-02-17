@@ -24,16 +24,16 @@ from openpilot.system import sentry
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 from openpilot.selfdrive.controls.lib.drive_helpers import get_accel_from_plan, smooth_value
 
-from openpilot.sunnypilot.modeld_v2.fill_model_msg import fill_model_msg, fill_pose_msg, PublishState, get_curvature_from_output
-from openpilot.sunnypilot.modeld_v2.constants import Plan
-from openpilot.sunnypilot.modeld_v2.models.commonmodel_pyx import DrivingModelFrame, CLContext
-from openpilot.sunnypilot.modeld_v2.meta_helper import load_meta_constants
-from openpilot.sunnypilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
+from hoofpilot.modeld_v2.fill_model_msg import fill_model_msg, fill_pose_msg, PublishState, get_curvature_from_output
+from hoofpilot.modeld_v2.constants import Plan
+from hoofpilot.modeld_v2.models.commonmodel_pyx import DrivingModelFrame, CLContext
+from hoofpilot.modeld_v2.meta_helper import load_meta_constants
+from hoofpilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
 
-from openpilot.sunnypilot.livedelay.helpers import get_lat_delay
-from openpilot.sunnypilot.modeld.modeld_base import ModelStateBase
-from openpilot.sunnypilot.models.helpers import get_active_bundle
-from openpilot.sunnypilot.models.runners.helpers import get_model_runner
+from hoofpilot.livedelay.helpers import get_lat_delay
+from hoofpilot.modeld.modeld_base import ModelStateBase
+from hoofpilot.models.helpers import get_active_bundle
+from hoofpilot.models.runners.helpers import get_model_runner
 
 PROCESS_NAME = "selfdrive.modeld.modeld_tinygrad"
 RECOVERY_POWER = 1.0 # The higher this number the more aggressively the model will recover to lanecenter, too high and it will ping-pong

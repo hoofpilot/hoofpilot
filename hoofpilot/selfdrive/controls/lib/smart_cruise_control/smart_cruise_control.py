@@ -1,6 +1,6 @@
 ﻿import cereal.messaging as messaging
-from openpilot.sunnypilot.selfdrive.controls.lib.smart_cruise_control.vision_controller import SmartCruiseControlVision
-from openpilot.sunnypilot.selfdrive.controls.lib.smart_cruise_control.map_controller import SmartCruiseControlMap
+from hoofpilot.selfdrive.controls.lib.smart_cruise_control.vision_controller import SmartCruiseControlVision
+from hoofpilot.selfdrive.controls.lib.smart_cruise_control.map_controller import SmartCruiseControlMap
 
 
 class SmartCruiseControl:

@@ -141,7 +141,7 @@ testpaths = [
   "system",
   "tools",
   "cereal",
-  "sunnypilot",
+  "hoofpilot",
 ]
 
 [tool.codespell]

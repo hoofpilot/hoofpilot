@@ -1,11 +1,11 @@
 ﻿from enum import IntEnum
 
 from openpilot.common.params import Params
-from openpilot.system.ui.sunnypilot.widgets.option_control import OptionControlSP
+from openpilot.system.ui.hoofpilot.widgets.option_control import OptionControlSP
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets.scroller_tici import Scroller
-from openpilot.system.ui.sunnypilot.widgets.list_view import option_item_sp, ToggleActionSP
+from openpilot.system.ui.hoofpilot.widgets.list_view import option_item_sp, ToggleActionSP
 
 ONROAD_BRIGHTNESS_TIMER_VALUES = {0: 15, 1: 30, **{i: (i - 1) * 60 for i in range(2, 12)}}
 

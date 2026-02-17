@@ -1,4 +1,4 @@
-#include "sunnypilot/modeld/thneed/thneed.h"
+#include "hoofpilot/modeld/thneed/thneed.h"
 
 #include <cassert>
 #include <cstring>

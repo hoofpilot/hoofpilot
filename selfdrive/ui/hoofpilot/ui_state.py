@@ -2,8 +2,8 @@
 
 from cereal import messaging, log, custom
 from openpilot.common.params import Params
-from openpilot.selfdrive.ui.sunnypilot.layouts.settings.display import OnroadBrightness
-from openpilot.sunnypilot.sunnylink.sunnylink_state import SunnylinkState
+from openpilot.selfdrive.ui.hoofpilot.layouts.settings.display import OnroadBrightness
+from hoofpilot.sunnylink.sunnylink_state import SunnylinkState
 from openpilot.system.ui.lib.application import gui_app
 
 OpenpilotState = log.SelfdriveState.OpenpilotState

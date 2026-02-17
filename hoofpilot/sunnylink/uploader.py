@@ -11,7 +11,7 @@ from collections.abc import Iterator
 
 from cereal import log
 import cereal.messaging as messaging
-from openpilot.sunnypilot.sunnylink.api import SunnylinkApi
+from hoofpilot.sunnylink.api import SunnylinkApi
 from openpilot.common.utils import get_upload_stream
 from openpilot.common.params import Params
 from openpilot.common.realtime import set_core_affinity

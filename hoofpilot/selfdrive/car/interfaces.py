@@ -4,12 +4,12 @@ from opendbc.car import structs
 from opendbc.car.interfaces import CarInterfaceBase
 from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
-from openpilot.sunnypilot.selfdrive.controls.lib.nnlc.helpers import get_nn_model_path
-from openpilot.sunnypilot.selfdrive.controls.lib.speed_limit.helpers import set_speed_limit_assist_availability
+from hoofpilot.selfdrive.controls.lib.nnlc.helpers import get_nn_model_path
+from hoofpilot.selfdrive.controls.lib.speed_limit.helpers import set_speed_limit_assist_availability
 
 import openpilot.system.sentry as sentry
 
-from openpilot.sunnypilot.sunnylink.statsd import STATSLOGSP
+from hoofpilot.sunnylink.statsd import STATSLOGSP
 
 
 def log_fingerprint(CP: structs.CarParams) -> None:
@@ -97,7 +97,7 @@ def setup_interfaces(CI: CarInterfaceBase, params: Params = None) -> None:
   _cleanup_unsupported_params(CP, CP_SP)
 
   try:
-    STATSLOGSP.raw('sunnypilot.car_params', CP.to_dict())
+    STATSLOGSP.raw('hoofpilot.car_params', CP.to_dict())
   except RuntimeError:
     pass  # to_dict fails on macOS due to library issues.
   # STATSLOGSP.raw('sunnypilot_params.car_params_sp', CP_SP.to_dict()) # https://github.com/sunnypilot/opendbc/pull/361

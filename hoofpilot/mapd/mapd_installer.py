@@ -13,7 +13,7 @@ from openpilot.common.params import Params
 from openpilot.system.hardware.hw import Paths
 from openpilot.common.spinner import Spinner
 from openpilot.system.version import is_prebuilt
-from openpilot.sunnypilot.mapd import MAPD_PATH, MAPD_BIN_DIR
+from hoofpilot.mapd import MAPD_PATH, MAPD_BIN_DIR
 import openpilot.system.sentry as sentry
 
 VERSION = "v1.12.0"

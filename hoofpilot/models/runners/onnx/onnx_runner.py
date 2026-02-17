@@ -1,10 +1,10 @@
 import numpy as np
 
-from openpilot.sunnypilot.modeld_v2 import MODEL_PATH
-from openpilot.sunnypilot.modeld_v2.runners.ort_helpers import make_onnx_cpu_runner, ORT_TYPES_TO_NP_TYPES
-from openpilot.sunnypilot.models.runners.constants import ModelType, ShapeDict, CLMemDict, NumpyDict, FrameDict
-from openpilot.sunnypilot.models.runners.model_runner import ModelRunner
-from openpilot.sunnypilot.modeld_v2.constants import ModelConstants
+from hoofpilot.modeld_v2 import MODEL_PATH
+from hoofpilot.modeld_v2.runners.ort_helpers import make_onnx_cpu_runner, ORT_TYPES_TO_NP_TYPES
+from hoofpilot.models.runners.constants import ModelType, ShapeDict, CLMemDict, NumpyDict, FrameDict
+from hoofpilot.models.runners.model_runner import ModelRunner
+from hoofpilot.modeld_v2.constants import ModelConstants
 
 
 class ONNXRunner(ModelRunner):

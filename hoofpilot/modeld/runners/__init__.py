@@ -1,6 +1,6 @@
 import os
 from openpilot.system.hardware import TICI
-from openpilot.sunnypilot.modeld.runners.runmodel_pyx import RunModel, Runtime
+from hoofpilot.modeld.runners.runmodel_pyx import RunModel, Runtime
 assert Runtime
 
 USE_THNEED = int(os.getenv('USE_THNEED', str(int(TICI))))
@@ -11,10 +11,10 @@ class ModelRunner(RunModel):
 
   def __new__(cls, paths, *args, **kwargs):
     if ModelRunner.THNEED in paths and USE_THNEED:
-      from openpilot.sunnypilot.modeld.runners.thneedmodel_pyx import ThneedModel as Runner
+      from hoofpilot.modeld.runners.thneedmodel_pyx import ThneedModel as Runner
       runner_type = ModelRunner.THNEED
     elif ModelRunner.ONNX in paths:
-      from openpilot.sunnypilot.modeld.runners.onnxmodel import ONNXModel as Runner
+      from hoofpilot.modeld.runners.onnxmodel import ONNXModel as Runner
       runner_type = ModelRunner.ONNX
     else:
       raise Exception("Couldn't select a model runner, make sure to pass at least one valid model path")

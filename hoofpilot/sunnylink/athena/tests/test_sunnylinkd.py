@@ -1,4 +1,4 @@
-﻿from openpilot.sunnypilot.sunnylink.athena import sunnylinkd
+﻿from hoofpilot.sunnylink.athena import sunnylinkd
 
 
 class TestSunnylinkdMethods:

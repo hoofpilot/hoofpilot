@@ -9,9 +9,9 @@ from openpilot.system.hardware import HARDWARE
 
 def _default_bg_relpath() -> str:
   try:
-    return "sunnypilot/selfdrive/assets/images/bg_tici.jpg" if HARDWARE.get_device_type() == "tici" else "sunnypilot/selfdrive/assets/images/bg.jpg"
+    return "hoofpilot/selfdrive/assets/images/bg_tici.jpg" if HARDWARE.get_device_type() == "tici" else "hoofpilot/selfdrive/assets/images/bg.jpg"
   except Exception:
-    return "sunnypilot/selfdrive/assets/images/bg.jpg"
+    return "hoofpilot/selfdrive/assets/images/bg.jpg"
 
 
 def ensure_boot_background(source_relpath: str | None = None,

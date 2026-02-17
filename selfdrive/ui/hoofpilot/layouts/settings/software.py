@@ -8,8 +8,8 @@ from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.widgets import DialogResult
 from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog
 
-from openpilot.system.ui.sunnypilot.widgets.list_view import toggle_item_sp
-from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
+from openpilot.system.ui.hoofpilot.widgets.list_view import toggle_item_sp
+from openpilot.system.ui.hoofpilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
 
 
 DESCRIPTIONS = {

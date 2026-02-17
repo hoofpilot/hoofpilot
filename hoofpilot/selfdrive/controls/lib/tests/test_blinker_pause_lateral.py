@@ -1,7 +1,7 @@
 ﻿from cereal import car
 
 from openpilot.common.constants import CV
-from openpilot.sunnypilot.selfdrive.controls.lib.blinker_pause_lateral import BlinkerPauseLateral
+from hoofpilot.selfdrive.controls.lib.blinker_pause_lateral import BlinkerPauseLateral
 
 
 class TestBlinkerPauseLateral:

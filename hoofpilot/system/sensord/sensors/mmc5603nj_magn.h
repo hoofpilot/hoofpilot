@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "sunnypilot/system/sensord/sensors/i2c_sensor.h"
+#include "hoofpilot/system/sensord/sensors/i2c_sensor.h"
 
 // Address of the chip on the bus
 #define MMC5603NJ_I2C_ADDR       0x30

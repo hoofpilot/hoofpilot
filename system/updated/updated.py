@@ -211,7 +211,7 @@ def handle_agnos_update() -> None:
   set_offroad_alert("Offroad_NeosUpdate", True)
 
   if HARDWARE.get_device_type() == "tici":
-    manifest_path = os.path.join(OVERLAY_MERGED, "sunnypilot/system/hardware/c3/agnos.json")
+    manifest_path = os.path.join(OVERLAY_MERGED, "hoofpilot/system/hardware/c3/agnos.json")
   else:
     manifest_path = os.path.join(OVERLAY_MERGED, "system/hardware/tici/agnos.json")
   target_slot_number = get_target_slot_number()
@@ -296,7 +296,7 @@ class Updater:
       try:
         branch = self.get_branch(basedir)
         commit = self.get_commit_hash(basedir)[:7]
-        with open(os.path.join(basedir, "sunnypilot", "common", "version.h")) as f:
+        with open(os.path.join(basedir, "hoofpilot", "common", "version.h")) as f:
           version = f.read().split('"')[1]
 
         commit_unix_ts = run(["git", "show", "-s", "--format=%ct", "HEAD"], basedir).rstrip()

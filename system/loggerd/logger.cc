@@ -11,7 +11,7 @@
 #include "common/swaglog.h"
 #include "common/version.h"
 
-#include "sunnypilot/common/version.h"
+#include "hoofpilot/common/version.h"
 
 // ***** log metadata *****
 kj::Array<capnp::word> logger_build_init_data() {

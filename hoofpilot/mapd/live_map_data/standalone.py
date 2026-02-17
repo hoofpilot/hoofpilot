@@ -7,8 +7,8 @@ import threading
 import traceback
 
 from openpilot.common.realtime import Ratekeeper, config_realtime_process
-from openpilot.sunnypilot.mapd.live_map_data import get_debug
-from openpilot.sunnypilot.mapd.live_map_data.osm_map_data import OsmMapData
+from hoofpilot.mapd.live_map_data import get_debug
+from hoofpilot.mapd.live_map_data.osm_map_data import OsmMapData
 
 
 def excepthook(args):

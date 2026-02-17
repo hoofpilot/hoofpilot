@@ -1,4 +1,4 @@
-#include "sunnypilot/modeld/models/commonmodel.h"
+#include "hoofpilot/modeld/models/commonmodel.h"
 
 #include <cassert>
 #include <cmath>

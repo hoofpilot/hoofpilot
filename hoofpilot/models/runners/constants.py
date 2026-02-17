@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from openpilot.sunnypilot.modeld_v2.models.commonmodel_pyx import DrivingModelFrame, CLMem
+from hoofpilot.modeld_v2.models.commonmodel_pyx import DrivingModelFrame, CLMem
 from openpilot.system.hardware.hw import Paths
 from cereal import custom
 

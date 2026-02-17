@@ -9,8 +9,8 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware.hw import Paths
 
 from cereal import messaging, custom
-from openpilot.sunnypilot.models.fetcher import ModelFetcher
-from openpilot.sunnypilot.models.helpers import verify_file, get_active_bundle
+from hoofpilot.models.fetcher import ModelFetcher
+from hoofpilot.models.helpers import verify_file, get_active_bundle
 
 
 class ModelManagerSP:

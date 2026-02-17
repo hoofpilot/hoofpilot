@@ -6,7 +6,7 @@
 
 #include "common/util.h"
 #include "common/swaglog.h"
-#include "sunnypilot/modeld/thneed/clutil_legacy.h"
+#include "hoofpilot/modeld/thneed/clutil_legacy.h"
 
 void cl_print_build_errors(cl_program program, cl_device_id device) {
   cl_build_status status;

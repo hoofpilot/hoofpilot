@@ -1,13 +1,13 @@
 import pickle
 
 import numpy as np
-from openpilot.sunnypilot.modeld_v2.runners.tinygrad_helpers import qcom_tensor_from_opencl_address
-from openpilot.sunnypilot.models.runners.constants import CLMemDict, FrameDict, NumpyDict, ModelType, ShapeDict, CUSTOM_MODEL_PATH, SliceDict
-from openpilot.sunnypilot.models.runners.model_runner import ModelRunner
-from openpilot.sunnypilot.models.runners.tinygrad.model_types import PolicyTinygrad, VisionTinygrad, SupercomboTinygrad, OffPolicyTinygrad
+from hoofpilot.modeld_v2.runners.tinygrad_helpers import qcom_tensor_from_opencl_address
+from hoofpilot.models.runners.constants import CLMemDict, FrameDict, NumpyDict, ModelType, ShapeDict, CUSTOM_MODEL_PATH, SliceDict
+from hoofpilot.models.runners.model_runner import ModelRunner
+from hoofpilot.models.runners.tinygrad.model_types import PolicyTinygrad, VisionTinygrad, SupercomboTinygrad, OffPolicyTinygrad
 from openpilot.system.hardware import TICI
-from openpilot.sunnypilot.models.split_model_constants import SplitModelConstants
-from openpilot.sunnypilot.modeld_v2.constants import ModelConstants
+from hoofpilot.models.split_model_constants import SplitModelConstants
+from hoofpilot.modeld_v2.constants import ModelConstants
 
 from tinygrad.tensor import Tensor
 

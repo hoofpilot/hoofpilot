@@ -1,8 +1,8 @@
-#include "sunnypilot/system/sensord/sensors/bmx055_temp.h"
+#include "hoofpilot/system/sensord/sensors/bmx055_temp.h"
 
 #include <cassert>
 
-#include "sunnypilot/system/sensord/sensors/bmx055_accel.h"
+#include "hoofpilot/system/sensord/sensors/bmx055_accel.h"
 #include "common/swaglog.h"
 #include "common/timing.h"
 

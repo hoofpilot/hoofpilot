@@ -1,6 +1,6 @@
 import pytest
 
-from openpilot.sunnypilot.selfdrive.controls.lib.dec.dec import DynamicExperimentalController
+from hoofpilot.selfdrive.controls.lib.dec.dec import DynamicExperimentalController
 
 class MockLeadOne:
   def __init__(self, status=0.0):

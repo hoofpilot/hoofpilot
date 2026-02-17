@@ -5,10 +5,10 @@ import pytest
 from pytest_mock import MockerFixture
 
 from cereal import custom
-from openpilot.sunnypilot.selfdrive.controls.lib.speed_limit import LIMIT_MAX_MAP_DATA_AGE
+from hoofpilot.selfdrive.controls.lib.speed_limit import LIMIT_MAX_MAP_DATA_AGE
 
-from openpilot.sunnypilot.selfdrive.controls.lib.speed_limit.speed_limit_resolver import SpeedLimitResolver, ALL_SOURCES
-from openpilot.sunnypilot.selfdrive.controls.lib.speed_limit.common import Policy
+from hoofpilot.selfdrive.controls.lib.speed_limit.speed_limit_resolver import SpeedLimitResolver, ALL_SOURCES
+from hoofpilot.selfdrive.controls.lib.speed_limit.common import Policy
 
 SpeedLimitSource = custom.LongitudinalPlanSP.SpeedLimit.Source
 

@@ -1,7 +1,7 @@
 from parameterized import parameterized_class
 from cereal import car
 from openpilot.selfdrive.selfdrived.events import Events
-from openpilot.sunnypilot.selfdrive.car.cruise_helpers import CruiseHelper, DISTANCE_LONG_PRESS
+from hoofpilot.selfdrive.car.cruise_helpers import CruiseHelper, DISTANCE_LONG_PRESS
 
 ButtonEvent = car.CarState.ButtonEvent
 ButtonType = car.CarState.ButtonEvent.Type

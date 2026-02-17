@@ -11,7 +11,7 @@ cdef extern from "common/clutil.h":
   cl_device_id cl_get_device_id(unsigned long)
   cl_context cl_create_context(cl_device_id)
 
-cdef extern from "sunnypilot/modeld/models/commonmodel.h":
+cdef extern from "hoofpilot/modeld/models/commonmodel.h":
   cppclass ModelFrame:
     int buf_size
     ModelFrame(cl_device_id, cl_context)

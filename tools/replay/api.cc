@@ -14,7 +14,7 @@
 #include "common/version.h"
 #include "system/hardware/hw.h"
 
-#include "sunnypilot/common/version.h"
+#include "hoofpilot/common/version.h"
 
 namespace CommaApi2 {
 

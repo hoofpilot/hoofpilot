@@ -8,7 +8,7 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car.helpers import convert_to_capnp
 from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque
-from openpilot.sunnypilot.selfdrive.car import interfaces as sunnypilot_interfaces
+from hoofpilot.selfdrive.car import interfaces as sunnypilot_interfaces
 
 
 class TestNNTorqueModel:

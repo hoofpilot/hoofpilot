@@ -22,9 +22,9 @@ from websocket import (ABNF, WebSocket, WebSocketException, WebSocketTimeoutExce
                        create_connection, WebSocketConnectionClosedException)
 
 import cereal.messaging as messaging
-from openpilot.sunnypilot.selfdrive.car.sync_car_list_param import update_car_list_param
-from openpilot.sunnypilot.sunnylink.api import SunnylinkApi
-from openpilot.sunnypilot.sunnylink.utils import sunnylink_need_register, sunnylink_ready, get_param_as_byte, save_param_from_base64_encoded_string
+from hoofpilot.selfdrive.car.sync_car_list_param import update_car_list_param
+from hoofpilot.sunnylink.api import SunnylinkApi
+from hoofpilot.sunnylink.utils import sunnylink_need_register, sunnylink_ready, get_param_as_byte, save_param_from_base64_encoded_string
 
 SUNNYLINK_ATHENA_HOST = os.getenv('SUNNYLINK_ATHENA_HOST', 'wss://ws.stg.api.sunnypilot.ai')
 HANDLER_THREADS = int(os.getenv('HANDLER_THREADS', "4"))

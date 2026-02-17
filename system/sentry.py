@@ -13,7 +13,7 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
-from openpilot.sunnypilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
+from hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
 
 CRASHES_DIR = Paths.crash_log_root()
 

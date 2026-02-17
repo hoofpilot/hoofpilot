@@ -17,7 +17,7 @@ BUILD_DIR="${BUILD_DIR:-"$(mktemp -d -t hoofpilot_release_build_XXXXXX)"}"
 # Branch name to create/push
 if [ -z "${RELEASE_BRANCH:-}" ]; then
   # Best-effort version extraction for unique branch naming.
-  VERSION="$(awk -F'[\"-]' '{print $2}' "$SOURCE_DIR/sunnypilot/common/version.h" 2>/dev/null || true)"
+  VERSION="$(awk -F'[\"-]' '{print $2}' "$SOURCE_DIR/hoofpilot/common/version.h" 2>/dev/null || true)"
   TS="$(date +%Y%m%d_%H%M%S)"
   RELEASE_BRANCH="release-${VERSION:-unknown}-$TS"
 fi
@@ -56,7 +56,7 @@ cd "$BUILD_DIR"
 rm -f panda/board/obj/panda.bin.signed
 rm -f panda/board/obj/panda_h7.bin.signed
 
-VERSION="$(awk -F'[\"-]' '{print $2}' sunnypilot/common/version.h)"
+VERSION="$(awk -F'[\"-]' '{print $2}' hoofpilot/common/version.h)"
 echo "[-] committing version $VERSION T=$SECONDS"
 git add -f .
 git commit -a -m "hoofpilot $VERSION release"
@@ -97,7 +97,7 @@ find . -name '__pycache__' -delete
 rm -rf .sconsign.dblite Jenkinsfile release/ || true
 rm -f selfdrive/modeld/models/driving_vision.onnx || true
 rm -f selfdrive/modeld/models/driving_policy.onnx || true
-rm -f sunnypilot/modeld*/models/supercombo.onnx || true
+rm -f hoofpilot/modeld*/models/supercombo.onnx || true
 
 find third_party/ -name '*x86*' -exec rm -rf {} +
 find third_party/ -name '*Darwin*' -exec rm -rf {} +

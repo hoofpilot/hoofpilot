@@ -4,8 +4,8 @@ import platform
 
 from cereal import log
 from openpilot.common.params import Params
-from openpilot.sunnypilot.mapd.live_map_data.base_map_data import BaseMapData
-from openpilot.sunnypilot.navd.helpers import Coordinate
+from hoofpilot.mapd.live_map_data.base_map_data import BaseMapData
+from hoofpilot.navd.helpers import Coordinate
 
 
 class OsmMapData(BaseMapData):

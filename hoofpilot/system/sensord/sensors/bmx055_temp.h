@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sunnypilot/system/sensord/sensors/bmx055_accel.h"
-#include "sunnypilot/system/sensord/sensors/i2c_sensor.h"
+#include "hoofpilot/system/sensord/sensors/bmx055_accel.h"
+#include "hoofpilot/system/sensord/sensors/i2c_sensor.h"
 
 class BMX055_Temp : public I2CSensor {
   uint8_t get_device_address() {return BMX055_ACCEL_I2C_ADDR;}

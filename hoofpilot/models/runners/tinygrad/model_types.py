@@ -2,10 +2,10 @@ import os
 from abc import ABC
 
 import numpy as np
-from openpilot.sunnypilot.modeld_v2.parse_model_outputs import Parser as CombinedParser
-from openpilot.sunnypilot.modeld_v2.parse_model_outputs_split import Parser as SplitParser
-from openpilot.sunnypilot.models.runners.constants import ModelType, NumpyDict
-from openpilot.sunnypilot.models.runners.model_runner import ModularRunner
+from hoofpilot.modeld_v2.parse_model_outputs import Parser as CombinedParser
+from hoofpilot.modeld_v2.parse_model_outputs_split import Parser as SplitParser
+from hoofpilot.models.runners.constants import ModelType, NumpyDict
+from hoofpilot.models.runners.model_runner import ModularRunner
 from openpilot.system.hardware.hw import Paths
 
 

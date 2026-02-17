@@ -1,7 +1,7 @@
 ﻿from cereal import custom, car
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
-from openpilot.sunnypilot.selfdrive.controls.lib.speed_limit.common import Mode as SpeedLimitMode
+from hoofpilot.selfdrive.controls.lib.speed_limit.common import Mode as SpeedLimitMode
 
 
 def compare_cluster_target(v_cruise_cluster: float, target_set_speed: float, is_metric: bool) -> tuple[bool, bool]:

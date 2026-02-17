@@ -1,4 +1,4 @@
-﻿from openpilot.system.ui.sunnypilot.widgets.list_view import ButtonActionSP
+﻿from openpilot.system.ui.hoofpilot.widgets.list_view import ButtonActionSP
 
 
 class NoElideButtonAction(ButtonActionSP):

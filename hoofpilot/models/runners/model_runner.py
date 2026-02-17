@@ -2,9 +2,9 @@ import os
 from abc import abstractmethod, ABC
 
 import numpy as np
-from openpilot.sunnypilot.models.helpers import get_active_bundle
+from hoofpilot.models.helpers import get_active_bundle
 from openpilot.system.hardware import TICI
-from openpilot.sunnypilot.models.runners.constants import NumpyDict, ShapeDict, CLMemDict, FrameDict, Model, SliceDict, SEND_RAW_PRED
+from hoofpilot.models.runners.constants import NumpyDict, ShapeDict, CLMemDict, FrameDict, Model, SliceDict, SEND_RAW_PRED
 from openpilot.system.hardware.hw import Paths
 import pickle
 

@@ -2,8 +2,8 @@
 
 from openpilot.selfdrive.ui.mici.layouts.settings import settings as OP
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton
-from openpilot.selfdrive.ui.sunnypilot.mici.layouts.models import ModelsLayoutMici
-from openpilot.selfdrive.ui.sunnypilot.mici.layouts.stable import StableLayoutMici
+from openpilot.selfdrive.ui.hoofpilot.mici.layouts.models import ModelsLayoutMici
+from openpilot.selfdrive.ui.hoofpilot.mici.layouts.stable import StableLayoutMici
 from openpilot.selfdrive.ui.ui_state import ui_state
 
 ICON_SIZE = 70

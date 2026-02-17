@@ -1,4 +1,4 @@
-#include "sunnypilot/system/sensord/sensors/bmx055_accel.h"
+#include "hoofpilot/system/sensord/sensors/bmx055_accel.h"
 
 #include <cassert>
 

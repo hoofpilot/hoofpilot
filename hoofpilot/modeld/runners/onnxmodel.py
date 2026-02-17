@@ -5,7 +5,7 @@ import sys
 import numpy as np
 from typing import Any
 
-from openpilot.sunnypilot.modeld.runners.runmodel_pyx import RunModel
+from hoofpilot.modeld.runners.runmodel_pyx import RunModel
 
 ORT_TYPES_TO_NP_TYPES = {'tensor(float16)': np.float16, 'tensor(float)': np.float32, 'tensor(uint8)': np.uint8}
 

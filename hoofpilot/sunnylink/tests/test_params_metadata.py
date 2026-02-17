@@ -1,6 +1,6 @@
 ﻿import json
 
-from openpilot.sunnypilot.sunnylink.athena.sunnylinkd import getParamsAllKeysV1, METADATA_PATH
+from hoofpilot.sunnylink.athena.sunnylinkd import getParamsAllKeysV1, METADATA_PATH
 
 
 def test_get_params_all_keys_v1():

@@ -1,7 +1,7 @@
 import base64
 import gzip
 import json
-from openpilot.sunnypilot.sunnylink.api import SunnylinkApi, UNREGISTERED_SUNNYLINK_DONGLE_ID
+from hoofpilot.sunnylink.api import SunnylinkApi, UNREGISTERED_SUNNYLINK_DONGLE_ID
 from openpilot.common.params import Params, ParamKeyType
 from openpilot.system.version import is_prebuilt
 
@@ -104,7 +104,7 @@ def save_param_from_base64_encoded_string(param_name: str, base64_encoded_data: 
 def _convert_param_to_type(value: bytes, param_type: ParamKeyType) -> bytes | str | int | float | bool | dict | None:
   """
   Convert a byte value to the specified param type. Used internally when getting a Param to convert it to the right type.
-  If this method looks familiar, it's because on SP we have a similar one in openpilot/sunnypilot/car/__init__.py.
+  If this method looks familiar, it's because on SP we have a similar one in openpilot/hoofpilot/car/__init__.py.
   """
 
   # We convert to string anything that isn't bytes first. We later transform further.

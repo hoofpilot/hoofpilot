@@ -13,8 +13,8 @@
 #endif
 
 #include "common/mat.h"
-#include "sunnypilot/modeld/transforms/loadyuv.h"
-#include "sunnypilot/modeld/transforms/transform.h"
+#include "hoofpilot/modeld/transforms/loadyuv.h"
+#include "hoofpilot/modeld/transforms/transform.h"
 
 class ModelFrame {
 public:

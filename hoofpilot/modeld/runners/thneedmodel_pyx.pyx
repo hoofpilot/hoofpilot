@@ -5,9 +5,9 @@ from libcpp cimport bool
 from libcpp.string cimport string
 
 from .thneedmodel cimport ThneedModel as cppThneedModel
-from openpilot.sunnypilot.modeld.models.commonmodel_pyx cimport CLContext
-from openpilot.sunnypilot.modeld.runners.runmodel_pyx cimport RunModel
-from openpilot.sunnypilot.modeld.runners.runmodel cimport RunModel as cppRunModel
+from hoofpilot.modeld.models.commonmodel_pyx cimport CLContext
+from hoofpilot.modeld.runners.runmodel_pyx cimport RunModel
+from hoofpilot.modeld.runners.runmodel cimport RunModel as cppRunModel
 
 cdef class ThneedModel(RunModel):
   def __cinit__(self, string path, float[:] output, int runtime, bool use_tf8, CLContext context):

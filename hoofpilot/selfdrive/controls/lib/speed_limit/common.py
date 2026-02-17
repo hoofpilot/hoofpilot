@@ -1,4 +1,4 @@
-﻿from openpilot.sunnypilot import IntEnumBase
+﻿from hoofpilot import IntEnumBase
 
 
 class Policy(IntEnumBase):

@@ -1,5 +1,5 @@
-﻿from openpilot.sunnypilot import get_file_hash
-from openpilot.sunnypilot.models.default_model import MODEL_HASH_PATH, VISION_ONNX_PATH, POLICY_ONNX_PATH
+﻿from hoofpilot import get_file_hash
+from hoofpilot.models.default_model import MODEL_HASH_PATH, VISION_ONNX_PATH, POLICY_ONNX_PATH
 import hashlib
 
 
@@ -13,5 +13,5 @@ class TestDefaultModel:
     with open(MODEL_HASH_PATH) as f:
       current_hash = f.read().strip()
 
-    assert combined_hash == current_hash, "Run sunnypilot/models/default_model.py to update the default model name and hash"
+    assert combined_hash == current_hash, "Run hoofpilot/models/default_model.py to update the default model name and hash"
 

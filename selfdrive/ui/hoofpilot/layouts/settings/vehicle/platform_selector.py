@@ -11,11 +11,11 @@ from openpilot.system.ui.widgets import DialogResult, Widget
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
 from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog
 
-from openpilot.system.ui.sunnypilot.lib.styles import style
-from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
+from openpilot.system.ui.hoofpilot.lib.styles import style
+from openpilot.system.ui.hoofpilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
 from openpilot.selfdrive.ui.ui_state import ui_state
 
-CAR_LIST_JSON_OUT = os.path.join(BASEDIR, "sunnypilot", "selfdrive", "car", "car_list.json")
+CAR_LIST_JSON_OUT = os.path.join(BASEDIR, "hoofpilot", "selfdrive", "car", "car_list.json")
 
 
 class LegendWidget(Widget):

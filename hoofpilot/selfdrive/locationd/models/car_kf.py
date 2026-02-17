@@ -6,7 +6,7 @@ from typing import Any
 import numpy as np
 
 from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY
-from openpilot.sunnypilot.selfdrive.locationd.models.constants import ObservationKind
+from hoofpilot.selfdrive.locationd.models.constants import ObservationKind
 from openpilot.common.swaglog import cloudlog
 
 from rednose.helpers.kalmanfilter import KalmanFilter

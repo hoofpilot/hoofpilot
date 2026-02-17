@@ -18,10 +18,10 @@ from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog
 from openpilot.system.ui.widgets.list_view import text_item
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
-from openpilot.system.ui.sunnypilot.lib.utils import NoElideButtonAction
-from openpilot.system.ui.sunnypilot.widgets.list_view import ListItemSP
-from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeFolder, TreeNode, TreeOptionDialog
-from openpilot.system.ui.sunnypilot.widgets.progress_bar import progress_item
+from openpilot.system.ui.hoofpilot.lib.utils import NoElideButtonAction
+from openpilot.system.ui.hoofpilot.widgets.list_view import ListItemSP
+from openpilot.system.ui.hoofpilot.widgets.tree_dialog import TreeFolder, TreeNode, TreeOptionDialog
+from openpilot.system.ui.hoofpilot.widgets.progress_bar import progress_item
 
 MAP_PATH = Path(Paths.mapd_root()) / "offline"
 

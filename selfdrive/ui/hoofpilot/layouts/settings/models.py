@@ -25,26 +25,26 @@ from openpilot.system.ui.widgets.confirm_dialog import alert_dialog, ConfirmDial
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.widgets.toggle import ON_COLOR
 
-from openpilot.sunnypilot.models.runners.constants import CUSTOM_MODEL_PATH
-from openpilot.system.ui.sunnypilot.lib.styles import style
-from openpilot.system.ui.sunnypilot.lib.utils import NoElideButtonAction
-from openpilot.system.ui.sunnypilot.widgets.list_view import ListItemSP, toggle_item_sp, option_item_sp
-from openpilot.system.ui.sunnypilot.widgets.progress_bar import progress_item
-from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
+from hoofpilot.models.runners.constants import CUSTOM_MODEL_PATH
+from openpilot.system.ui.hoofpilot.lib.styles import style
+from openpilot.system.ui.hoofpilot.lib.utils import NoElideButtonAction
+from openpilot.system.ui.hoofpilot.widgets.list_view import ListItemSP, toggle_item_sp, option_item_sp
+from openpilot.system.ui.hoofpilot.widgets.progress_bar import progress_item
+from openpilot.system.ui.hoofpilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
 
 if gui_app.sunnypilot_ui():
-  from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp as button_item
+  from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp as button_item
 from openpilot.system.ui.widgets.toggle import ON_COLOR
 
-from openpilot.sunnypilot.models.runners.constants import CUSTOM_MODEL_PATH
-from openpilot.system.ui.sunnypilot.lib.styles import style
-from openpilot.system.ui.sunnypilot.lib.utils import NoElideButtonAction
-from openpilot.system.ui.sunnypilot.widgets.list_view import ListItemSP, toggle_item_sp, option_item_sp
-from openpilot.system.ui.sunnypilot.widgets.progress_bar import progress_item
-from openpilot.system.ui.sunnypilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
+from hoofpilot.models.runners.constants import CUSTOM_MODEL_PATH
+from openpilot.system.ui.hoofpilot.lib.styles import style
+from openpilot.system.ui.hoofpilot.lib.utils import NoElideButtonAction
+from openpilot.system.ui.hoofpilot.widgets.list_view import ListItemSP, toggle_item_sp, option_item_sp
+from openpilot.system.ui.hoofpilot.widgets.progress_bar import progress_item
+from openpilot.system.ui.hoofpilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
 
 if gui_app.sunnypilot_ui():
-  from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp as button_item
+  from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp as button_item
 
 
 class ModelsLayout(Widget):

@@ -12,7 +12,7 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose, fft_next_good_size, parabolic_peak_interp
-from openpilot.sunnypilot.livedelay.lagd_toggle import LagdToggle
+from hoofpilot.livedelay.lagd_toggle import LagdToggle
 
 BLOCK_SIZE = 100
 BLOCK_NUM = 50

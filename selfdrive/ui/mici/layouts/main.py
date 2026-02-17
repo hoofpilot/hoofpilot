@@ -12,7 +12,7 @@ from openpilot.system.ui.widgets.scroller import Scroller
 from openpilot.system.ui.lib.application import gui_app
 
 if gui_app.sunnypilot_ui():
-  from openpilot.selfdrive.ui.sunnypilot.mici.layouts.settings import SettingsLayoutSP as SettingsLayout
+  from openpilot.selfdrive.ui.hoofpilot.mici.layouts.settings import SettingsLayoutSP as SettingsLayout
 
 
 ONROAD_DELAY = 2.5  # seconds

@@ -12,7 +12,7 @@ cdef extern from "common/clutil.h":
   cl_context cl_create_context(cl_device_id)
   void cl_release_context(cl_context)
 
-cdef extern from "sunnypilot/modeld_v2/models/commonmodel.h":
+cdef extern from "hoofpilot/modeld_v2/models/commonmodel.h":
   cppclass ModelFrame:
     int buf_size
     unsigned char * buffer_from_cl(cl_mem*, int);

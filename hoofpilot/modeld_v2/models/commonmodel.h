@@ -14,8 +14,8 @@
 #endif
 
 #include "common/mat.h"
-#include "sunnypilot/modeld_v2/transforms/loadyuv.h"
-#include "sunnypilot/modeld_v2/transforms/transform.h"
+#include "hoofpilot/modeld_v2/transforms/loadyuv.h"
+#include "hoofpilot/modeld_v2/transforms/transform.h"
 
 class ModelFrame {
 public:

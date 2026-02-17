@@ -13,10 +13,10 @@
 #include "common/timing.h"
 #include "common/util.h"
 
-#include "sunnypilot/common/transformations/coordinates.hpp"
-#include "sunnypilot/common/transformations/orientation.hpp"
-#include "sunnypilot/system/sensord/sensors/constants.h"
-#include "sunnypilot/selfdrive/locationd/models/live_kf.h"
+#include "hoofpilot/common/transformations/coordinates.hpp"
+#include "hoofpilot/common/transformations/orientation.hpp"
+#include "hoofpilot/system/sensord/sensors/constants.h"
+#include "hoofpilot/selfdrive/locationd/models/live_kf.h"
 
 #define VISION_DECIMATION 2
 #define SENSOR_DECIMATION 10

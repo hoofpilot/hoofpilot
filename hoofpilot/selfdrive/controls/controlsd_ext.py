@@ -6,10 +6,10 @@ from cereal import log, custom
 from opendbc.car import structs
 from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
-from openpilot.sunnypilot import PARAMS_UPDATE_PERIOD
-from openpilot.sunnypilot.livedelay.helpers import get_lat_delay
-from openpilot.sunnypilot.modeld.modeld_base import ModelStateBase
-from openpilot.sunnypilot.selfdrive.controls.lib.blinker_pause_lateral import BlinkerPauseLateral
+from hoofpilot import PARAMS_UPDATE_PERIOD
+from hoofpilot.livedelay.helpers import get_lat_delay
+from hoofpilot.modeld.modeld_base import ModelStateBase
+from hoofpilot.selfdrive.controls.lib.blinker_pause_lateral import BlinkerPauseLateral
 
 
 class ControlsExt(ModelStateBase):

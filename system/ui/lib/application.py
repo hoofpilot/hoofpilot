@@ -22,7 +22,7 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.system.ui.lib.multilang import multilang
 from openpilot.common.realtime import Ratekeeper
 
-from openpilot.system.ui.sunnypilot.lib.application import GuiApplicationExt
+from openpilot.system.ui.hoofpilot.lib.application import GuiApplicationExt
 
 _DEFAULT_FPS = int(os.getenv("FPS", {'tizi': 20}.get(HARDWARE.get_device_type(), 60)))
 OFFROAD_FPS = int(os.getenv("OFFROAD_FPS", "59"))

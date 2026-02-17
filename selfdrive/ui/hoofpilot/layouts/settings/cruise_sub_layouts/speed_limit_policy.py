@@ -3,11 +3,11 @@
 import pyray as rl
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.multilang import tr
-from openpilot.system.ui.sunnypilot.widgets.list_view import multiple_button_item_sp
+from openpilot.system.ui.hoofpilot.widgets.list_view import multiple_button_item_sp
 from openpilot.system.ui.widgets.network import NavButton
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.widgets import Widget
-from openpilot.system.ui.sunnypilot.widgets import get_highlighted_description
+from openpilot.system.ui.hoofpilot.widgets import get_highlighted_description
 
 SPEED_LIMIT_POLICY_BUTTONS = [tr("Car Only"), tr("Map Only"), tr("Car First"), tr("Map First"), tr("Combined")]
 

@@ -1,4 +1,4 @@
-#include "sunnypilot/system/sensord/sensors/mmc5603nj_magn.h"
+#include "hoofpilot/system/sensord/sensors/mmc5603nj_magn.h"
 
 #include <algorithm>
 #include <cassert>

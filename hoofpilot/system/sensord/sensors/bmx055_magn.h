@@ -1,7 +1,7 @@
 #pragma once
 #include <tuple>
 
-#include "sunnypilot/system/sensord/sensors/i2c_sensor.h"
+#include "hoofpilot/system/sensord/sensors/i2c_sensor.h"
 
 // Address of the chip on the bus
 #define BMX055_MAGN_I2C_ADDR        0x10

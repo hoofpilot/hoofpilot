@@ -3,7 +3,7 @@ from opendbc.car import structs
 
 from opendbc.car.chrysler.values import RAM_DT
 from openpilot.selfdrive.selfdrived.events import Events
-from openpilot.sunnypilot.selfdrive.selfdrived.events import EventsSP
+from hoofpilot.selfdrive.selfdrived.events import EventsSP
 
 EventName = log.OnroadEvent.EventName
 EventNameSP = custom.OnroadEventSP.EventName

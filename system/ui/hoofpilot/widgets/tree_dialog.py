@@ -9,10 +9,10 @@ from openpilot.system.ui.widgets.button import Button, ButtonStyle, BUTTON_PRESS
 from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.widgets.option_dialog import MultiOptionDialog
 
-from openpilot.system.ui.sunnypilot.lib.styles import style
-from openpilot.system.ui.sunnypilot.widgets.helpers.fuzzy_search import search_from_list
-from openpilot.system.ui.sunnypilot.widgets.helpers.star_icon import draw_star
-from openpilot.system.ui.sunnypilot.widgets.input_dialog import InputDialogSP
+from openpilot.system.ui.hoofpilot.lib.styles import style
+from openpilot.system.ui.hoofpilot.widgets.helpers.fuzzy_search import search_from_list
+from openpilot.system.ui.hoofpilot.widgets.helpers.star_icon import draw_star
+from openpilot.system.ui.hoofpilot.widgets.input_dialog import InputDialogSP
 
 
 @dataclass

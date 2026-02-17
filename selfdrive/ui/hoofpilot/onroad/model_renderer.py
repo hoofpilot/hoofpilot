@@ -1,5 +1,5 @@
-﻿from openpilot.selfdrive.ui.sunnypilot.onroad.chevron_metrics import ChevronMetrics
-from openpilot.selfdrive.ui.sunnypilot.onroad.rainbow_path import RainbowPath
+﻿from openpilot.selfdrive.ui.hoofpilot.onroad.chevron_metrics import ChevronMetrics
+from openpilot.selfdrive.ui.hoofpilot.onroad.rainbow_path import RainbowPath
 
 
 class ModelRendererSP:
