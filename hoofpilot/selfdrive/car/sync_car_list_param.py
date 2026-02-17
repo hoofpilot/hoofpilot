@@ -6,7 +6,7 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
 
-CAR_LIST_JSON_OUT = os.path.join(BASEDIR, "hoofpilot", "selfdrive", "car", "car_list.json")
+CAR_LIST_JSON_OUT = os.path.join(BASEDIR, "opendbc_repo", "opendbc", "hoofpilot", "car", "car_list.json")
 
 
 def update_car_list_param():
