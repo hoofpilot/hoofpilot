@@ -100,7 +100,7 @@ def setup_interfaces(CI: CarInterfaceBase, params: Params = None) -> None:
     STATSLOGSP.raw('hoofpilot.car_params', CP.to_dict())
   except RuntimeError:
     pass  # to_dict fails on macOS due to library issues.
-  # STATSLOGSP.raw('sunnypilot_params.car_params_sp', CP_SP.to_dict()) # https://github.com/sunnypilot/opendbc/pull/361
+  # STATSLOGSP.raw('hoofpilot_params.car_params_sp', CP_SP.to_dict()) # https://github.com/hoofpilot/opendbc/pull/361
 
 
 def initialize_params(params) -> list[dict[str, Any]]:

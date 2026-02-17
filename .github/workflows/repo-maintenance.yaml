@@ -6,14 +6,14 @@ on:
   workflow_dispatch:
 
 env:
-  BASE_IMAGE: sunnypilot-base
+  BASE_IMAGE: hoofpilot-base
   BUILD: release/ci/docker_build_sp.sh base
   RUN: docker run --shm-size 2G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PYTHONWARNINGS=error -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache $BASE_IMAGE /bin/bash -c
 
 jobs:
   update_translations:
     runs-on: ubuntu-latest
-    if: github.repository == 'sunnypilot/sunnypilot'
+    if: github.repository == 'hoofpilot/hoofpilot'
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/workflows/setup-with-retry
@@ -36,8 +36,8 @@ jobs:
     name: package_updates
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sunnypilot/sunnypilot-base:latest
-    if: github.repository == 'sunnypilot/sunnypilot'
+      image: ghcr.io/hoofpilot/hoofpilot-base:latest
+    if: github.repository == 'hoofpilot/hoofpilot'
     steps:
     - uses: actions/checkout@v6
       with:

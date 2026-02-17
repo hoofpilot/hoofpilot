@@ -109,7 +109,7 @@ class ModelCache:
 
 class ModelFetcher:
   """Handles fetching and caching of model data from remote source"""
-  MODEL_URL = "https://raw.githubusercontent.com/sunnypilot/sunnypilot-docs/refs/heads/gh-pages/docs/driving_models_v14.json"
+  MODEL_URL = "https://raw.githubusercontent.com/hoofpilot/models/refs/heads/master/driving_models_v1.json"
 
   def __init__(self, params: Params):
     self.params = params

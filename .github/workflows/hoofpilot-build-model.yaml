@@ -58,8 +58,8 @@ jobs:
     outputs:
       model_date: ${{ steps.commit-date.outputs.model_date }}
     steps:
-      # Note: To allow dynamic models from both openpilot and sunnypilot (merges/mashups), we try commaai as default,
-      # and fallback to sunnypilot if the ref checkout fails.
+      # Note: To allow dynamic models from both openpilot and hoofpilot (merges/mashups), we try commaai as default,
+      # and fallback to hoofpilot if the ref checkout fails.
       - name: Checkout commaai/openpilot
         id: checkout_upstream
         continue-on-error: true
@@ -70,11 +70,11 @@ jobs:
           submodules: recursive
           path: openpilot
 
-      - name: Fallback to sunnypilot/sunnypilot
+      - name: Fallback to hoofpilot/hoofpilot
         if: steps.checkout_upstream.outcome == 'failure'
         uses: actions/checkout@v4
         with:
-          repository: sunnypilot/sunnypilot
+          repository: hoofpilot/hoofpilot
           ref: ${{ inputs.upstream_branch }}
           submodules: recursive
           path: openpilot

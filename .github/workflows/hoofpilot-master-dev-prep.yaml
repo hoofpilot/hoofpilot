@@ -71,10 +71,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Add GitLab public keys
-        run: |
-          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -245,6 +241,6 @@ jobs:
       - name: Trigger prebuilt workflow
         if: success() && steps.push-changes.outputs.has_changes == 'true'
         run: |
-          gh workflow run sunnypilot-build-prebuilt.yaml --ref "${{ inputs.target_branch || env.DEFAULT_TARGET_BRANCH }}"
+          gh workflow run hoofpilot-build-prebuilt.yaml --ref "${{ inputs.target_branch || env.DEFAULT_TARGET_BRANCH }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

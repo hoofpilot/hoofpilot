@@ -12,6 +12,6 @@ concurrency:
 
 jobs:
   tests:
-    uses: sunnypilot/sunnypilot/.github/workflows/tests.yaml@master
+    uses: hoofpilot/hoofpilot/.github/workflows/tests.yaml@master
     with:
       run_number: ${{ inputs.run_number }}

@@ -75,14 +75,14 @@ def generate_metadata(model_path: Path, output_dir: Path, short_name: str):
     "artifact": {
       "file_name": tinygrad_file.name,
       "download_uri": {
-        "url": "https://gitlab.com/sunnypilot/public/docs.sunnypilot.ai/-/raw/main/",
+        "url": "https://raw.githubusercontent.com/hoofpilot/models/master/recompiled/",
         "sha256": tinygrad_hash
       }
     },
     "metadata": {
       "file_name": metadata_file.name,
       "download_uri": {
-        "url": "https://gitlab.com/sunnypilot/public/docs.sunnypilot.ai/-/raw/main/",
+        "url": "https://raw.githubusercontent.com/hoofpilot/models/master/recompiled/",
         "sha256": metadata_hash
       }
     }

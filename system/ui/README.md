@@ -11,7 +11,7 @@ Quick start:
 * set `GRID=50` to show a 50-pixel alignment grid overlay
 * set `MAGIC_DEBUG=1` to show every dropped frames (only on device)
 * set `RECORD=1` to record the screen, output defaults to `output.mp4` but can be set with `RECORD_OUTPUT`
-* set `SUNNYPILOT_UI=0` to run the stock UI instead of the sunnypilot UI
+* set `SUNNYPILOT_UI=0` to run the stock UI instead of the hoofpilot UI
 * https://www.raylib.com/cheatsheet/cheatsheet.html
 * https://electronstudio.github.io/raylib-python-cffi/README.html#quickstart
 

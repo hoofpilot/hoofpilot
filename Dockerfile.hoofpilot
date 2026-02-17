@@ -1,4 +1,4 @@
-FROM ghcr.io/sunnypilot/sunnypilot-base:latest
+FROM ghcr.io/hoofpilot/hoofpilot-base:latest
 
 ENV PYTHONUNBUFFERED=1
 

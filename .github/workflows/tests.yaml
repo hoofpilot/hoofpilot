@@ -19,7 +19,7 @@ concurrency:
 
 env:
   PYTHONWARNINGS: error
-  BASE_IMAGE: sunnypilot-base
+  BASE_IMAGE: hoofpilot-base
   DOCKER_LOGIN: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
   BUILD: release/ci/docker_build_sp.sh base
 
@@ -63,7 +63,7 @@ jobs:
         cd $STRIPPED_DIR
         ${{ env.RUN }} "release/check-dirty.sh"
     - name: Check submodules
-      if: github.repository == 'sunnypilot/sunnypilot'
+      if: github.repository == 'hoofpilot/hoofpilot'
       timeout-minutes: 3
       run: |
         if [ "${{ github.ref }}" != "refs/heads/master" ]; then
@@ -95,7 +95,7 @@ jobs:
       with:
         submodules: true
     - name: Setup docker push
-      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'sunnypilot/sunnypilot'
+      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'hoofpilot/hoofpilot'
       run: |
         echo "PUSH_IMAGE=true" >> "$GITHUB_ENV"
         $DOCKER_LOGIN

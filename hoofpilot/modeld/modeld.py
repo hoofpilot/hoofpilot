@@ -206,7 +206,7 @@ def main(demo=False):
 
   cloudlog.info("modeld got CarParams: %s", CP.brand)
 
-  # Enable lagd support for sunnypilot modeld
+  # Enable lagd support for hoofpilot modeld
   long_delay = CP.longitudinalActuatorDelay + model.LONG_SMOOTH_SECONDS
   prev_action = log.ModelDataV2.Action()
 
