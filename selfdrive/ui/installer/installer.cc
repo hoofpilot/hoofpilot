@@ -90,7 +90,7 @@ static bool maybeRunAgnosUpdater() {
   const std::string env_path = INSTALL_PATH + "/launch_env.sh";
 
   const bool is_tici = Hardware::get_device_type() == cereal::InitData::DeviceType::TICI;
-  const std::string manifest_path = is_tici ? (INSTALL_PATH + "/sunnypilot/system/hardware/c3/agnos.json")
+  const std::string manifest_path = is_tici ? (INSTALL_PATH + "/hoofpilot/system/hardware/c3/agnos.json")
                                             : (INSTALL_PATH + "/system/hardware/tici/agnos.json");
 
   if (!util::file_exists(env_path) || !util::file_exists(manifest_path)) {
