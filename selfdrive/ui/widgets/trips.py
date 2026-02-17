@@ -34,7 +34,7 @@ class TripsWidget(Widget):
 
     self._icon_distance = gui_app.texture("icons/road.png", 100, 100, keep_aspect_ratio=True)
     self._icon_drives = gui_app.texture("icons_mici/wheel.png", 80, 80, keep_aspect_ratio=True)
-    self._icon_hours = gui_app.texture("../../sunnypilot/selfdrive/assets/icons/clock.png", 80, 80, keep_aspect_ratio=True)
+    self._icon_hours = gui_app.texture("../../hoofpilot/selfdrive/assets/icons/clock.png", 80, 80, keep_aspect_ratio=True)
 
     self._running = True
     self._update_thread = threading.Thread(target=self._update_loop, daemon=True)

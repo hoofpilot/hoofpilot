@@ -12,7 +12,7 @@ class SunnylinkConsentPage(SetupTermsPage):
     super().__init__(on_accept, on_decline, left_text, continue_text=right_text)
 
     self._title_header = TermsHeader("sunnylink",
-                                     gui_app.texture("../../sunnypilot/selfdrive/assets/logo.png", 66, 60))
+                                     gui_app.texture("../../hoofpilot/selfdrive/assets/logo.png", 66, 60))
 
     self._terms_label = UnifiedLabel("sunnylink enables secured remote access to your comma device from anywhere, " +
                                      "including settings management, remote monitoring, real-time dashboard, etc.",

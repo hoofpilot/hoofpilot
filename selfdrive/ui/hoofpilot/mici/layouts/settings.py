@@ -18,11 +18,11 @@ class SettingsLayoutSP(OP.SettingsLayout):
   def __init__(self):
     OP.SettingsLayout.__init__(self)
 
-    self._stable_btn = BigButton("stable", "", "../../sunnypilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
+    self._stable_btn = BigButton("stable", "", "../../hoofpilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
     self._stable_btn.set_click_callback(lambda: self._set_current_panel(OP.PanelType.STABLE))
     self._stable_btn.set_visible(ui_state.prime_state.is_paired())
 
-    models_btn = BigButton("models", "", "../../sunnypilot/selfdrive/assets/offroad/icon_models.png")
+    models_btn = BigButton("models", "", "../../hoofpilot/selfdrive/assets/offroad/icon_models.png")
     models_btn.set_click_callback(lambda: self._set_current_panel(OP.PanelType.MODELS))
 
     self._panels.update({

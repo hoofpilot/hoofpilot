@@ -61,8 +61,8 @@ class SpeedLimitRenderer(Widget):
     self._sign_alpha_filter = FirstOrderFilter(1.0, 0.5, 1 / gui_app.target_fps)
 
     arrow_size = 90
-    self._arrow_up = gui_app.texture("../../sunnypilot/selfdrive/assets/img_plus_arrow_up.png", arrow_size, arrow_size)
-    self._arrow_down = gui_app.texture("../../sunnypilot/selfdrive/assets/img_minus_arrow_down.png", arrow_size, arrow_size)
+    self._arrow_up = gui_app.texture("../../hoofpilot/selfdrive/assets/img_plus_arrow_up.png", arrow_size, arrow_size)
+    self._arrow_down = gui_app.texture("../../hoofpilot/selfdrive/assets/img_minus_arrow_down.png", arrow_size, arrow_size)
 
   @property
   def speed_conv(self):

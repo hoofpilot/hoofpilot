@@ -120,7 +120,7 @@ class UpdaterState(IntEnum):
 
 class PairBigButton(BigButton):
   def __init__(self):
-    super().__init__("pair", "stable.konik.ai", "../../sunnypilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
+    super().__init__("pair", "stable.konik.ai", "../../hoofpilot/selfdrive/assets/offroad/icon_konik.png", icon_size=(72, 72))
 
   def _get_label_font_size(self):
     return 64

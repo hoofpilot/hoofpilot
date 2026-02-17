@@ -10,8 +10,8 @@ from openpilot.system.ui.lib.text_measure import measure_text_cached
 
 class CircularAlertsRenderer:
   def __init__(self):
-    self._green_light_alert_img = gui_app.texture("../../sunnypilot/selfdrive/assets/images/green_light.png", 250, 250)
-    self._lead_depart_alert_img = gui_app.texture("../../sunnypilot/selfdrive/assets/images/lead_depart.png", 250, 250)
+    self._green_light_alert_img = gui_app.texture("../../hoofpilot/selfdrive/assets/images/green_light.png", 250, 250)
+    self._lead_depart_alert_img = gui_app.texture("../../hoofpilot/selfdrive/assets/images/lead_depart.png", 250, 250)
 
     self._e2e_alert_display_timer = 0
     self._e2e_alert_frame = 0
