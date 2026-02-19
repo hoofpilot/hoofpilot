@@ -62,7 +62,7 @@ jobs:
         id: set-matrix
         working-directory: models
         run: |
-          jq -c '[.bundles[] | select(.runner=="tinygrad") | {ref, display_name: (.display_name | gsub(" \\([^)]*\\)"; "")), is_20hz}]' "$(basename "${SRC_JSON_FILE}")" > matrix.json
+          jq -c '[.bundles[] | select(.runner=="tinygrad") | {ref, display_name: (.display_name | gsub(" \\([^)]*\\)"; "")), is_20hz, folder: .overrides.folder}]' "$(basename "${SRC_JSON_FILE}")" > matrix.json
           echo "model_matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
       - name: Push new JSON to models repo
@@ -140,6 +140,7 @@ jobs:
     env:
       JSON_FILE: ${{ needs.setup.outputs.json_file }}
       ARTIFACT_NAME_INPUT: ${{ matrix.model.display_name }}
+      MODEL_FOLDER: ${{ matrix.model.folder }}
     steps:
       - name: Install git-lfs
         run: sudo apt-get install -y git-lfs
@@ -160,9 +161,9 @@ jobs:
           git config credential.helper store
           printf "https://user:%s@huggingface.co\n" "${{ secrets.HF_TOKEN }}" >> ~/.git-credentials
 
-      - name: Ensure recompiled directory exists
+      - name: Ensure models directory exists
         run: |
-          mkdir -p models/recompiled
+          mkdir -p models/models
           if [ ! -f "models/$JSON_FILE" ]; then
             echo "Warning: JSON file models/$JSON_FILE does not exist, will be created"
           fi
@@ -191,18 +192,18 @@ jobs:
           find output -type f -name 'big_*.pkl' -delete
           find output -type f -name 'dmonitoring_model_tinygrad.pkl' -delete
 
-      - name: Copy model files into per-model subfolder
+      - name: Copy model files into category/short_name subfolder
         run: |
           SHORT_NAME=$(python3 -c "import json; print(json.load(open('output/metadata.json'))['short_name'].upper())")
-          MODEL_DIR="models/recompiled/${SHORT_NAME}"
+          MODEL_DIR="models/models/${MODEL_FOLDER}/${SHORT_NAME}"
           mkdir -p "$MODEL_DIR"
           find output -maxdepth 1 -type f \( -name '*.pkl' -o -name '*.dlc' -o -name '*.thneed' \) | while IFS= read -r f; do
             cp "$f" "$MODEL_DIR/"
-            echo "Copied $(basename "$f") -> recompiled/${SHORT_NAME}/"
+            echo "Copied $(basename "$f") -> models/${MODEL_FOLDER}/${SHORT_NAME}/"
           done
           if [ -f output/metadata.json ]; then
             cp output/metadata.json "$MODEL_DIR/metadata.json"
-            echo "Copied metadata.json -> recompiled/${SHORT_NAME}/"
+            echo "Copied metadata.json -> models/${MODEL_FOLDER}/${SHORT_NAME}/"
           fi
 
       - name: Pull latest changes from models repo
@@ -218,7 +219,7 @@ jobs:
           ARGS="$ARGS --tinygrad-ref \"${{ needs.setup.outputs.tinygrad_ref }}\""
           eval python3 models/json_parser.py \
             --json-path "models/$JSON_FILE" \
-            --recompiled-dir "models/recompiled" \
+            --recompiled-dir "models/models" \
             $ARGS
 
       - name: Push updated models to GitHub and LFS objects to HuggingFace
@@ -227,7 +228,7 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           git checkout master
-          git add recompiled/
+          git add models/
           git add "$(basename $JSON_FILE)"
-          git commit -m "Update $(basename $JSON_FILE) and recompiled models from build-all" || echo "No changes to commit"
+          git commit -m "Update $(basename $JSON_FILE) and models from build-all" || echo "No changes to commit"
           git push origin master

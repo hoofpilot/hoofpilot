@@ -114,9 +114,9 @@ jobs:
           git config credential.helper store
           printf "https://user:%s@huggingface.co\n" "${{ secrets.HF_TOKEN }}" >> ~/.git-credentials
 
-      - name: Ensure recompiled directory exists
+      - name: Ensure models directory exists
         run: |
-          mkdir -p models/recompiled
+          mkdir -p models/models
           if [ ! -f "models/$JSON_FILE" ]; then
             echo "Creating initial JSON file models/$JSON_FILE"
             echo '{"version": ${{ inputs.json_version }}, "bundles": []}' > "models/$JSON_FILE"
@@ -145,18 +145,25 @@ jobs:
           find output -type f -name 'dmonitoring_model_tinygrad.pkl' -delete
           find output -type f -name 'dmonitoring_model.onnx' -delete
 
-      - name: Copy model files into per-model subfolder
+      - name: Copy model files into category/short_name subfolder
         run: |
-          SHORT_NAME=$(python3 -c "import json; print(open('output/metadata.json').read() and __import__('json').load(open('output/metadata.json'))['short_name'].upper())")
-          MODEL_DIR="models/recompiled/${SHORT_NAME}"
+          SHORT_NAME=$(python3 -c "import json; print(json.load(open('output/metadata.json'))['short_name'].upper())")
+          FOLDER="${{ inputs.model_folder }}"
+          if [ "$FOLDER" = "Other" ]; then
+            FOLDER="${{ inputs.custom_model_folder }}"
+          fi
+          if [ "$FOLDER" = "None" ] || [ -z "$FOLDER" ]; then
+            FOLDER="${SHORT_NAME} Models"
+          fi
+          MODEL_DIR="models/models/${FOLDER}/${SHORT_NAME}"
           mkdir -p "$MODEL_DIR"
           find output -maxdepth 1 -type f \( -name '*.pkl' -o -name '*.onnx' -o -name '*.dlc' -o -name '*.thneed' \) | while IFS= read -r f; do
             cp "$f" "$MODEL_DIR/"
-            echo "Copied $(basename "$f") -> recompiled/${SHORT_NAME}/"
+            echo "Copied $(basename "$f") -> models/${FOLDER}/${SHORT_NAME}/"
           done
           if [ -f output/metadata.json ]; then
             cp output/metadata.json "$MODEL_DIR/metadata.json"
-            echo "Copied metadata.json -> recompiled/${SHORT_NAME}/"
+            echo "Copied metadata.json -> models/${FOLDER}/${SHORT_NAME}/"
           fi
 
       - name: Pull latest changes from models repo
@@ -178,7 +185,7 @@ jobs:
           [ -n "${{ inputs.version }}" ] && ARGS="$ARGS --version \"${{ inputs.version }}\""
           eval python3 models/json_parser.py \
             --json-path "models/$JSON_FILE" \
-            --recompiled-dir "models/recompiled" \
+            --recompiled-dir "models/models" \
             --sort-by-date \
             $ARGS
 
@@ -188,7 +195,7 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           git checkout master
-          git add recompiled/
+          git add models/
           git add "$JSON_FILE"
-          git commit -m "Update $JSON_FILE and recompiled models from single build" || echo "No changes to commit"
+          git commit -m "Update $JSON_FILE and models from single build" || echo "No changes to commit"
           git push origin master
