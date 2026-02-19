@@ -195,9 +195,7 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           git checkout master
-          cp "$JSON_FILE" driving_models.json
           git add models/
           git add "$JSON_FILE"
-          git add driving_models.json
           git commit -m "Update $JSON_FILE and models from single build" || echo "No changes to commit"
           git push origin master
