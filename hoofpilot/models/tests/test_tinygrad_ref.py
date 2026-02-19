@@ -1,9 +1,7 @@
 import pytest
 import requests
 
-from hoofpilot.models.tinygrad_ref import get_tinygrad_ref
-from hoofpilot.models.fetcher import ModelFetcher
-
+from hoofpilot.models.fetcher import ModelFetcherss
 
 def fetch_tinygrad_ref():
   try:
