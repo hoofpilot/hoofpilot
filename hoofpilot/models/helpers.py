@@ -62,7 +62,7 @@ def get_model_bundle_from_json():
   """Return the selected model bundle from the models JSON, or None."""
   if not os.path.exists(MODELS_JSON_PATH):
     return None
-  with open(MODELS_JSON_PATH, 'r', encoding='utf-8') as f:
+  with open(MODELS_JSON_PATH, encoding='utf-8') as f:
     models_json = json.load(f)
   # Pick the first compatible bundle (could be improved to select by params)
   for bundle in models_json.get('bundles', []):
@@ -121,7 +121,9 @@ def is_bundle_version_compatible(bundle: dict) -> bool:
 
 
 
-def get_active_bundle(params: Params = None) -> dict:
+from typing import Optional
+
+def get_active_bundle(params: Params = None) -> Optional[dict]:
   """Gets the active model bundle from params cache, or selects from JSON and caches it."""
   if params is None:
     params = Params()
