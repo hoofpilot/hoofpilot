@@ -4,11 +4,14 @@ Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
+
 import hashlib
 import os
 import pickle
+import json
+import urllib.request
+import shutil
 import numpy as np
-
 from openpilot.common.params import Params
 from cereal import custom
 from hoofpilot.modeld.constants import Meta, MetaTombRaider, MetaSimPose
@@ -17,6 +20,7 @@ from openpilot.system.hardware import PC
 from openpilot.system.hardware.hw import Paths
 from pathlib import Path
 
+
 # see the README.md for more details on the model selector versioning
 CURRENT_SELECTOR_VERSION = 1
 REQUIRED_MIN_SELECTOR_VERSION = 1
@@ -24,9 +28,60 @@ REQUIRED_MIN_SELECTOR_VERSION = 1
 USE_ONNX = os.getenv('USE_ONNX', PC)
 
 CUSTOM_MODEL_PATH = Paths.model_root()
-METADATA_PATH = Path(__file__).parent / '../models/supercombo_metadata.pkl'
+MODELS_JSON_PATH = os.path.join(os.path.dirname(__file__), '../../../models/driving_models.json')
+MODELS_CACHE_PATH = os.path.join(CUSTOM_MODEL_PATH, 'cache')
+os.makedirs(MODELS_CACHE_PATH, exist_ok=True)
 
 ModelManager = custom.ModelManagerSP
+
+def fetch_and_cache_file(url, sha256, out_path):
+  """Download file from url to out_path and verify sha256."""
+  if os.path.exists(out_path):
+    if verify_file_sync(out_path, sha256):
+      return out_path
+    else:
+      os.remove(out_path)
+  with urllib.request.urlopen(url) as response, open(out_path, 'wb') as out_file:
+    shutil.copyfileobj(response, out_file)
+  if not verify_file_sync(out_path, sha256):
+    os.remove(out_path)
+    raise RuntimeError(f"Hash mismatch for {out_path}")
+  return out_path
+
+def verify_file_sync(file_path: str, expected_hash: str) -> bool:
+  if not os.path.exists(file_path):
+    return False
+  sha256_hash = hashlib.sha256()
+  with open(file_path, "rb") as file:
+    for chunk in iter(lambda: file.read(4096), b""):
+      sha256_hash.update(chunk)
+  return sha256_hash.hexdigest().lower() == expected_hash.lower()
+
+def get_model_bundle_from_json():
+  """Return the selected model bundle from the models JSON, or None."""
+  if not os.path.exists(MODELS_JSON_PATH):
+    return None
+  with open(MODELS_JSON_PATH, 'r', encoding='utf-8') as f:
+    models_json = json.load(f)
+  # Pick the first compatible bundle (could be improved to select by params)
+  for bundle in models_json.get('bundles', []):
+    min_ver = bundle.get('minimum_selector_version')
+    if min_ver is None:
+      min_ver = bundle.get('minimumSelectorVersion')
+    if min_ver is not None and int(min_ver) <= CURRENT_SELECTOR_VERSION:
+      return bundle
+  return None
+
+def fetch_and_cache_model_files(bundle):
+  """Download and cache model and metadata files for the bundle, return their paths."""
+  model = bundle['models'][0]  # Assume supercombo is first
+  art = model['artifact']
+  meta = model['metadata']
+  art_path = os.path.join(MODELS_CACHE_PATH, art['file_name'])
+  meta_path = os.path.join(MODELS_CACHE_PATH, meta['file_name'])
+  fetch_and_cache_file(art['download_uri']['url'], art['download_uri']['sha256'], art_path)
+  fetch_and_cache_file(meta['download_uri']['url'], meta['download_uri']['sha256'], meta_path)
+  return art_path, meta_path
 
 
 async def verify_file(file_path: str, expected_hash: str) -> bool:
@@ -63,17 +118,21 @@ def is_bundle_version_compatible(bundle: dict) -> bool:
   return bool(REQUIRED_MIN_SELECTOR_VERSION <= bundle.get("minimumSelectorVersion", 0) <= CURRENT_SELECTOR_VERSION)
 
 
-def get_active_bundle(params: Params = None) -> custom.ModelManagerSP.ModelBundle:
-  """Gets the active model bundle from cache"""
+
+def get_active_bundle(params: Params = None) -> dict:
+  """Gets the active model bundle from params cache, or selects from JSON and caches it."""
   if params is None:
     params = Params()
-
   try:
     if (active_bundle := params.get("ModelManager_ActiveBundle") or {}) and is_bundle_version_compatible(active_bundle):
-      return custom.ModelManagerSP.ModelBundle(**active_bundle)
+      return active_bundle
   except Exception:
     pass
-
+  # Fallback: select from JSON and cache
+  bundle = get_model_bundle_from_json()
+  if bundle:
+    params.put("ModelManager_ActiveBundle", bundle)
+    return bundle
   return None
 
 
@@ -114,30 +173,25 @@ def get_active_model_runner(params: Params = None, force_check=False) -> custom.
 
   return runner_type
 
-def _get_model():
-  if bundle := get_active_bundle():
-    drive_model = next(model for model in bundle.models if model.type == ModelManager.Model.Type.supercombo)
-    return drive_model
 
-  return None
-
+# New model fetcher logic for new repo structure
 def get_model_path():
   if USE_ONNX:
     return {ModelRunner.ONNX: Path(__file__).parent / '../models/supercombo.onnx'}
-
-  if model := _get_model():
-    return {ModelRunner.THNEED: f"{CUSTOM_MODEL_PATH}/{model.artifact.fileName}"}
-
+  bundle = get_active_bundle()
+  if bundle:
+    art_path, _ = fetch_and_cache_model_files(bundle)
+    return {ModelRunner.THNEED: art_path}
   return {ModelRunner.THNEED: Path(__file__).parent / '../models/supercombo.thneed'}
 
-
 def load_metadata():
-  metadata_path = METADATA_PATH
-
-  if model := _get_model():
-    metadata_path = f"{CUSTOM_MODEL_PATH}/{model.metadata.fileName}"
-
-  with open(metadata_path, 'rb') as f:
+  bundle = get_active_bundle()
+  if bundle:
+    _, meta_path = fetch_and_cache_model_files(bundle)
+    with open(meta_path, 'rb') as f:
+      return pickle.load(f)
+  # fallback
+  with open(METADATA_PATH, 'rb') as f:
     return pickle.load(f)
 
 
