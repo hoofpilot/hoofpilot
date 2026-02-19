@@ -30,6 +30,7 @@ USE_ONNX = os.getenv('USE_ONNX', PC)
 CUSTOM_MODEL_PATH = Paths.model_root()
 MODELS_JSON_PATH = os.path.join(os.path.dirname(__file__), '../../../models/driving_models.json')
 MODELS_CACHE_PATH = os.path.join(CUSTOM_MODEL_PATH, 'cache')
+METADATA_PATH = Path(__file__).parent / '../models/supercombo_metadata.pkl'
 os.makedirs(MODELS_CACHE_PATH, exist_ok=True)
 
 ModelManager = custom.ModelManagerSP
@@ -115,7 +116,8 @@ def is_bundle_version_compatible(bundle: dict) -> bool:
   :return: True if the selector version is within the accepted range for the bundle; otherwise False.
   :rtype: Bool
   """
-  return bool(REQUIRED_MIN_SELECTOR_VERSION <= bundle.get("minimumSelectorVersion", 0) <= CURRENT_SELECTOR_VERSION)
+  min_ver = bundle.get("minimumSelectorVersion") or bundle.get("minimum_selector_version", 0)
+  return bool(REQUIRED_MIN_SELECTOR_VERSION <= int(min_ver or 0) <= CURRENT_SELECTOR_VERSION)
 
 
 
@@ -166,7 +168,8 @@ def get_active_model_runner(params: Params = None, force_check=False) -> custom.
   runner_type = custom.ModelManagerSP.Runner.stock
 
   if active_bundle := get_active_bundle(params):
-    runner_type = active_bundle.runner.raw
+    runner_str = active_bundle.get('runner', 'stock') if isinstance(active_bundle, dict) else active_bundle.runner.raw
+    runner_type = getattr(custom.ModelManagerSP.Runner, runner_str, custom.ModelManagerSP.Runner.stock)
 
   if cached_runner_type != runner_type:
     params.put("ModelRunnerTypeCache", int(runner_type))
