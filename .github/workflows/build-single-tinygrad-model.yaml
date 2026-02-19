@@ -114,10 +114,9 @@ jobs:
           git config credential.helper store
           printf "https://user:%s@huggingface.co\n" "${{ secrets.HF_TOKEN }}" >> ~/.git-credentials
 
-      - name: Ensure recompiled directories exist
+      - name: Ensure recompiled directory exists
         run: |
           mkdir -p models/recompiled
-          mkdir -p models/recompiled/metadata
           if [ ! -f "models/$JSON_FILE" ]; then
             echo "Creating initial JSON file models/$JSON_FILE"
             echo '{"version": ${{ inputs.json_version }}, "bundles": []}' > "models/$JSON_FILE"
@@ -146,18 +145,18 @@ jobs:
           find output -type f -name 'dmonitoring_model_tinygrad.pkl' -delete
           find output -type f -name 'dmonitoring_model.onnx' -delete
 
-      - name: Copy model binaries to recompiled root and metadata to metadata dir
-        env:
-          ARTIFACT_NAME: ${{ steps.read-artifact-name.outputs.artifact_name }}
+      - name: Copy model files into per-model subfolder
         run: |
+          SHORT_NAME=$(python3 -c "import json; print(open('output/metadata.json').read() and __import__('json').load(open('output/metadata.json'))['short_name'].upper())")
+          MODEL_DIR="models/recompiled/${SHORT_NAME}"
+          mkdir -p "$MODEL_DIR"
           find output -maxdepth 1 -type f \( -name '*.pkl' -o -name '*.onnx' -o -name '*.dlc' -o -name '*.thneed' \) | while IFS= read -r f; do
-            cp "$f" models/recompiled/
-            echo "Copied $(basename "$f") -> models/recompiled/"
+            cp "$f" "$MODEL_DIR/"
+            echo "Copied $(basename "$f") -> recompiled/${SHORT_NAME}/"
           done
           if [ -f output/metadata.json ]; then
-            mkdir -p "models/recompiled/metadata/${ARTIFACT_NAME}"
-            cp output/metadata.json "models/recompiled/metadata/${ARTIFACT_NAME}/metadata.json"
-            echo "Copied metadata.json -> models/recompiled/metadata/${ARTIFACT_NAME}/"
+            cp output/metadata.json "$MODEL_DIR/metadata.json"
+            echo "Copied metadata.json -> recompiled/${SHORT_NAME}/"
           fi
 
       - name: Pull latest changes from models repo
@@ -179,7 +178,7 @@ jobs:
           [ -n "${{ inputs.version }}" ] && ARGS="$ARGS --version \"${{ inputs.version }}\""
           eval python3 models/json_parser.py \
             --json-path "models/$JSON_FILE" \
-            --recompiled-dir "models/recompiled/metadata" \
+            --recompiled-dir "models/recompiled" \
             --sort-by-date \
             $ARGS
 
