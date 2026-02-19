@@ -190,6 +190,18 @@ class ModelManagerSP:
     """Main entry point for downloading a model bundle"""
     asyncio.run(self._download_bundle(model_bundle, destination_path))
 
+  def _mark_active_bundle_cached(self) -> None:
+    """After resolving active bundle from JSON, mark files that exist on disk as cached."""
+    if self.active_bundle is None:
+      return
+    dest = Paths.model_root()
+    for model in self.active_bundle.models:
+      for artifact in [model.artifact, model.metadata]:
+        if artifact.fileName and os.path.exists(os.path.join(dest, artifact.fileName)):
+          artifact.downloadProgress.status = custom.ModelManagerSP.DownloadStatus.cached
+          artifact.downloadProgress.progress = 100
+          artifact.downloadProgress.eta = 0
+
   def main_thread(self) -> None:
     """Main thread for model management"""
     rk = Ratekeeper(1, print_delay_threshold=None)
@@ -198,6 +210,7 @@ class ModelManagerSP:
       try:
         self.available_models = self.model_fetcher.get_available_bundles()
         self.active_bundle = self._resolve_active_bundle()
+        self._mark_active_bundle_cached()
 
         if index_to_download := self.params.get("ModelManager_DownloadIndex"):
           if model_to_download := next((model for model in self.available_models if model.index == index_to_download), None):
