@@ -104,6 +104,7 @@ _services: dict[str, tuple] = {
   "mapdIn": (True, 1., 1, QueueSize.MEDIUM),
   "mapdOut": (True, 20., 20, QueueSize.MEDIUM),
   "liveLocationKalman": (True, 20.),
+  "navigationd": (True, 3.),
 
   # debug
   "uiDebug": (True, 0., 1),
