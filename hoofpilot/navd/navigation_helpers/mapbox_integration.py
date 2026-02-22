@@ -4,10 +4,13 @@ Copyright (c) 2021-, James Vecellio, Haibin Wen, sunnypilot, and a number of oth
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
+import os
 import requests
 from urllib.parse import quote
 
 from openpilot.common.params import Params
+
+CONNECT_MAPBOX_TOKEN = os.getenv("CONNECT_MAPBOX_TOKEN", "")
 
 
 class MapboxIntegration:
@@ -15,8 +18,15 @@ class MapboxIntegration:
     self.params = Params()
 
   def get_public_token(self) -> str:
-    token: str = self.params.get('MapboxToken', return_default=True)
-    return token
+    # Prefer the device param; fall back to env var for deployments that inject token at runtime.
+    try:
+      token = self.params.get('MapboxToken', return_default=True)
+    except Exception:
+      token = None
+
+    if isinstance(token, str) and token:
+      return token
+    return CONNECT_MAPBOX_TOKEN
 
   def set_destination(self, postvars, current_lon, current_lat, bearing=None) -> tuple[dict, bool]:
     if 'latitude' in postvars and 'longitude' in postvars:

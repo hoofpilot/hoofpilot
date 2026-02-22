@@ -835,14 +835,24 @@ def getVersion() -> dict[str, str]:
 
 
 @dispatcher.add_method
-def setNavDestination(latitude: int = 0, longitude: int = 0, place_name: str | None = None, place_details: str | None = None) -> dict[str, int]:
+def setNavDestination(latitude: float = 0, longitude: float = 0, place_name: str | None = None,
+                      place_details: str | None = None) -> dict[str, int]:
   destination = {
     "latitude": latitude,
     "longitude": longitude,
     "place_name": place_name,
     "place_details": place_details,
   }
-  Params().put("NavDestination", json.dumps(destination))
+
+  params = Params()
+  params.put("NavDestination", json.dumps(destination))
+
+  # hoofpilot navigationd uses MapboxRoute/AllowNavigation params.
+  # Mirror incoming destinations so web clients can trigger navd directly.
+  target = (place_name or "").strip()
+  if target:
+    params.put("MapboxRoute", target)
+    params.put_bool("AllowNavigation", True)
 
   return {"success": 1}
 
