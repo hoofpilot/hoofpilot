@@ -30,7 +30,7 @@ class UIStateSP:
     self.params = Params()
     self.sm_services_ext = [
       "modelManagerSP", "selfdriveStateSP", "longitudinalPlanSP", "backupManagerSP",
-      "gpsLocation", "liveTorqueParameters", "carStateSP", "liveMapDataSP", "carParamsSP", "liveDelay"
+      "gpsLocation", "liveTorqueParameters", "carStateSP", "liveMapDataSP", "navigationd", "carParamsSP", "liveDelay"
     ]
 
     self.sunnylink_state = SunnylinkState()
@@ -185,4 +185,3 @@ class DeviceSP:
         if _ui_state.onroad_brightness_timer_expired:
           gui_app.mouse_events.clear()
         _ui_state.reset_onroad_sleep_timer()
-
