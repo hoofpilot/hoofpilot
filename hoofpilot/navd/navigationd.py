@@ -4,6 +4,7 @@ Copyright (c) 2021-, James Vecellio, Haibin Wen, sunnypilot, and a number of oth
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
+import json
 from math import degrees
 from numpy import interp
 
@@ -32,6 +33,8 @@ class Navigationd:
     self.route = None
     self.destination: str | None = None
     self.new_destination: str = ''
+    self.current_nav_destination: dict | None = None
+    self.last_nav_destination: dict | None = None
 
     self.allow_navigation: bool = False
     self.recompute_allowed: bool = False
@@ -51,16 +54,30 @@ class Navigationd:
         self.allow_navigation = self.params.get('AllowNavigation', return_default=True)
         self.new_destination = self.params.get('MapboxRoute')
         self.recompute_allowed = self.params.get('MapboxRecompute', return_default=True)
+        raw_nav_destination = self.params.get('NavDestination')
+        self.current_nav_destination = self._parse_nav_destination(raw_nav_destination)
 
-      self.allow_recompute: bool = (self.new_destination != self.destination and self.new_destination != '') or (
+      destination_changed = self.current_nav_destination and self.current_nav_destination != self.last_nav_destination
+      self.allow_recompute: bool = bool(destination_changed) or (self.new_destination != self.destination and self.new_destination != '') or (
         self.recompute_allowed and self.reroute_counter > 9 and self.route)
 
       if self.allow_recompute:
         postvars = {'place_name': self.new_destination}
+        if self.current_nav_destination:
+          latitude = self.current_nav_destination.get('latitude')
+          longitude = self.current_nav_destination.get('longitude')
+          place_name = self.current_nav_destination.get('place_name')
+          if isinstance(place_name, str) and place_name.strip():
+            postvars['place_name'] = place_name.strip()
+          if isinstance(latitude, (int, float)) and isinstance(longitude, (int, float)) and not (abs(latitude) < 1e-6 and abs(longitude) < 1e-6):
+            postvars['latitude'] = float(latitude)
+            postvars['longitude'] = float(longitude)
+
         postvars, valid_addr = self.mapbox.set_destination(postvars, self.last_position.longitude, self.last_position.latitude, self.last_bearing)
 
         if valid_addr:
           self.destination = self.new_destination
+          self.last_nav_destination = dict(self.current_nav_destination) if self.current_nav_destination else None
           self.nav_instructions.clear_route_cache()
           self.route = self.nav_instructions.get_current_route()
           self.cancel_route_counter = 0
@@ -73,6 +90,30 @@ class Navigationd:
         self.route = None
 
       self.valid = self.route is not None
+
+  @staticmethod
+  def _parse_nav_destination(raw_nav_destination) -> dict | None:
+    if raw_nav_destination is None:
+      return None
+
+    if isinstance(raw_nav_destination, bytes):
+      try:
+        raw_nav_destination = raw_nav_destination.decode('utf-8', errors='ignore')
+      except Exception:
+        return None
+
+    if not isinstance(raw_nav_destination, str) or not raw_nav_destination.strip():
+      return None
+
+    try:
+      parsed = json.loads(raw_nav_destination)
+    except (ValueError, TypeError):
+      return None
+
+    if not isinstance(parsed, dict):
+      return None
+
+    return parsed
 
   def _update_navigation(self) -> tuple[str, dict | None, dict]:
     banner_instructions: str = ''
