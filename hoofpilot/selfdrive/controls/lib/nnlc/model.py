@@ -6,11 +6,36 @@ See the LICENSE.md file in the root directory for more details.
 """
 from json import load
 import numpy as np
+import unicodedata
 
 from openpilot.selfdrive.modeld.parse_model_outputs import safe_exp
 
-# dict used to rename activation functions whose names aren't valid python identifiers
-ACTIVATION_FUNCTION_NAMES = {'Ïƒ': 'sigmoid', 'σ': 'sigmoid'}
+
+ACTIVATION_ALIASES = {
+  "σ": "sigmoid",
+  "ς": "sigmoid",
+  "Σ": "sigmoid",
+  "ϲ": "sigmoid",
+  "Ϲ": "sigmoid",
+  "Ïƒ": "sigmoid",
+
+  "tanh": "tanh",
+  "relu": "relu",
+  "sigmoid": "sigmoid",
+  "identity": "identity",
+  "linear": "identity"
+}
+
+
+def normalize_activation(name):
+  name = unicodedata.normalize("NFKC", name)
+  name = name.strip().lower()
+
+  for key in ACTIVATION_ALIASES:
+    if key in name:
+      return ACTIVATION_ALIASES[key]
+
+  return name
 
 
 class NNTorqueModel:
@@ -30,35 +55,35 @@ class NNTorqueModel:
       b = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith('_b'))], dtype=np.float32).T
       if zero_bias:
         b = np.zeros_like(b)
-      activation = layer_params["activation"]
-      for k, v in ACTIVATION_FUNCTION_NAMES.items():
-        activation = activation.replace(k, v)
+
+      activation = normalize_activation(layer_params["activation"])
+
       self.layers.append((W, b, activation))
 
     self.validate_layers()
     self.check_for_friction_override()
 
-  # Begin activation functions.
-  # These are called by name using the keys in the model json file
+
   @staticmethod
   def sigmoid(x):
     return 1 / (1 + safe_exp(-x))
 
+
   @staticmethod
   def identity(x):
     return x
-  # End activation functions
+
 
   def forward(self, x):
     for W, b, activation in self.layers:
       x = getattr(self, activation)(x.dot(W) + b)
     return x
 
+
   def evaluate(self, input_array):
     in_len = len(input_array)
+
     if in_len != self.input_size:
-      # If the input is length 2-4, then it's a simplified evaluation.
-      # In that case, need to add on zeros to fill out the input array to match the correct length.
       if 2 <= in_len:
         input_array = input_array + [0] * (self.input_size - in_len)
       else:
@@ -66,19 +91,19 @@ class NNTorqueModel:
 
     input_array = np.array(input_array, dtype=np.float32)
 
-    # Rescale the input array using the input_mean and input_std
     input_array = (input_array - self.input_mean) / self.input_std
 
     output_array = self.forward(input_array)
 
     return float(output_array[0, 0])
 
+
   def validate_layers(self):
     for _, _, activation in self.layers:
       if not hasattr(self, activation):
         raise ValueError(f"Unknown activation: {activation}")
 
+
   def check_for_friction_override(self):
     y = self.evaluate([10.0, 0.0, 0.2])
     self.friction_override = (y < 0.1)
-
