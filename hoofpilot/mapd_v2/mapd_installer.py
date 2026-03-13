@@ -22,7 +22,7 @@ from openpilot.system.version import is_prebuilt
 from hoofpilot.mapd_v2 import MAPD_PATH, MAPD_BIN_DIR
 import openpilot.system.sentry as sentry
 
-VERSION = "v1.12.0"
+VERSION = "v2.0.6"
 URL = f"https://github.com/pfeiferj/openpilot-mapd/releases/download/{VERSION}/mapd"
 
 
