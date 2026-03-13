@@ -1,3 +1,10 @@
+hoofpilot Version Falabella
+========================
+* What's New?
+  * Updated mapd (v1.1.2) to mapd_v2 (v2.0.6)
+  * Fixed bug with NNLC activation
+
+
 hoofpilot Version Appaloosa
 ========================
 * What's New?

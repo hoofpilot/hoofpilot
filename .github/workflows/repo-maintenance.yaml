@@ -6,9 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  BASE_IMAGE: hoofpilot-base
-  BUILD: release/ci/docker_build_hp.sh base
-  RUN: docker run --shm-size 2G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PYTHONWARNINGS=error -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache $BASE_IMAGE /bin/bash -c
+  PYTHONPATH: ${{ github.workspace }}
 
 jobs:
   update_translations:
@@ -16,10 +14,13 @@ jobs:
     if: github.repository == 'hoofpilot/hoofpilot'
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/workflows/setup-with-retry
+        with:
+          submodules: true
+      - run: |
+          sudo chmod +x tools/setup_dependencies.sh
+          ./tools/op.sh setup
       - name: Update translations
-        run: |
-          ${{ env.RUN }} "python3 selfdrive/ui/update_translations.py --vanish"
+        run: python3 selfdrive/ui/update_translations.py --vanish
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0
         with:
@@ -35,19 +36,16 @@ jobs:
   package_updates:
     name: package_updates
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/hoofpilot/hoofpilot-base:latest
     if: github.repository == 'hoofpilot/hoofpilot'
     steps:
     - uses: actions/checkout@v6
       with:
         submodules: true
+    - run: |
+        sudo chmod +x tools/setup_dependencies.sh
+        ./tools/op.sh setup
     - name: uv lock
-      if: github.repository == 'commaai/openpilot'
-      run: |
-        python3 -m ensurepip --upgrade
-        pip3 install uv
-        uv lock --upgrade
+      run: uv lock --upgrade
     - name: uv pip tree
       id: pip_tree
       run: |
@@ -62,7 +60,6 @@ jobs:
         git add .
     - name: update car docs
       run: |
-        export PYTHONPATH="$PWD"
         scons -j$(nproc) --minimal opendbc_repo
         python selfdrive/car/docs.py
         git add docs/CARS.md
@@ -70,7 +67,7 @@ jobs:
       uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0
       with:
         author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-        token: ${{ github.repository == 'commaai/openpilot' && secrets.ACTIONS_CREATE_PR_PAT || secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: Update Python packages
         title: '[bot] Update Python packages'
         branch: auto-package-updates
@@ -80,6 +77,7 @@ jobs:
           Automatic PR from repo-maintenance -> package_updates
 
           ```
+          $ uv pip tree
           ${{ steps.pip_tree.outputs.PIP_TREE }}
           ```
         labels: bot

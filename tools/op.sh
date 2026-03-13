@@ -216,11 +216,7 @@ function op_setup() {
 
   echo "Installing dependencies..."
   st="$(date +%s)"
-  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    SETUP_SCRIPT="tools/ubuntu_setup.sh"
-  elif [[ "$OSTYPE" == "darwin"* ]]; then
-    SETUP_SCRIPT="tools/mac_setup.sh"
-  fi
+  SETUP_SCRIPT="tools/setup_dependencies.sh"
   if ! $OPENPILOT_ROOT/$SETUP_SCRIPT; then
     echo -e " ↳ [${RED}✗${NC}] Dependencies installation failed!"
     loge "ERROR_DEPENDENCIES_INSTALLATION"
@@ -228,6 +224,8 @@ function op_setup() {
   fi
   et="$(date +%s)"
   echo -e " ↳ [${GREEN}✔${NC}] Dependencies installed successfully in $((et - st)) seconds."
+
+  op_activate_venv
 
   echo "Getting git submodules..."
   st="$(date +%s)"
@@ -262,6 +260,11 @@ function op_activate_venv() {
   set +e
   source $OPENPILOT_ROOT/.venv/bin/activate &> /dev/null || true
   set -e
+
+  # persist venv on PATH across GitHub Actions steps
+  if [ -n "$GITHUB_PATH" ]; then
+    echo "$OPENPILOT_ROOT/.venv/bin" >> "$GITHUB_PATH"
+  fi
 }
 
 function op_venv() {

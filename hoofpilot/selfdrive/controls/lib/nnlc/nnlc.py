@@ -162,4 +162,3 @@ class NeuralNetworkLateralControl(LatControlTorqueExtBase):
       self._pid_log.error += get_friction(friction_input, self._lateral_accel_deadzone, FRICTION_THRESHOLD, self.lac_torque.torque_params)
 
     self.update_output_torque(CS)
-

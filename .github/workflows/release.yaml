@@ -7,20 +7,12 @@ on:
 jobs:
   build_nightly:
     name: build nightly
-    env:
-      ImageOS: ubuntu24
-    container:
-      image: ghcr.io/hoofpilot/hoofpilot-base:latest
     runs-on: ubuntu-latest
     if: github.repository == 'hoofpilot/hoofpilot'
     permissions:
       checks: read
       contents: write
     steps:
-    - name: Install wait-on-check-action dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libyaml-dev
     - name: Wait for green check mark
       if: ${{ github.event_name == 'schedule' }}
       uses: lewagon/wait-on-check-action@ccfb013c15c8afb7bf2b7c028fb74dc5a068cccc
@@ -38,6 +30,9 @@ jobs:
       run: |
         git config --global --add safe.directory '*'
         git lfs pull
+    - run: |
+        sudo chmod +x tools/setup_dependencies.sh
+        ./tools/op.sh setup
     - name: Push nightly
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

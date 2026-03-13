@@ -688,6 +688,10 @@
     "title": "Mapd Version",
     "description": ""
   },
+  "MapdSettings": {
+    "title": "Mapd Settings",
+    "description": ""
+  },
   "MaxTimeOffroad": {
     "title": "Max Time Offroad",
     "description": "",
