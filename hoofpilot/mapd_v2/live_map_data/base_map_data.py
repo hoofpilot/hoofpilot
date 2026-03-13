@@ -19,7 +19,7 @@ class BaseMapData(ABC):
   def __init__(self):
     self.params = Params()
 
-    self.sm = messaging.SubMaster(['liveLocationKalman'])
+    self.sm = messaging.SubMaster(['liveLocationKalman', 'mapdOut'])
     self.pm = messaging.PubMaster(['liveMapDataSP'])
 
     self.localizer_valid = False
@@ -47,7 +47,7 @@ class BaseMapData(ABC):
     next_speed_limit, next_speed_limit_distance = self.get_next_speed_limit_and_distance()
 
     mapd_sp_send = messaging.new_message('liveMapDataSP')
-    mapd_sp_send.valid = self.sm['liveLocationKalman'].gpsOK
+    mapd_sp_send.valid = self.sm['liveLocationKalman'].gpsOK and self.sm.valid['mapdOut']
     live_map_data = mapd_sp_send.liveMapDataSP
 
     live_map_data.speedLimitValid = bool(MAX_SPEED_LIMIT > speed_limit > 0)

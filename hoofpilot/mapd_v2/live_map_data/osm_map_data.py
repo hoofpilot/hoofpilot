@@ -41,22 +41,13 @@ class OsmMapData(BaseMapData):
     self.mem_params.put("LastGPSPosition", json.dumps(params))
 
   def get_current_speed_limit(self) -> float:
-    return float(self.mem_params.get("MapSpeedLimit") or 0.0)
+    return float(self.sm["mapdOut"].speedLimit)
 
   def get_current_road_name(self) -> str:
-    return str(self.mem_params.get("RoadName") or "")
+    return str(self.sm["mapdOut"].roadName)
 
   def get_next_speed_limit_and_distance(self) -> tuple[float, float]:
-    next_speed_limit_section_str = self.mem_params.get("NextMapSpeedLimit")
-    next_speed_limit_section = next_speed_limit_section_str if next_speed_limit_section_str else {}
-    next_speed_limit = next_speed_limit_section.get('speedlimit', 0.0)
-    next_speed_limit_latitude = next_speed_limit_section.get('latitude')
-    next_speed_limit_longitude = next_speed_limit_section.get('longitude')
-    next_speed_limit_distance = 0.0
-
-    if next_speed_limit_latitude and next_speed_limit_longitude:
-      next_speed_limit_coordinates = Coordinate(next_speed_limit_latitude, next_speed_limit_longitude)
-      next_speed_limit_distance = (self.last_position or Coordinate(0, 0)).distance_to(next_speed_limit_coordinates)
-
+    next_speed_limit = float(self.sm["mapdOut"].nextSpeedLimit)
+    next_speed_limit_distance = float(self.sm["mapdOut"].nextSpeedLimitDistance)
     return next_speed_limit, next_speed_limit_distance
 
