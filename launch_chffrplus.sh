@@ -77,8 +77,8 @@ function launch {
 
   # handle pythonpath
   ln -sfn $(pwd) /data/pythonpath
-  # Include vendored python deps (e.g., third_party/python/jeepney) while keeping repo root imports working.
-  export PYTHONPATH="$PWD:$PWD/third_party/python${PYTHONPATH:+:$PYTHONPATH}"
+  # Include vendored python deps (e.g., hoofpilot/third_party/jeepney) while keeping repo root imports working.
+  export PYTHONPATH="$PWD:$PWD/hoofpilot/third_party${PYTHONPATH:+:$PYTHONPATH}"
 
   # hardware specific init
   if [ -f /AGNOS ]; then

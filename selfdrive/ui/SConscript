@@ -26,7 +26,7 @@ msgfmt_cmd = "msgfmt -o $TARGET $SOURCE"
 msgfmt_deps = []
 if env.WhereIs("msgfmt") is None:
   # C3 images don't ship with gettext's msgfmt; use a tiny Python fallback.
-  msgfmt_py = File("#tools/msgfmt.py")
+  msgfmt_py = File("#hoofpilot/tools/msgfmt.py")
   msgfmt_cmd = f"python3 {msgfmt_py} -o $TARGET $SOURCE"
   msgfmt_deps = [msgfmt_py]
 
