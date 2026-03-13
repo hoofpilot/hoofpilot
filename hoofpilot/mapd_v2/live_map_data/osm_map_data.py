@@ -10,7 +10,7 @@ import platform
 
 from cereal import log
 from openpilot.common.params import Params
-from hoofpilot.mapd.live_map_data.base_map_data import BaseMapData
+from hoofpilot.mapd_v2.live_map_data.base_map_data import BaseMapData
 from hoofpilot.navd.helpers import Coordinate
 
 

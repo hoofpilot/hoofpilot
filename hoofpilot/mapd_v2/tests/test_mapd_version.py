@@ -5,8 +5,8 @@ This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 from hoofpilot import get_file_hash
-from hoofpilot.mapd import MAPD_PATH
-from hoofpilot.mapd.update_version import MAPD_HASH_PATH
+from hoofpilot.mapd_v2 import MAPD_PATH
+from hoofpilot.mapd_v2.update_version import MAPD_HASH_PATH
 
 
 class TestMapdVersion:
@@ -16,5 +16,5 @@ class TestMapdVersion:
     with open(MAPD_HASH_PATH) as f:
       current_hash = f.read().strip()
 
-    assert current_hash == mapd_hash, "Run hoofpilot/mapd/update_version.py to update the current mapd version and hash"
+    assert current_hash == mapd_hash, "Run hoofpilot/mapd_v2/update_version.py to update the current mapd version and hash"
 

@@ -11,10 +11,10 @@ import re
 
 from hoofpilot import get_file_hash
 from openpilot.common.basedir import BASEDIR
-from hoofpilot.mapd import MAPD_PATH
+from hoofpilot.mapd_v2 import MAPD_PATH
 
-MAPD_HASH_PATH = os.path.join(BASEDIR, "hoofpilot", "mapd", "tests", "mapd_hash")
-MAPD_VERSION_PATH = os.path.join(BASEDIR, "hoofpilot", "mapd", "mapd_installer.py")
+MAPD_HASH_PATH = os.path.join(BASEDIR, "hoofpilot", "mapd_v2", "tests", "mapd_hash")
+MAPD_VERSION_PATH = os.path.join(BASEDIR, "hoofpilot", "mapd_v2", "mapd_installer.py")
 
 
 def update_mapd_hash():
@@ -80,7 +80,7 @@ if __name__ == "__main__":
   if not args.new_ver:
     print("Warning: No new mapd version provided. Use --new_ver to specify")
     print("Example:")
-    print("  python hoofpilot/mapd/update_version.py --new_ver \"v1.12.0\"")
+    print("  python hoofpilot/mapd_v2/update_version.py --new_ver \"v1.12.0\"")
     print("Current mapd version and hash will not be updated! (aborted)")
     exit(0)
 

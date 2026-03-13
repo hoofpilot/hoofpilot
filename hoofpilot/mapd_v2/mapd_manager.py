@@ -16,10 +16,10 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import Ratekeeper, config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
-from hoofpilot.mapd.live_map_data.osm_map_data import OsmMapData
+from hoofpilot.mapd_v2.live_map_data.osm_map_data import OsmMapData
 from openpilot.system.hardware.hw import Paths
-from hoofpilot.mapd import MAPD_PATH
-from hoofpilot.mapd.mapd_installer import VERSION, update_installed_version
+from hoofpilot.mapd_v2 import MAPD_PATH
+from hoofpilot.mapd_v2.mapd_installer import VERSION, update_installed_version
 
 # PFEIFER - MAPD {{
 params = Params()

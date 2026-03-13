@@ -18,7 +18,7 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process
 from hoofpilot.selfdrive.controls.lib.speed_limit_controller.common import Policy
 from hoofpilot.selfdrive.controls.lib.speed_limit_controller.speed_limit_resolver import SpeedLimitResolver
-from hoofpilot.mapd.live_map_data import get_debug
+from hoofpilot.mapd_v2.live_map_data import get_debug
 
 
 def excepthook(args):

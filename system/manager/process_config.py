@@ -8,7 +8,7 @@ from openpilot.system.hardware import PC, TICI
 from openpilot.system.manager.process import PythonProcess, NativeProcess, DaemonProcess
 from openpilot.system.hardware.hw import Paths
 
-from hoofpilot.mapd.mapd_manager import MAPD_PATH
+from hoofpilot.mapd_v2.mapd_manager import MAPD_PATH
 
 from hoofpilot.models.helpers import get_active_model_runner
 from hoofpilot.sunnylink.utils import sunnylink_need_register, sunnylink_ready, use_sunnylink_uploader
@@ -181,7 +181,7 @@ procs += [
 
   # mapd
   NativeProcess("mapd", Paths.mapd_root(), ["bash", "-c", f"{MAPD_PATH} > /dev/null 2>&1"], mapd_ready),
-  PythonProcess("mapd_manager", "hoofpilot.mapd.mapd_manager", always_run),
+  PythonProcess("mapd_manager", "hoofpilot.mapd_v2.mapd_manager", always_run),
 
   # locationd
   NativeProcess("locationd_llk", "hoofpilot/selfdrive/locationd", ["./locationd"], only_onroad),
