@@ -183,9 +183,6 @@ procs += [
   NativeProcess("mapd", Paths.mapd_root(), ["bash", "-c", f"{MAPD_PATH} > /dev/null 2>&1"], mapd_ready),
   PythonProcess("mapd_manager", "hoofpilot.mapd_v2.mapd_manager", always_run),
 
-  # navd
-  PythonProcess("navigationd", "hoofpilot.navd.navigationd", only_onroad),
-
   # locationd
   NativeProcess("locationd_llk", "hoofpilot/selfdrive/locationd", ["./locationd"], only_onroad),
 ]
