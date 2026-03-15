@@ -27,8 +27,6 @@ class NavigationLayout(Widget):
     self._navd = Navigationd()
     self._params = Params()
 
-    self._mapbox_token_item = button_item("Mapbox token", "Edit", "Enter your mapbox public token",
-                                         partial(self._show_param_input, "MapboxToken", "Enter Mapbox Token"))
     self._mapbox_route_item = button_item("Mapbox route", "Edit", "",
                                          partial(self._show_param_input, "MapboxRoute", "Enter Mapbox Route"))
 
@@ -42,7 +40,7 @@ class NavigationLayout(Widget):
     ]
 
     self.items = [
-      self._mapbox_token_item, self._mapbox_route_item,
+      self._mapbox_route_item,
       button_item("Clear current route", "Clear", "", self._clear_route),
       multiple_button_item_sp("Favorites", "Select favorite route", ["Home", "Work", "Favorites"], 0, callback=self._favorites_callback),
       *self._vis_items[:4],
@@ -119,7 +117,6 @@ class NavigationLayout(Widget):
       item.set_visible(state)
 
   def _update_state(self):
-    self._mapbox_token_item.action_item.set_value(self._params.get("MapboxToken") or "Mapbox token not set")
     self._mapbox_route_item.action_item.set_value(self._params.get("MapboxRoute") or "Destination not set")
     self._update_navigation_visibility(self._params.get_bool("AllowNavigation"))
 

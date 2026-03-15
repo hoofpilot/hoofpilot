@@ -4,19 +4,28 @@ Copyright (c) 2021-, James Vecellio, Haibin Wen, sunnypilot, and a number of oth
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
+import os
 import requests
 from urllib.parse import quote
 
+from openpilot.common.api import Api
 from openpilot.common.params import Params
+
+KONIK_API_HOST = os.getenv('API_HOST', 'https://api.konik.ai')
+MAPS_BASE = f'{KONIK_API_HOST}/maps'
 
 
 class MapboxIntegration:
   def __init__(self):
     self.params = Params()
 
-  def get_public_token(self) -> str:
-    token: str = self.params.get('MapboxToken', return_default=True)
-    return token
+  def _auth_headers(self) -> dict:
+    dongle_id = self.params.get('DongleId', return_default=True) or ''
+    try:
+      token = Api(dongle_id).get_token()
+      return {'Authorization': f'JWT {token}'}
+    except Exception:
+      return {}
 
   def set_destination(self, postvars, current_lon, current_lat, bearing=None) -> tuple[dict, bool]:
     if 'latitude' in postvars and 'longitude' in postvars:
@@ -27,10 +36,14 @@ class MapboxIntegration:
     if not addr:
       return postvars, False
 
-    token = self.get_public_token()
-    url = f'https://api.mapbox.com/geocoding/v5/mapbox.places/{quote(addr)}.json?access_token={token}&limit=1&proximity={current_lon},{current_lat}'
+    url = f'{MAPS_BASE}/geocoding/v5/mapbox.places/{quote(addr)}.json'
     try:
-      response = requests.get(url, timeout=5)
+      response = requests.get(
+        url,
+        params={'limit': '1', 'proximity': f'{current_lon},{current_lat}'},
+        headers=self._auth_headers(),
+        timeout=5,
+      )
       if response.status_code == 200:
         features = response.json()['features']
         if features:
@@ -39,7 +52,7 @@ class MapboxIntegration:
           self.nav_confirmed(postvars, current_lon, current_lat, bearing)
           return postvars, True
     except requests.RequestException:
-      pass  # Broad exception to handle network errors like no internet without crashing navd process.
+      pass
     return postvars, False
 
   def nav_confirmed(self, postvars, start_lon, start_lat, bearing=None) -> None:
@@ -51,19 +64,14 @@ class MapboxIntegration:
 
     data: dict = {'navData': {'current': {'latitude': latitude, 'longitude': longitude}, 'route': {}}}
 
-    token = self.get_public_token()
-    route_data = self.generate_route(start_lon, start_lat, longitude, latitude, token, bearing)
+    route_data = self.generate_route(start_lon, start_lat, longitude, latitude, self._auth_headers(), bearing)
     if route_data:
       data['navData']['route'] = route_data
     self.params.put('MapboxSettings', data)
 
   @staticmethod
-  def generate_route(start_lon, start_lat, end_lon, end_lat, token, bearing=None) -> dict | None:
-    if not token:
-      return None
-
+  def generate_route(start_lon, start_lat, end_lon, end_lat, auth_headers, bearing=None) -> dict | None:
     params = {
-      'access_token': token,
       'geometries': 'geojson',
       'steps': 'true',
       'overview': 'full',
@@ -76,8 +84,9 @@ class MapboxIntegration:
 
     try:
       response = requests.get(
-        f'https://api.mapbox.com/directions/v5/mapbox/driving/{start_lon},{start_lat};{end_lon},{end_lat}',
+        f'{MAPS_BASE}/directions/v5/mapbox/driving/{start_lon},{start_lat};{end_lon},{end_lat}',
         params=params,
+        headers=auth_headers,
         timeout=5,
       )
       data = response.json() if response.status_code == 200 else {}
