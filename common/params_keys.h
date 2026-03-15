@@ -241,6 +241,16 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"LaneTurnValue", {PERSISTENT | BACKUP, FLOAT, "19.0"}},
     {"PlanplusControl", {PERSISTENT | BACKUP, FLOAT, "1.0"}},
 
+    // navigation (Mapbox / navigationd)
+    {"AllowNavigation", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"MapboxFavorites", {PERSISTENT | BACKUP, JSON}},
+    {"MapboxRecompute", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"MapboxRoute", {PERSISTENT, STRING}},
+    {"MapboxSettings", {PERSISTENT, JSON}},
+    {"MapboxToken", {PERSISTENT | BACKUP, STRING}},
+    {"NavDestination", {PERSISTENT, JSON}},
+    {"NavDesiresAllowed", {PERSISTENT | BACKUP, BOOL, "0"}},
+
     // mapd
     {"MapAdvisorySpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},
     {"MapdSettings", {PERSISTENT, JSON, "{}"}},
