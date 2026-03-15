@@ -17,6 +17,7 @@ from openpilot.selfdrive.ui.hoofpilot.layouts.settings.display import DisplayLay
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.models import ModelsLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.network import NetworkUISP
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.osm import OSMLayout
+from openpilot.selfdrive.ui.hoofpilot.layouts.settings.navigation import NavigationLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.software import SoftwareLayoutSP
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.stable import StableLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.steering import SteeringLayout
@@ -31,8 +32,6 @@ from openpilot.system.ui.lib.wifi_manager import WifiManager
 from openpilot.system.ui.hoofpilot.lib.styles import style
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.scroller_tici import Scroller
-
-# from openpilot.selfdrive.ui.hoofpilot.layouts.settings.navigation import NavigationLayout
 
 OP.PANEL_COLOR = rl.Color(10, 10, 10, 255)
 ICON_SIZE = 70
@@ -124,7 +123,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
       OP.PanelType.VISUALS: PanelInfo(tr_noop("Visuals"), VisualsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_visuals.png"),
       OP.PanelType.DISPLAY: PanelInfo(tr_noop("Display"), DisplayLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_display.png"),
       OP.PanelType.OSM: PanelInfo(tr_noop("OSM"), OSMLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
-      # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
+      OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
       OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_trips.png"),
       OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_vehicle.png"),
       OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/shell.png"),
