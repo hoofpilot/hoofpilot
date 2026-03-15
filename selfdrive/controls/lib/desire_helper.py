@@ -1,6 +1,7 @@
 from cereal import log, custom
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
+from hoofpilot.navd.navigation_desires.navigation_desires import NavigationDesires
 from hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeController, AutoLaneChangeMode
 from hoofpilot.selfdrive.controls.lib.lane_turn_desire import LaneTurnController
 
@@ -51,6 +52,7 @@ class DesireHelper:
     self.alc = AutoLaneChangeController(self)
     self.lane_turn_controller = LaneTurnController(self)
     self.lane_turn_direction = TurnDirection.none
+    self.navigation_desires = NavigationDesires()
 
   @staticmethod
   def get_lane_change_direction(CS):
@@ -143,3 +145,7 @@ class DesireHelper:
         self.desire = log.Desire.none
 
     self.alc.update_state()
+
+    nav_desire = self.navigation_desires.update(carstate, lateral_active)
+    if nav_desire != log.Desire.none and (self.desire == log.Desire.none or self.desire in (log.Desire.turnLeft, log.Desire.turnRight)):
+      self.desire = nav_desire

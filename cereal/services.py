@@ -99,6 +99,7 @@ _services: dict[str, tuple] = {
   "carControlSP": (True, 100., 10),
   "carStateSP": (True, 100., 10),
   "liveMapDataSP": (True, 1., 1),
+  "navigationd": (True, 3.),
   "modelDataV2SP": (True, 20., None, QueueSize.BIG),
   "mapdExtendedOut": (True, 1., 1, QueueSize.MEDIUM),
   "mapdIn": (True, 1., 1, QueueSize.MEDIUM),

@@ -842,7 +842,14 @@ def setNavDestination(latitude: int = 0, longitude: int = 0, place_name: str | N
     "place_name": place_name,
     "place_details": place_details,
   }
-  Params().put("NavDestination", json.dumps(destination))
+  params = Params()
+  params.put("NavDestination", json.dumps(destination))
+
+  # When only a text address is provided (no coordinates), set MapboxRoute so the
+  # on-device navigationd can geocode the address using the device's Mapbox token.
+  # When both lat/lng are zero and no place_name, this is a clear-route signal.
+  if latitude == 0 and longitude == 0:
+    params.put("MapboxRoute", place_name or "")
 
   return {"success": 1}
 
