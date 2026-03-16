@@ -154,7 +154,7 @@ class NavDestinationWidget(Widget):
   def _get_maneuvers(self) -> list:
     try:
       nav_msg = ui_state.sm['navigationd']
-      if nav_msg.valid and len(nav_msg.allManeuvers) > 0:
+      if len(nav_msg.allManeuvers) > 0:
         return list(nav_msg.allManeuvers)[:3]
     except Exception:
       pass
@@ -178,6 +178,7 @@ class NavDestinationWidget(Widget):
   # ── Input ──────────────────────────────────────────────────────────────────
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
+    self._box_hovered = -1  # always clear on release regardless of destination state
     if self._destination:
       return
     for i, r in enumerate(self._box_rects):

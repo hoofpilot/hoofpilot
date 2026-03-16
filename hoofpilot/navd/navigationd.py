@@ -273,8 +273,8 @@ class Navigationd:
     msg.navigationd.distanceFromRoute = nav_data.get('distance_from_route', 0.0)
     msg.navigationd.valid = self.valid
 
-    all_maneuvers = (
-      [
+    if progress:
+      all_maneuvers = [
         custom.Navigationd.Maneuver.new_message(
           distance=m['distance'],
           type=m['type'],
@@ -283,9 +283,20 @@ class Navigationd:
         )
         for m in progress['all_maneuvers']
       ]
-      if progress
-      else []
-    )
+    elif self.route and 'steps' in self.route:
+      # No GPS progress (offroad / localizer not valid) but route is known —
+      # emit the first 3 steps so the homescreen widget can show upcoming turns.
+      all_maneuvers = []
+      for step in self.route['steps'][:3]:
+        m = step.get('maneuver', {})
+        all_maneuvers.append(custom.Navigationd.Maneuver.new_message(
+          distance=float(step.get('distance', 0)),
+          type=m.get('type', ''),
+          modifier=m.get('modifier', ''),
+          instruction=m.get('instruction', ''),
+        ))
+    else:
+      all_maneuvers = []
     msg.navigationd.allManeuvers = all_maneuvers
     return msg
 
