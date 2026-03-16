@@ -34,8 +34,8 @@ class Navigationd:
     self.destination: str | None = None
     self.new_destination: str = ''
 
-    self.allow_navigation: bool = False
-    self.recompute_allowed: bool = False
+    self.allow_navigation: bool = True
+    self.recompute_allowed: bool = True
     self.allow_recompute: bool = False
     self.reroute_counter: int = 0
     self.cancel_route_counter: int = 0
@@ -48,15 +48,30 @@ class Navigationd:
     # Track last seen NavDestination to detect remote destination changes from Stable web
     self._last_nav_destination: str = ''
 
+  def _safe_get(self, key, default=''):
+    try:
+      return self.params.get(key) or default
+    except Exception:
+      return default
+
+  def _safe_put(self, key, value):
+    try:
+      self.params.put_nonblocking(key, value)
+    except Exception:
+      pass
+
+  def _safe_remove(self, key):
+    try:
+      self.params.remove(key)
+    except Exception:
+      pass
+
   def _update_params(self):
     if self.last_position is not None:
       self.frame += 1
       if self.frame % 15 == 0:
-        self.allow_navigation = self.params.get('AllowNavigation', return_default=True)
-        self.recompute_allowed = self.params.get('MapboxRecompute', return_default=True)
-
         # Check NavDestination (set via Athena from Stable web) for coordinate-based routing
-        nav_dest_str = self.params.get('NavDestination') or ''
+        nav_dest_str = self._safe_get('NavDestination', '')
         if nav_dest_str and nav_dest_str != self._last_nav_destination:
           self._last_nav_destination = nav_dest_str
           try:
@@ -65,7 +80,7 @@ class Navigationd:
             lon = nav_dest.get('longitude', 0)
             place_name = nav_dest.get('place_name') or ''
             if lat and lon:
-              # Has coordinates — pass them directly so set_destination skips geocoding
+              # Has coordinates — pass directly, skips geocoding
               self.new_destination = place_name or f'{lat},{lon}'
               postvars = {'latitude': lat, 'longitude': lon, 'place_name': self.new_destination}
               postvars, valid_addr = self.mapbox.set_destination(postvars, self.last_position.longitude, self.last_position.latitude, self.last_bearing)
@@ -75,18 +90,22 @@ class Navigationd:
                 self.route = self.nav_instructions.get_current_route()
                 self.cancel_route_counter = 0
                 self.reroute_counter = 0
-            elif not lat and not lon:
-              # Both zero — this is a clear-route signal
-              self.params.put_nonblocking('MapboxRoute', '')
+            elif not lat and not lon and not place_name:
+              # All empty — explicit clear-route signal
+              self._safe_put('MapboxRoute', '')
               self.nav_instructions.clear_route_cache()
               self.route = None
               self.destination = None
               self.new_destination = ''
+            elif place_name:
+              # No coordinates but has place_name — geocode via MapboxRoute
+              self.new_destination = place_name
+              self._safe_put('MapboxRoute', place_name)
           except (json.JSONDecodeError, KeyError):
             pass
 
         # Also check MapboxRoute (text address set via device offroad UI)
-        self.new_destination = self.params.get('MapboxRoute') or self.new_destination
+        self.new_destination = self._safe_get('MapboxRoute', '') or self.new_destination
 
       self.allow_recompute = (self.new_destination != self.destination and self.new_destination != '') or (
         self.recompute_allowed and self.reroute_counter > 9 and self.route
@@ -105,7 +124,7 @@ class Navigationd:
 
       if self.cancel_route_counter == 30:
         self.cancel_route_counter = 0
-        self.params.put_nonblocking('MapboxRoute', '')
+        self._safe_put('MapboxRoute', '')
         self.nav_instructions.clear_route_cache()
         self.route = None
 

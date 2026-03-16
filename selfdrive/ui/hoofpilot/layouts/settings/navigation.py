@@ -16,77 +16,109 @@ from openpilot.system.ui.widgets.list_view import button_item
 from openpilot.system.ui.widgets.option_dialog import MultiOptionDialog
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
-from hoofpilot.navd.navigationd import Navigationd
 from openpilot.system.ui.hoofpilot.widgets.input_dialog import InputDialogSP
-from openpilot.system.ui.hoofpilot.widgets.list_view import toggle_item_sp, multiple_button_item_sp
+from openpilot.system.ui.hoofpilot.widgets.list_view import multiple_button_item_sp
 
 
 class NavigationLayout(Widget):
   def __init__(self):
     super().__init__()
-    self._navd = Navigationd()
     self._params = Params()
 
-    self._mapbox_route_item = button_item("Mapbox route", "Edit", "",
-                                         partial(self._show_param_input, "MapboxRoute", "Enter Mapbox Route"))
-
-    self._vis_items = [
-      button_item("Set Home", "Set", "", partial(self._open_fav_dialog, "home", "Set Home Route")),
-      button_item("Set Work", "Set", "", partial(self._open_fav_dialog, "work", "Set Work Route")),
-      button_item("Add Favorite", "Add", "Add a new favorite", self._add_fav),
-      button_item("Remove Favorite", "Remove", "Remove a favorite", self._remove_fav),
-      toggle_item_sp("Mapbox recompute", "Enable automatic route recomputation", param="MapboxRecompute"),
-      toggle_item_sp("Navigation allowed", "Allow navigation to automatically take turns", param="NavDesiresAllowed"),
-    ]
+    self._route_item = button_item(
+      "Current route", "Edit", "Destination not set",
+      self._show_dest_input,
+    )
 
     self.items = [
-      self._mapbox_route_item,
-      button_item("Clear current route", "Clear", "", self._clear_route),
-      multiple_button_item_sp("Favorites", "Select favorite route", ["Home", "Work", "Favorites"], 0, callback=self._favorites_callback),
-      *self._vis_items[:4],
-      toggle_item_sp("Allow navigation", "Enable navigation service", callback=self._update_navigation_visibility, param="AllowNavigation"),
-      *self._vis_items[4:],
+      self._route_item,
+      button_item("Clear route", "Clear", "", self._clear_route),
+      multiple_button_item_sp("Favorites", "Navigate to saved location", ["Home", "Work", "Favorites"], 0, callback=self._favorites_callback),
+      button_item("Set Home", "Set", "", partial(self._open_fav_dialog, "home", "Set Home Address")),
+      button_item("Set Work", "Set", "", partial(self._open_fav_dialog, "work", "Set Work Address")),
+      button_item("Add Favorite", "Add", "Add a new favorite destination", self._add_fav),
+      button_item("Remove Favorite", "Remove", "Remove a saved favorite", self._remove_fav),
     ]
     self._scroller = Scroller(self.items, line_separator=True, spacing=0)
+
+  # --- Safe param helpers (guard against uncompiled keys) ---
+
+  def _safe_get(self, key, default=""):
+    try:
+      return self._params.get(key) or default
+    except Exception:
+      return default
+
+  def _safe_put(self, key, value):
+    try:
+      self._params.put(key, value)
+    except Exception:
+      pass
+
+  def _safe_remove(self, key):
+    try:
+      self._params.remove(key)
+    except Exception:
+      pass
+
+  # --- Favorites storage ---
 
   @property
   def _favs(self):
     try:
-      return json.loads(self._params.get("MapboxFavorites") or "{}")
+      return json.loads(self._safe_get("MapboxFavorites", "{}"))
     except Exception:
       return {}
 
-  def _show_param_input(self, param, title):
-    InputDialogSP(title, current_text=self._params.get(param, return_default=True) or "", param=param).show()
+  def _save_favs(self, favs):
+    self._safe_put("MapboxFavorites", json.dumps(favs))
+
+  # --- Destination input ---
+
+  def _show_dest_input(self):
+    current = self._safe_get("MapboxRoute", "")
+    InputDialogSP("Enter destination address", current_text=current, callback=self._set_dest_cb).show()
+
+  def _set_dest_cb(self, res, text):
+    if res == DialogResult.CONFIRM and text:
+      self._safe_put("MapboxRoute", text)
+      # Clear any previous NavDestination so navigationd re-geocodes via MapboxRoute
+      self._safe_remove("NavDestination")
+
+  # --- Clear route ---
 
   def _clear_route(self):
-    self._navd.route = None
-    self._params.remove("MapboxRoute")
+    self._safe_remove("MapboxRoute")
+    self._safe_remove("NavDestination")
+
+  # --- Favorites management ---
 
   def _handle_save_fav(self, key, is_fav, res, text):
     if res == DialogResult.CONFIRM and text:
       favs = self._favs
       (favs.setdefault("favorites", {}) if is_fav else favs)[key] = text
-      self._params.put("MapboxFavorites", json.dumps(favs))
+      self._save_favs(favs)
 
   def _open_fav_dialog(self, key, title):
     InputDialogSP(title, current_text=self._favs.get(key, ""), callback=partial(self._handle_save_fav, key, False)).show()
 
   def _add_fav_name_cb(self, res, name):
     if res == DialogResult.CONFIRM and name:
-      InputDialogSP(f"Set Route for {name}", "", callback=partial(self._handle_save_fav, name, True), min_text_size=1).show()
+      InputDialogSP(f"Set address for '{name}'", "", callback=partial(self._handle_save_fav, name, True), min_text_size=1).show()
 
   def _add_fav(self):
-    InputDialogSP("Favorite Name", "", callback=self._add_fav_name_cb, min_text_size=1).show()
+    InputDialogSP("Favorite name", "", callback=self._add_fav_name_cb, min_text_size=1).show()
 
   def _set_mapbox_route_cb(self, favorites, selection):
-    self._params.put("MapboxRoute", favorites[selection])
+    self._safe_put("MapboxRoute", favorites[selection])
+    self._safe_remove("NavDestination")
 
   def _favorites_callback(self, index):
     favs = self._favs
     if index < 2:
       if route := favs.get(["home", "work"][index]):
-        self._params.put("MapboxRoute", route)
+        self._safe_put("MapboxRoute", route)
+        self._safe_remove("NavDestination")
     elif favorites := favs.get("favorites"):
       self._show_list_dialog(tr("Select Favorite"), list(favorites.keys()), partial(self._set_mapbox_route_cb, favorites))
     else:
@@ -95,7 +127,7 @@ class NavigationLayout(Widget):
   def _remove_fav_cb(self, selection):
     favs = self._favs
     if favs.get("favorites", {}).pop(selection, None):
-      self._params.put("MapboxFavorites", json.dumps(favs))
+      self._save_favs(favs)
 
   def _remove_fav(self):
     if favorites := self._favs.get("favorites"):
@@ -112,13 +144,24 @@ class NavigationLayout(Widget):
     self._dialog = MultiOptionDialog(title, items)
     gui_app.set_modal_overlay(self._dialog, callback=partial(self._list_dialog_cb, callback))
 
-  def _update_navigation_visibility(self, state):
-    for item in self._vis_items:
-      item.set_visible(state)
+  # --- Rendering ---
 
   def _update_state(self):
-    self._mapbox_route_item.action_item.set_value(self._params.get("MapboxRoute") or "Destination not set")
-    self._update_navigation_visibility(self._params.get_bool("AllowNavigation"))
+    try:
+      dest = None
+      # Prefer place_name from NavDestination JSON (set via Athena from Konik Stable)
+      nav_dest_str = self._safe_get("NavDestination", "")
+      if nav_dest_str:
+        try:
+          dest = json.loads(nav_dest_str).get("place_name") or None
+        except Exception:
+          pass
+      # Fall back to raw MapboxRoute text (set via device UI or on-device favorites)
+      if not dest:
+        dest = self._safe_get("MapboxRoute", "") or None
+      self._route_item.action_item.set_value(dest or "Destination not set")
+    except Exception:
+      pass
 
   def _render(self, rect):
     self._scroller.render(rect)
