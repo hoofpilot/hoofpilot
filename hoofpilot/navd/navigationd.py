@@ -106,13 +106,22 @@ class Navigationd:
     """If local params still have a destination but server has none, clear them."""
     try:
       nav_dest_raw = self._safe_get('NavDestination', '')
-      if not nav_dest_raw:
-        return
-      nav = json.loads(nav_dest_raw)
-      if nav.get('place_name'):
+      should_clear = False
+      if nav_dest_raw:
+        nav = json.loads(nav_dest_raw)
+        place_name = nav.get('place_name') or ''
+        lat = nav.get('latitude', 0)
+        lon = nav.get('longitude', 0)
+        # Clear if: has a real destination name, OR it's the zero-value Athena clear signal
+        # (lat=0, lon=0, no place_name) that the GPS-gated _update_params path may have missed.
+        should_clear = bool(place_name) or (not lat and not lon)
+      elif self._safe_get('MapboxRoute', ''):
+        # NavDestination absent but MapboxRoute still set — route was text-only; clear it.
+        should_clear = True
+
+      if should_clear:
         self._safe_remove('NavDestination')
         self._safe_remove('MapboxRoute')
-        # Reset all in-memory navigation state so the daemon stops routing
         self.nav_instructions.clear_route_cache()
         self.route = None
         self.destination = None
@@ -150,6 +159,29 @@ class Navigationd:
     if self._poll_frame >= self._poll_interval:
       self._poll_frame = 0
       self._poll_konik_next()
+
+    # Handle explicit Athena clear signal (lat=0, lon=0, no place_name) even without GPS.
+    # _update_params only processes NavDestination inside the GPS gate below, so an Athena
+    # clear delivered while offroad (no GPS fix) would otherwise be silently ignored.
+    try:
+      _nd_raw = self._safe_get('NavDestination', '')
+      if _nd_raw and _nd_raw != self._last_nav_destination:
+        _nd = json.loads(_nd_raw)
+        if not _nd.get('latitude') and not _nd.get('longitude') and not (_nd.get('place_name') or ''):
+          # Zero-value Athena clear — handle immediately without needing GPS
+          self._last_nav_destination = _nd_raw
+          self._safe_remove('NavDestination')
+          self._safe_put('MapboxRoute', '')
+          self.nav_instructions.clear_route_cache()
+          self.route = None
+          self.destination = None
+          self.new_destination = ''
+          self.cancel_route_counter = 0
+          self.reroute_counter = 0
+          self.recompute_allowed = True
+          self.allow_navigation = True
+    except Exception:
+      pass
 
     if self.last_position is not None:
       self.frame += 1
