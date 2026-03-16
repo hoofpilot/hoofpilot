@@ -40,8 +40,8 @@ ICON_SIZE          = 64
 BOX_RADIUS         = 0.14
 BOX_GAP            = 20     # doubled from 10
 PILL_H             = 138    # 110 × 1.25
-PILL_TO_BOX_GAP    = 214    # 14 + 200
-ROW_HEIGHT         = 130    # fixed height per shortcut / maneuver row
+PILL_TO_BOX_GAP    = 30
+ROW_HEIGHT         = 165    # tall enough to overflow scroll area slightly
 ROW_ICON_SIZE      = 56
 SCROLL_SPEED       = 40.0
 
@@ -72,6 +72,7 @@ class NavDestinationWidget(Widget):
     self._scroll_offset: float = 0.0
     self._scroll_max: float = 0.0
     self._scroll_area_rect: rl.Rectangle = rl.Rectangle(0, 0, 0, 0)
+    self._touch_prev_y: float | None = None
 
   # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -79,6 +80,7 @@ class NavDestinationWidget(Widget):
     self._refresh_destination()
     self._refresh_shortcuts()
     self._scroll_offset = 0.0
+    self._touch_prev_y = None
 
   def _load_icons(self):
     if self._dest_icon is None:
@@ -177,10 +179,21 @@ class NavDestinationWidget(Widget):
     try:
       mouse = rl.get_mouse_position()
 
-      # Scroll handling
-      if rl.check_collision_point_rec(mouse, self._scroll_area_rect):
+      # Scroll handling — touch drag (device) + mouse wheel (desktop)
+      touch_count = rl.get_touch_count()
+      if touch_count > 0:
+        touch = rl.get_touch_position(0)
+        if rl.check_collision_point_rec(touch, self._scroll_area_rect):
+          if self._touch_prev_y is not None:
+            delta = self._touch_prev_y - touch.y
+            self._scroll_offset = max(0.0, min(self._scroll_max, self._scroll_offset + delta))
+          self._touch_prev_y = touch.y
+        else:
+          self._touch_prev_y = None
+      else:
+        self._touch_prev_y = None
         wheel = rl.get_mouse_wheel_move()
-        if wheel != 0:
+        if wheel != 0 and rl.check_collision_point_rec(mouse, self._scroll_area_rect):
           self._scroll_offset = max(0.0, min(self._scroll_max, self._scroll_offset - wheel * SCROLL_SPEED))
 
       # Hover — only meaningful when no destination (shortcuts are tappable)
