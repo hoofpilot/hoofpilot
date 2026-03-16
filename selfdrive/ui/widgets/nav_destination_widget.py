@@ -184,6 +184,8 @@ class NavDestinationWidget(Widget):
   # ── Input ──────────────────────────────────────────────────────────────────
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
+    if self._destination:
+      return  # maneuver rows are display-only
     for i, r in enumerate(self._box_rects):
       if rl.check_collision_point_rec(mouse_pos, r):
         self._on_box_tap(i)
@@ -279,9 +281,12 @@ class NavDestinationWidget(Widget):
     # Circular background for icon
     rl.draw_circle(icon_cx, icon_cy, circle_r, rl.Color(55, 60, 70, 255))
     if icon_tex is not None:
-      ix = int(icon_cx - ROW_ICON_SIZE / 2)
-      iy = int(icon_cy - ROW_ICON_SIZE / 2)
-      rl.draw_texture_ex(icon_tex, rl.Vector2(ix, iy), 0.0, 1.0, rl.WHITE)
+      # Home (0) and work (1) draw slightly smaller within the same circle
+      draw_scale = 0.72 if index < 2 else 1.0
+      draw_half  = ROW_ICON_SIZE * draw_scale / 2
+      ix = int(icon_cx - draw_half)
+      iy = int(icon_cy - draw_half)
+      rl.draw_texture_ex(icon_tex, rl.Vector2(ix, iy), 0.0, draw_scale, rl.WHITE)
 
     # Text block to the right of the icon circle
     text_x   = rect.x + pad_x + circle_r * 2 + 14
