@@ -250,6 +250,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"MapboxToken", {PERSISTENT | BACKUP, STRING}},
     {"NavDestination", {PERSISTENT, JSON}},
     {"NavDesiresAllowed", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"ShowNavWidget", {PERSISTENT | BACKUP, BOOL, "0"}},
 
     // mapd
     {"MapAdvisorySpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},

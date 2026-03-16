@@ -6,6 +6,7 @@ from enum import IntEnum
 from openpilot.common.params import Params
 from openpilot.selfdrive.ui.widgets.offroad_alerts import UpdateAlert, OffroadAlert
 from openpilot.selfdrive.ui.widgets.exp_mode_button import ExperimentalModeButton
+from openpilot.selfdrive.ui.widgets.nav_destination_widget import NavDestinationWidget
 from openpilot.selfdrive.ui.widgets.setup import SetupWidget
 from openpilot.selfdrive.ui.widgets.trips import TripsWidget
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -63,10 +64,22 @@ class HomeLayout(Widget):
     self._mono_font = None
 
     self._exp_mode_button = ExperimentalModeButton()
+    self._nav_dest_widget = NavDestinationWidget()
+    self._show_nav_widget = False
     self._setup_callbacks()
 
+  def _safe_param_bool(self, key: str, default: bool = False) -> bool:
+    try:
+      return self.params.get_bool(key)
+    except Exception:
+      return default
+
   def show_event(self):
-    self._exp_mode_button.show_event()
+    self._show_nav_widget = self._safe_param_bool("ShowNavWidget")
+    if self._show_nav_widget:
+      self._nav_dest_widget.show_event()
+    else:
+      self._exp_mode_button.show_event()
     self.last_refresh = time.monotonic()
     self._refresh()
 
@@ -81,7 +94,10 @@ class HomeLayout(Widget):
     # propagate show/hide events
     if state != self.current_state:
       if state == HomeLayoutState.HOME:
-        self._exp_mode_button.show_event()
+        if self._show_nav_widget:
+          self._nav_dest_widget.show_event()
+        else:
+          self._exp_mode_button.show_event()
 
       if state in self._layout_widgets:
         self._layout_widgets[state].show_event()
@@ -204,7 +220,10 @@ class HomeLayout(Widget):
     self.offroad_alert.render(self.content_rect)
 
   def _render_left_column(self):
-    self._exp_mode_button.render(self.left_column_rect)
+    if self._show_nav_widget:
+      self._nav_dest_widget.render(self.left_column_rect)
+    else:
+      self._exp_mode_button.render(self.left_column_rect)
 
   def _render_right_column(self):
     if ui_state.prime_state.is_paired():
@@ -215,6 +234,13 @@ class HomeLayout(Widget):
       self._setup_widget.render(setup_rect)
 
   def _refresh(self):
+    new_show_nav = self._safe_param_bool("ShowNavWidget")
+    if new_show_nav != self._show_nav_widget:
+      self._show_nav_widget = new_show_nav
+      if new_show_nav:
+        self._nav_dest_widget.show_event()
+      else:
+        self._exp_mode_button.show_event()
     self._version_text = self._get_version_text()
     update_available = self.update_alert.refresh()
     alert_count = self.offroad_alert.refresh()

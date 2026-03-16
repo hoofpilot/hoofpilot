@@ -17,7 +17,7 @@ from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets import DialogResult, Widget
 from openpilot.system.ui.widgets.confirm_dialog import alert_dialog
-from openpilot.system.ui.widgets.list_view import button_item
+from openpilot.system.ui.widgets.list_view import button_item, toggle_item
 from openpilot.system.ui.widgets.option_dialog import MultiOptionDialog
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
@@ -40,6 +40,13 @@ class NavigationLayout(Widget):
       self._show_dest_input,
     )
 
+    self._show_nav_widget_item = toggle_item(
+      "Show navigation widget",
+      "Replace the driving mode selector on the homescreen with the current navigation destination",
+      initial_state=self._safe_get_bool("ShowNavWidget"),
+      callback=self._on_show_nav_widget,
+    )
+
     self.items = [
       self._route_item,
       button_item("Clear route", "Clear", "", self._clear_route),
@@ -48,6 +55,7 @@ class NavigationLayout(Widget):
       button_item("Set Work", "Set", "", partial(self._open_fav_dialog, "work", "Set Work Address")),
       button_item("Add Favorite", "Add", "Add a new favorite destination", self._add_fav),
       button_item("Remove Favorite", "Remove", "Remove a saved favorite", self._remove_fav),
+      self._show_nav_widget_item,
     ]
     self._scroller = Scroller(self.items, line_separator=True, spacing=0)
 
@@ -93,6 +101,18 @@ class NavigationLayout(Widget):
       return self._params.get(key) or default
     except Exception:
       return default
+
+  def _safe_get_bool(self, key, default=False):
+    try:
+      return self._params.get_bool(key)
+    except Exception:
+      return default
+
+  def _on_show_nav_widget(self, state: bool):
+    try:
+      self._params.put_bool("ShowNavWidget", state)
+    except Exception:
+      pass
 
   def _safe_put(self, key, value):
     try:
