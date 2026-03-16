@@ -85,6 +85,8 @@ class Navigationd:
         return
       dest = resp.json()
       if not dest:
+        # Server cleared the route — sync local params so UI reflects the change
+        self._sync_clear_if_needed()
         return
       place_name = dest.get('place_name') or ''
       lat = dest.get('latitude', 0)
@@ -99,6 +101,20 @@ class Navigationd:
       cloudlog.warning(f'navigationd: polled destination from Konik: {place_name}')
     except Exception as e:
       cloudlog.warning(f'navigationd: poll_konik_next failed: {e}')
+
+  def _sync_clear_if_needed(self):
+    """If local params still have a destination but server has none, clear them."""
+    try:
+      nav_dest_raw = self._safe_get('NavDestination', '')
+      if not nav_dest_raw:
+        return
+      nav = json.loads(nav_dest_raw)
+      if nav.get('place_name'):
+        self._safe_remove('NavDestination')
+        self._safe_remove('MapboxRoute')
+        cloudlog.warning('navigationd: server cleared destination, syncing local params')
+    except Exception:
+      pass
 
   def _safe_get(self, key, default=''):
     try:

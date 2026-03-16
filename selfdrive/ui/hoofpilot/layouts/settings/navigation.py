@@ -83,6 +83,8 @@ class NavigationLayout(Widget):
         return
       dest = resp.json()
       if not dest:
+        # Server cleared the route — sync local params
+        self._sync_clear_if_needed()
         return
       place_name = dest.get('place_name') or ''
       lat = dest.get('latitude', 0)
@@ -91,6 +93,19 @@ class NavigationLayout(Widget):
         nav_dest = json.dumps({'latitude': lat, 'longitude': lon, 'place_name': place_name, 'place_details': dest.get('place_details', '')})
         self._safe_put('NavDestination', nav_dest)
         self._safe_put('MapboxRoute', place_name)
+    except Exception:
+      pass
+
+  def _sync_clear_if_needed(self):
+    """If local params still have a destination but server has none, clear them."""
+    try:
+      nav_dest_raw = self._safe_get('NavDestination', '')
+      if not nav_dest_raw:
+        return
+      nav = json.loads(nav_dest_raw)
+      if nav.get('place_name'):
+        self._safe_remove('NavDestination')
+        self._safe_remove('MapboxRoute')
     except Exception:
       pass
 
