@@ -852,6 +852,28 @@ def setNavDestination(latitude: int = 0, longitude: int = 0, place_name: str | N
   return {"success": 1}
 
 
+@dispatcher.add_method
+def setNavFavorite(address: str = '', save_type: str = '', label: str | None = None) -> dict:
+  params = Params()
+  try:
+    raw = params.get('MapboxFavorites')
+    favs = json.loads(raw) if raw else {}
+  except Exception:
+    favs = {}
+
+  if save_type == 'home':
+    favs['home'] = address
+  elif save_type == 'work':
+    favs['work'] = address
+  elif save_type == 'favorite' and label:
+    if 'favorites' not in favs:
+      favs['favorites'] = {}
+    favs['favorites'][label] = address
+
+  params.put('MapboxFavorites', json.dumps(favs))
+  return {'success': 1}
+
+
 def scan_dir(path: str, prefix: str, base: str | None = None) -> list[str]:
   if base is None:
     base = path
