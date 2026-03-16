@@ -43,7 +43,7 @@ DEST_FONT_SIZE     = 48
 ICON_SIZE          = 64
 BOX_RADIUS         = 0.14
 BOX_GAP            = 10
-ROW_ICON_SIZE      = 44
+ROW_ICON_SIZE      = 56
 
 
 def _format_distance(meters: float) -> str:
@@ -212,7 +212,7 @@ class NavDestinationWidget(Widget):
 
     # ── "NAVIGATION" title ─────────────────────────────────────────────────
     title_sz = measure_text_cached(font, "NAVIGATION", TITLE_FONT_SIZE)
-    rl.draw_text_ex(font, "NAVIGATION", rl.Vector2(int(cx), int(cy)), TITLE_FONT_SIZE, 0, TITLE_COLOR)
+    rl.draw_text_ex(bold_font, "NAVIGATION", rl.Vector2(int(cx), int(cy)), TITLE_FONT_SIZE, 0, TITLE_COLOR)
     cy += title_sz.y + 6
     subtitle_sz = measure_text_cached(font, "Manage at stable.konik.ai", SUBTITLE_FONT_SIZE)
     rl.draw_text_ex(font, "Manage at stable.konik.ai", rl.Vector2(int(cx), int(cy)), SUBTITLE_FONT_SIZE, 0, SUBTITLE_COLOR)
@@ -227,7 +227,7 @@ class NavDestinationWidget(Widget):
     icon_x = int(cx + 20)
     icon_y = int(cy + (pill_h - ICON_SIZE) / 2)
     if self._dest_icon is not None:
-      rl.draw_texture_ex(self._dest_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, PILL_TEXT_COLOR)
+      rl.draw_texture_ex(self._dest_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 
     text_x = icon_x + ICON_SIZE + 14
     if self._destination:
@@ -272,7 +272,7 @@ class NavDestinationWidget(Widget):
     icon_tex  = self._shortcut_icons.get(icon_keys[index])
 
     pad_x    = 18
-    circle_r = ROW_ICON_SIZE // 2 + 6
+    circle_r = ROW_ICON_SIZE // 2 + 12
     icon_cx  = int(rect.x + pad_x + circle_r)
     icon_cy  = int(rect.y + rect.height / 2)
 
@@ -285,24 +285,24 @@ class NavDestinationWidget(Widget):
 
     # Text block to the right of the icon circle
     text_x   = rect.x + pad_x + circle_r * 2 + 14
-    label_sz = measure_text_cached(bold_font, label, 38)
+    label_sz = measure_text_cached(bold_font, label, 46)
 
     if addr:
       short_addr   = addr if len(addr) <= 26 else addr[:24] + "…"
-      addr_sz      = measure_text_cached(font, short_addr, 30)
-      total_text_h = label_sz.y + 4 + addr_sz.y
+      addr_sz      = measure_text_cached(font, short_addr, 36)
+      total_text_h = label_sz.y + 6 + addr_sz.y
       label_y      = int(rect.y + (rect.height - total_text_h) / 2)
-      addr_y       = int(label_y + label_sz.y + 4)
-      rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 38, 0, BOX_VALUE_COLOR)
-      rl.draw_text_ex(font, short_addr, rl.Vector2(text_x, addr_y), 30, 0, BOX_LABEL_COLOR)
+      addr_y       = int(label_y + label_sz.y + 6)
+      rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 46, 0, BOX_VALUE_COLOR)
+      rl.draw_text_ex(font, short_addr, rl.Vector2(text_x, addr_y), 36, 0, BOX_LABEL_COLOR)
     else:
       sub_text     = "Tap to set"
-      sub_sz       = measure_text_cached(font, sub_text, 30)
-      total_text_h = label_sz.y + 4 + sub_sz.y
+      sub_sz       = measure_text_cached(font, sub_text, 36)
+      total_text_h = label_sz.y + 6 + sub_sz.y
       label_y      = int(rect.y + (rect.height - total_text_h) / 2)
-      sub_y        = int(label_y + label_sz.y + 4)
-      rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 38, 0, BOX_VALUE_COLOR)
-      rl.draw_text_ex(font, sub_text, rl.Vector2(text_x, sub_y), 30, 0, rl.Color(110, 120, 130, 255))
+      sub_y        = int(label_y + label_sz.y + 6)
+      rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 46, 0, BOX_VALUE_COLOR)
+      rl.draw_text_ex(font, sub_text, rl.Vector2(text_x, sub_y), 36, 0, rl.Color(110, 120, 130, 255))
 
   def _draw_maneuver_row(self, rect: rl.Rectangle, maneuver, font, bold_font):
     pad_x     = 20
