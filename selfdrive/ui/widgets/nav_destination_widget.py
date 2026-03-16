@@ -281,8 +281,8 @@ class NavDestinationWidget(Widget):
     # Circular background for icon
     rl.draw_circle(icon_cx, icon_cy, circle_r, rl.Color(55, 60, 70, 255))
     if icon_tex is not None:
-      # Home (0) and work (1) draw slightly smaller within the same circle
-      draw_scale = 0.72 if index < 2 else 1.0
+      # Home (0) and work (1) draw smaller; favorite (2) just slightly smaller
+      draw_scale = 0.72 if index < 2 else 0.88
       draw_half  = ROW_ICON_SIZE * draw_scale / 2
       ix = int(icon_cx - draw_half)
       iy = int(icon_cy - draw_half)
