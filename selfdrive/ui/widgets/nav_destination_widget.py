@@ -5,7 +5,6 @@ This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import json
-import math
 
 import pyray as rl
 
@@ -16,38 +15,35 @@ from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 
 # ── Colours ────────────────────────────────────────────────────────────────────
-# Main card gradient (matches Stock ADAS Mode card in ExperimentalModeButton)
-CARD_LEFT  = rl.Color(44, 52, 62, 255)
-CARD_RIGHT = rl.Color(70, 82, 92, 255)
-CARD_RADIUS = 0.083
+# Card background — matches SetupWidget / pairing card
+CARD_COLOR  = rl.Color(30, 30, 30, 255)
+CARD_RADIUS = 0.05
 
-# Destination pill
-DEST_PILL_COLOR    = rl.Color(255, 255, 255, 255)
-DEST_TEXT_COLOR    = rl.Color(15, 15, 20, 255)
-NO_DEST_PILL_COLOR = rl.Color(255, 255, 255, 20)
-NO_DEST_TEXT_COLOR = rl.Color(180, 190, 200, 255)
+# Destination pill — always white
+PILL_COLOR      = rl.Color(255, 255, 255, 255)
+PILL_TEXT_COLOR = rl.Color(15, 15, 20, 255)
 
-# Sub-boxes
-BOX_COLOR        = rl.Color(255, 255, 255, 18)
-BOX_HOVER_COLOR  = rl.Color(255, 255, 255, 40)
-BOX_LABEL_COLOR  = rl.Color(160, 170, 185, 255)
-BOX_VALUE_COLOR  = rl.WHITE
-MANEUVER_COLOR   = rl.Color(120, 200, 255, 255)
+# Sub-rows
+BOX_COLOR       = rl.Color(20, 20, 20, 255)    # #141414
+BOX_HOVER_COLOR = rl.Color(45, 45, 45, 255)
+BOX_LABEL_COLOR = rl.Color(160, 170, 185, 255)
+BOX_VALUE_COLOR = rl.WHITE
+MANEUVER_COLOR  = rl.Color(120, 200, 255, 255)
 
-# Title
+# Text
 TITLE_COLOR    = rl.Color(200, 210, 220, 255)
 SUBTITLE_COLOR = rl.Color(140, 155, 170, 255)
 
 # ── Layout ─────────────────────────────────────────────────────────────────────
-PADDING_X       = 35
-PADDING_Y       = 28
+PADDING_X          = 35
+PADDING_Y          = 28
 TITLE_FONT_SIZE    = 44
 SUBTITLE_FONT_SIZE = 30
-DEST_FONT_SIZE     = 52
-NO_DEST_FONT_SIZE = 46
-ICON_SIZE       = 72
-BOX_RADIUS      = 0.12
-BOX_GAP         = 14
+DEST_FONT_SIZE     = 48
+ICON_SIZE          = 64
+BOX_RADIUS         = 0.14
+BOX_GAP            = 10
+ROW_ICON_SIZE      = 44
 
 
 def _format_distance(meters: float) -> str:
@@ -64,13 +60,14 @@ class NavDestinationWidget(Widget):
     self._params = Params()
     self._destination: str | None = None
     self._place_details: str | None = None
-    self._icon = None
+    self._dest_icon = None
+    self._shortcut_icons: dict = {}   # 'home', 'work', 'favorite' → texture
 
-    # Favorites: list of (label, address) for the 3 shortcut boxes
+    # Favorites list of (label, address) for the 3 shortcut rows
     self._shortcut_labels: list[str] = ["Home", "Work", "Favorite"]
     self._shortcut_addrs: list[str | None] = [None, None, None]
 
-    # Hover state for the 3 sub-boxes
+    # Hover state for the 3 sub-rows
     self._box_hovered: int = -1
     self._box_rects: list[rl.Rectangle] = [rl.Rectangle(0, 0, 0, 0)] * 3
 
@@ -80,15 +77,27 @@ class NavDestinationWidget(Widget):
     self._refresh_destination()
     self._refresh_shortcuts()
 
-  def _load_icon(self):
-    if self._icon is None:
+  def _load_icons(self):
+    if self._dest_icon is None:
       try:
-        self._icon = gui_app.texture(
+        self._dest_icon = gui_app.texture(
           "../../hoofpilot/selfdrive/assets/icons/destination.png",
           ICON_SIZE, ICON_SIZE, keep_aspect_ratio=True,
         )
       except Exception:
         pass
+
+    icon_paths = {
+      'home':     "../../hoofpilot/selfdrive/assets/offroad/icon_home.png",
+      'work':     "../../hoofpilot/selfdrive/assets/icons/work.png",
+      'favorite': "../../hoofpilot/selfdrive/assets/icons/star-filled.png",
+    }
+    for key, path in icon_paths.items():
+      if key not in self._shortcut_icons:
+        try:
+          self._shortcut_icons[key] = gui_app.texture(path, ROW_ICON_SIZE, ROW_ICON_SIZE, keep_aspect_ratio=True)
+        except Exception:
+          pass
 
   # ── Param helpers ──────────────────────────────────────────────────────────
 
@@ -161,8 +170,7 @@ class NavDestinationWidget(Widget):
   def _update_state(self):
     self._refresh_destination()
     self._refresh_shortcuts()
-    self._load_icon()
-    # Update hover from mouse position
+    self._load_icons()
     try:
       mouse = rl.get_mouse_position()
       self._box_hovered = -1
@@ -183,48 +191,21 @@ class NavDestinationWidget(Widget):
 
   def _on_box_tap(self, index: int):
     if self._destination:
-      return  # maneuver boxes are info-only
+      return  # maneuver rows are info-only
     addr = self._shortcut_addrs[index]
     if addr:
       self._safe_put("MapboxRoute", addr)
       self._safe_remove("NavDestination")
       self._refresh_destination()
 
-  # ── Drawing helpers ────────────────────────────────────────────────────────
-
-  @staticmethod
-  def _draw_rounded_gradient(rect: rl.Rectangle, roundness: float, left: rl.Color, right: rl.Color):
-    w = max(1, int(rect.width))
-    h = max(1, int(rect.height))
-    r = int(max(1.0, roundness * min(w, h) * 0.5))
-    x0, y0 = int(rect.x), int(rect.y)
-    for i in range(w):
-      t = i / max(1, w - 1)
-      col = rl.Color(
-        int(left.r + (right.r - left.r) * t),
-        int(left.g + (right.g - left.g) * t),
-        int(left.b + (right.b - left.b) * t),
-        255,
-      )
-      cut = 0
-      if i < r:
-        dx = r - i
-        cut = int(r - math.sqrt(max(0, r * r - dx * dx)))
-      elif i >= w - r:
-        dx = i - (w - r - 1)
-        cut = int(r - math.sqrt(max(0, r * r - dx * dx)))
-      y_start, y_end = y0 + cut, y0 + h - cut
-      if y_end > y_start:
-        rl.draw_line(x0 + i, y_start, x0 + i, y_end, col)
-
   # ── Render ─────────────────────────────────────────────────────────────────
 
   def _render(self, rect: rl.Rectangle):
-    # Background gradient card
-    self._draw_rounded_gradient(rect, CARD_RADIUS, CARD_LEFT, CARD_RIGHT)
+    # Solid card background (matches pairing/setup widget)
+    rl.draw_rectangle_rounded(rect, CARD_RADIUS, 10, CARD_COLOR)
 
-    font        = gui_app.font(FontWeight.MEDIUM)
-    bold_font   = gui_app.font(FontWeight.BOLD)
+    font      = gui_app.font(FontWeight.MEDIUM)
+    bold_font = gui_app.font(FontWeight.BOLD)
 
     cx = rect.x + PADDING_X
     cy = rect.y + PADDING_Y
@@ -237,120 +218,120 @@ class NavDestinationWidget(Widget):
     rl.draw_text_ex(font, "Manage at stable.konik.ai", rl.Vector2(int(cx), int(cy)), SUBTITLE_FONT_SIZE, 0, SUBTITLE_COLOR)
     cy += subtitle_sz.y + 14
 
-    # ── Destination pill ───────────────────────────────────────────────────
-    pill_w   = rect.width - 2 * PADDING_X
-    pill_h   = 120
+    # ── Destination pill (always white) ───────────────────────────────────
+    pill_w    = rect.width - 2 * PADDING_X
+    pill_h    = 110
     pill_rect = rl.Rectangle(cx, cy, pill_w, pill_h)
+    rl.draw_rectangle_rounded(pill_rect, 0.25, 10, PILL_COLOR)
 
+    icon_x = int(cx + 20)
+    icon_y = int(cy + (pill_h - ICON_SIZE) / 2)
+    if self._dest_icon is not None:
+      rl.draw_texture_ex(self._dest_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, PILL_TEXT_COLOR)
+
+    text_x = icon_x + ICON_SIZE + 14
     if self._destination:
-      rl.draw_rectangle_rounded(pill_rect, 0.25, 10, DEST_PILL_COLOR)
-      # Icon
-      icon_x = int(cx + 20)
-      icon_y = int(cy + (pill_h - ICON_SIZE) / 2)
-      if self._icon is not None:
-        rl.draw_texture_ex(self._icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, DEST_TEXT_COLOR)
-      # Text
-      text_x = icon_x + ICON_SIZE + 14
-      dest_text = self._destination
-      dest_sz = measure_text_cached(bold_font, dest_text, DEST_FONT_SIZE)
-      text_y = int(cy + (pill_h - dest_sz.y) / 2)
-      rl.draw_text_ex(bold_font, dest_text, rl.Vector2(text_x, text_y), DEST_FONT_SIZE, 0, DEST_TEXT_COLOR)
+      dest_sz = measure_text_cached(bold_font, self._destination, DEST_FONT_SIZE)
+      text_y  = int(cy + (pill_h - dest_sz.y) / 2)
+      rl.draw_text_ex(bold_font, self._destination, rl.Vector2(text_x, text_y), DEST_FONT_SIZE, 0, PILL_TEXT_COLOR)
     else:
-      rl.draw_rectangle_rounded(pill_rect, 0.25, 10, NO_DEST_PILL_COLOR)
-      icon_x = int(cx + 20)
-      icon_y = int(cy + (pill_h - ICON_SIZE) / 2)
-      if self._icon is not None:
-        rl.draw_texture_ex(self._icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, NO_DEST_TEXT_COLOR)
-      text_x = icon_x + ICON_SIZE + 14
       nd_text = "No destination set"
-      nd_sz = measure_text_cached(font, nd_text, NO_DEST_FONT_SIZE)
-      text_y = int(cy + (pill_h - nd_sz.y) / 2)
-      rl.draw_text_ex(font, nd_text, rl.Vector2(text_x, text_y), NO_DEST_FONT_SIZE, 0, NO_DEST_TEXT_COLOR)
+      nd_sz   = measure_text_cached(font, nd_text, DEST_FONT_SIZE)
+      text_y  = int(cy + (pill_h - nd_sz.y) / 2)
+      rl.draw_text_ex(font, nd_text, rl.Vector2(text_x, text_y), DEST_FONT_SIZE, 0, PILL_TEXT_COLOR)
 
-    cy += pill_h + 18
+    cy += pill_h + 14
 
-    # ── 3 sub-boxes ────────────────────────────────────────────────────────
-    boxes_h   = rect.y + rect.height - PADDING_Y - cy
-    box_w     = (rect.width - 2 * PADDING_X - 2 * BOX_GAP) / 3
-    maneuvers = self._get_maneuvers() if self._destination else []
+    # ── 3 sub-rows (stacked vertically) ───────────────────────────────────
+    total_rows_h = rect.y + rect.height - PADDING_Y - cy
+    row_h        = (total_rows_h - 2 * BOX_GAP) / 3
+    row_w        = rect.width - 2 * PADDING_X
+    maneuvers    = self._get_maneuvers() if self._destination else []
 
     new_rects = []
     for i in range(3):
-      bx = cx + i * (box_w + BOX_GAP)
-      br = rl.Rectangle(bx, cy, box_w, boxes_h)
+      ry = cy + i * (row_h + BOX_GAP)
+      br = rl.Rectangle(cx, ry, row_w, row_h)
       new_rects.append(br)
 
-      # Box background
       bg = BOX_HOVER_COLOR if self._box_hovered == i and not self._destination else BOX_COLOR
       rl.draw_rectangle_rounded(br, BOX_RADIUS, 10, bg)
 
       if self._destination:
         if i < len(maneuvers):
-          self._draw_maneuver_box(br, maneuvers[i], font, bold_font)
-        # else: blank box
+          self._draw_maneuver_row(br, maneuvers[i], font, bold_font)
       else:
-        self._draw_shortcut_box(br, i, font, bold_font)
+        self._draw_shortcut_row(br, i, font, bold_font)
 
     self._box_rects = new_rects
 
-  def _draw_shortcut_box(self, rect: rl.Rectangle, index: int, font, bold_font):
-    label = self._shortcut_labels[index]
-    addr  = self._shortcut_addrs[index]
+  def _draw_shortcut_row(self, rect: rl.Rectangle, index: int, font, bold_font):
+    label     = self._shortcut_labels[index]
+    addr      = self._shortcut_addrs[index]
+    icon_keys = ['home', 'work', 'favorite']
+    icon_tex  = self._shortcut_icons.get(icon_keys[index])
 
-    pad = 18
-    # Icon character mapping
-    icons = ["H", "W", "★"]
-    icon_text = icons[index]
-    icon_sz = measure_text_cached(bold_font, icon_text, 52)
-    icon_x = int(rect.x + (rect.width - icon_sz.x) / 2)
-    icon_y = int(rect.y + pad + 10)
-    rl.draw_text_ex(bold_font, icon_text, rl.Vector2(icon_x, icon_y), 52, 0, BOX_LABEL_COLOR)
+    pad_x    = 18
+    circle_r = ROW_ICON_SIZE // 2 + 6
+    icon_cx  = int(rect.x + pad_x + circle_r)
+    icon_cy  = int(rect.y + rect.height / 2)
 
-    label_sz = measure_text_cached(font, label, 38)
-    lx = int(rect.x + (rect.width - label_sz.x) / 2)
-    ly = icon_y + icon_sz.y + 10
-    rl.draw_text_ex(font, label, rl.Vector2(lx, ly), 38, 0, BOX_VALUE_COLOR)
+    # Circular background for icon
+    rl.draw_circle(icon_cx, icon_cy, circle_r, rl.Color(55, 60, 70, 255))
+    if icon_tex is not None:
+      ix = int(icon_cx - ROW_ICON_SIZE / 2)
+      iy = int(icon_cy - ROW_ICON_SIZE / 2)
+      rl.draw_texture_ex(icon_tex, rl.Vector2(ix, iy), 0.0, 1.0, rl.WHITE)
+
+    # Text block to the right of the icon circle
+    text_x   = rect.x + pad_x + circle_r * 2 + 14
+    label_sz = measure_text_cached(bold_font, label, 38)
 
     if addr:
-      # Truncate address to fit
-      short_addr = addr if len(addr) <= 18 else addr[:16] + "…"
-      addr_sz = measure_text_cached(font, short_addr, 32)
-      ax = int(rect.x + (rect.width - addr_sz.x) / 2)
-      ay = ly + label_sz.y + 8
-      rl.draw_text_ex(font, short_addr, rl.Vector2(ax, ay), 32, 0, BOX_LABEL_COLOR)
+      short_addr   = addr if len(addr) <= 26 else addr[:24] + "…"
+      addr_sz      = measure_text_cached(font, short_addr, 30)
+      total_text_h = label_sz.y + 4 + addr_sz.y
+      label_y      = int(rect.y + (rect.height - total_text_h) / 2)
+      addr_y       = int(label_y + label_sz.y + 4)
+      rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 38, 0, BOX_VALUE_COLOR)
+      rl.draw_text_ex(font, short_addr, rl.Vector2(text_x, addr_y), 30, 0, BOX_LABEL_COLOR)
     else:
-      set_text = "Tap to set"
-      set_sz = measure_text_cached(font, set_text, 30)
-      sx = int(rect.x + (rect.width - set_sz.x) / 2)
-      sy = ly + label_sz.y + 8
-      rl.draw_text_ex(font, set_text, rl.Vector2(sx, sy), 30, 0, rl.Color(120, 130, 140, 255))
+      sub_text     = "Tap to set"
+      sub_sz       = measure_text_cached(font, sub_text, 30)
+      total_text_h = label_sz.y + 4 + sub_sz.y
+      label_y      = int(rect.y + (rect.height - total_text_h) / 2)
+      sub_y        = int(label_y + label_sz.y + 4)
+      rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 38, 0, BOX_VALUE_COLOR)
+      rl.draw_text_ex(font, sub_text, rl.Vector2(text_x, sub_y), 30, 0, rl.Color(110, 120, 130, 255))
 
-  def _draw_maneuver_box(self, rect: rl.Rectangle, maneuver, font, bold_font):
+  def _draw_maneuver_row(self, rect: rl.Rectangle, maneuver, font, bold_font):
+    pad_x     = 20
     dist_text = _format_distance(maneuver.distance)
-    dist_sz   = measure_text_cached(bold_font, dist_text, 44)
-    dx = int(rect.x + (rect.width - dist_sz.x) / 2)
-    dy = int(rect.y + rect.height * 0.18)
-    rl.draw_text_ex(bold_font, dist_text, rl.Vector2(dx, dy), 44, 0, MANEUVER_COLOR)
+    dist_sz   = measure_text_cached(bold_font, dist_text, 40)
+    dist_y    = int(rect.y + (rect.height - dist_sz.y) / 2)
+    rl.draw_text_ex(bold_font, dist_text, rl.Vector2(rect.x + pad_x, dist_y), 40, 0, MANEUVER_COLOR)
 
-    instr = maneuver.instruction or f"{maneuver.type} {maneuver.modifier}".strip()
+    # Instruction to the right of distance
+    instr   = maneuver.instruction or f"{maneuver.type} {maneuver.modifier}".strip()
+    text_x  = rect.x + pad_x + dist_sz.x + 20
+    avail_w = rect.width - (text_x - rect.x) - pad_x
+
     words = instr.split()
     lines, line = [], []
     for word in words:
-      test = " ".join(line + [word])
-      test_sz = measure_text_cached(font, test, 32)
-      if test_sz.x > rect.width - 16 and line:
+      test    = " ".join(line + [word])
+      test_sz = measure_text_cached(font, test, 30)
+      if test_sz.x > avail_w and line:
         lines.append(" ".join(line))
         line = [word]
       else:
         line.append(word)
     if line:
       lines.append(" ".join(line))
-    lines = lines[:3]
+    lines = lines[:2]
 
-    total_h = len(lines) * 36
-    text_y  = dy + dist_sz.y + 12
+    total_h = len(lines) * 34
+    text_y  = int(rect.y + (rect.height - total_h) / 2)
     for ln in lines:
-      ln_sz = measure_text_cached(font, ln, 32)
-      lx = int(rect.x + (rect.width - ln_sz.x) / 2)
-      rl.draw_text_ex(font, ln, rl.Vector2(lx, int(text_y)), 32, 0, BOX_VALUE_COLOR)
-      text_y += 36
+      rl.draw_text_ex(font, ln, rl.Vector2(text_x, text_y), 30, 0, BOX_VALUE_COLOR)
+      text_y += 34
