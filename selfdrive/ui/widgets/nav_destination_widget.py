@@ -15,35 +15,35 @@ from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 
 # ── Colours ────────────────────────────────────────────────────────────────────
-# Card background — matches SetupWidget / pairing card
 CARD_COLOR  = rl.Color(30, 30, 30, 255)
 CARD_RADIUS = 0.05
 
-# Destination pill — always white
 PILL_COLOR      = rl.Color(255, 255, 255, 255)
 PILL_TEXT_COLOR = rl.Color(15, 15, 20, 255)
 
-# Sub-rows
-BOX_COLOR       = rl.Color(20, 20, 20, 255)    # #141414
+BOX_COLOR       = rl.Color(20, 20, 20, 255)
 BOX_HOVER_COLOR = rl.Color(45, 45, 45, 255)
 BOX_LABEL_COLOR = rl.Color(160, 170, 185, 255)
 BOX_VALUE_COLOR = rl.WHITE
 MANEUVER_COLOR  = rl.Color(120, 200, 255, 255)
 
-# Text
 TITLE_COLOR    = rl.Color(200, 210, 220, 255)
 SUBTITLE_COLOR = rl.Color(140, 155, 170, 255)
 
 # ── Layout ─────────────────────────────────────────────────────────────────────
 PADDING_X          = 35
 PADDING_Y          = 28
-TITLE_FONT_SIZE    = 44
-SUBTITLE_FONT_SIZE = 30
+TITLE_FONT_SIZE    = 58     # 44 × 1.33
+SUBTITLE_FONT_SIZE = 40     # 30 × 1.33
 DEST_FONT_SIZE     = 48
 ICON_SIZE          = 64
 BOX_RADIUS         = 0.14
-BOX_GAP            = 10
+BOX_GAP            = 20     # doubled from 10
+PILL_H             = 138    # 110 × 1.25
+PILL_TO_BOX_GAP    = 214    # 14 + 200
+ROW_HEIGHT         = 130    # fixed height per shortcut / maneuver row
 ROW_ICON_SIZE      = 56
+SCROLL_SPEED       = 40.0
 
 
 def _format_distance(meters: float) -> str:
@@ -61,21 +61,24 @@ class NavDestinationWidget(Widget):
     self._destination: str | None = None
     self._place_details: str | None = None
     self._dest_icon = None
-    self._shortcut_icons: dict = {}   # 'home', 'work', 'favorite' → texture
+    self._shortcut_icons: dict = {}
 
-    # Favorites list of (label, address) for the 3 shortcut rows
     self._shortcut_labels: list[str] = ["Home", "Work", "Favorite"]
     self._shortcut_addrs: list[str | None] = [None, None, None]
 
-    # Hover state for the 3 sub-rows
     self._box_hovered: int = -1
     self._box_rects: list[rl.Rectangle] = [rl.Rectangle(0, 0, 0, 0)] * 3
+
+    self._scroll_offset: float = 0.0
+    self._scroll_max: float = 0.0
+    self._scroll_area_rect: rl.Rectangle = rl.Rectangle(0, 0, 0, 0)
 
   # ── Lifecycle ──────────────────────────────────────────────────────────────
 
   def show_event(self):
     self._refresh_destination()
     self._refresh_shortcuts()
+    self._scroll_offset = 0.0
 
   def _load_icons(self):
     if self._dest_icon is None:
@@ -173,11 +176,21 @@ class NavDestinationWidget(Widget):
     self._load_icons()
     try:
       mouse = rl.get_mouse_position()
+
+      # Scroll handling
+      if rl.check_collision_point_rec(mouse, self._scroll_area_rect):
+        wheel = rl.get_mouse_wheel_move()
+        if wheel != 0:
+          self._scroll_offset = max(0.0, min(self._scroll_max, self._scroll_offset - wheel * SCROLL_SPEED))
+
+      # Hover — only meaningful when no destination (shortcuts are tappable)
       self._box_hovered = -1
-      for i, r in enumerate(self._box_rects):
-        if rl.check_collision_point_rec(mouse, r):
-          self._box_hovered = i
-          break
+      if not self._destination:
+        for i, r in enumerate(self._box_rects):
+          if (rl.check_collision_point_rec(mouse, r) and
+              rl.check_collision_point_rec(mouse, self._scroll_area_rect)):
+            self._box_hovered = i
+            break
     except Exception:
       pass
 
@@ -186,24 +199,24 @@ class NavDestinationWidget(Widget):
   def _handle_mouse_release(self, mouse_pos: MousePos):
     if self._destination:
       return  # maneuver rows are display-only
+    if not rl.check_collision_point_rec(mouse_pos, self._scroll_area_rect):
+      return
     for i, r in enumerate(self._box_rects):
       if rl.check_collision_point_rec(mouse_pos, r):
         self._on_box_tap(i)
         break
 
   def _on_box_tap(self, index: int):
-    if self._destination:
-      return  # maneuver rows are info-only
     addr = self._shortcut_addrs[index]
     if addr:
       self._safe_put("MapboxRoute", addr)
       self._safe_remove("NavDestination")
       self._refresh_destination()
+      self._scroll_offset = 0.0
 
   # ── Render ─────────────────────────────────────────────────────────────────
 
   def _render(self, rect: rl.Rectangle):
-    # Solid card background (matches pairing/setup widget)
     rl.draw_rectangle_rounded(rect, CARD_RADIUS, 10, CARD_COLOR)
 
     font      = gui_app.font(FontWeight.MEDIUM)
@@ -212,8 +225,8 @@ class NavDestinationWidget(Widget):
     cx = rect.x + PADDING_X
     cy = rect.y + PADDING_Y
 
-    # ── "NAVIGATION" title ─────────────────────────────────────────────────
-    title_sz = measure_text_cached(font, "NAVIGATION", TITLE_FONT_SIZE)
+    # ── Title ─────────────────────────────────────────────────────────────
+    title_sz = measure_text_cached(bold_font, "NAVIGATION", TITLE_FONT_SIZE)
     rl.draw_text_ex(bold_font, "NAVIGATION", rl.Vector2(int(cx), int(cy)), TITLE_FONT_SIZE, 0, TITLE_COLOR)
     cy += title_sz.y + 6
     subtitle_sz = measure_text_cached(font, "Manage at stable.konik.ai", SUBTITLE_FONT_SIZE)
@@ -222,41 +235,47 @@ class NavDestinationWidget(Widget):
 
     # ── Destination pill (always white) ───────────────────────────────────
     pill_w    = rect.width - 2 * PADDING_X
-    pill_h    = 110
-    pill_rect = rl.Rectangle(cx, cy, pill_w, pill_h)
+    pill_rect = rl.Rectangle(cx, cy, pill_w, PILL_H)
     rl.draw_rectangle_rounded(pill_rect, 0.25, 10, PILL_COLOR)
 
     icon_x = int(cx + 20)
-    icon_y = int(cy + (pill_h - ICON_SIZE) / 2)
+    icon_y = int(cy + (PILL_H - ICON_SIZE) / 2)
     if self._dest_icon is not None:
       rl.draw_texture_ex(self._dest_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 
     text_x = icon_x + ICON_SIZE + 14
     if self._destination:
       dest_sz = measure_text_cached(bold_font, self._destination, DEST_FONT_SIZE)
-      text_y  = int(cy + (pill_h - dest_sz.y) / 2)
+      text_y  = int(cy + (PILL_H - dest_sz.y) / 2)
       rl.draw_text_ex(bold_font, self._destination, rl.Vector2(text_x, text_y), DEST_FONT_SIZE, 0, PILL_TEXT_COLOR)
     else:
       nd_text = "No destination set"
       nd_sz   = measure_text_cached(font, nd_text, DEST_FONT_SIZE)
-      text_y  = int(cy + (pill_h - nd_sz.y) / 2)
+      text_y  = int(cy + (PILL_H - nd_sz.y) / 2)
       rl.draw_text_ex(font, nd_text, rl.Vector2(text_x, text_y), DEST_FONT_SIZE, 0, PILL_TEXT_COLOR)
 
-    cy += pill_h + 14
+    cy += PILL_H + PILL_TO_BOX_GAP
 
-    # ── 3 sub-rows (stacked vertically) ───────────────────────────────────
-    total_rows_h = rect.y + rect.height - PADDING_Y - cy
-    row_h        = (total_rows_h - 2 * BOX_GAP) / 3
-    row_w        = rect.width - 2 * PADDING_X
-    maneuvers    = self._get_maneuvers() if self._destination else []
+    # ── Scrollable rows ────────────────────────────────────────────────────
+    row_w         = rect.width - 2 * PADDING_X
+    scroll_area_h = rect.y + rect.height - PADDING_Y - cy
+    self._scroll_area_rect = rl.Rectangle(cx, cy, row_w, max(1.0, scroll_area_h))
+
+    total_content_h = 3 * ROW_HEIGHT + 2 * BOX_GAP
+    self._scroll_max    = max(0.0, float(total_content_h - scroll_area_h))
+    self._scroll_offset = max(0.0, min(self._scroll_max, self._scroll_offset))
+
+    maneuvers = self._get_maneuvers() if self._destination else []
+
+    rl.begin_scissor_mode(int(cx), int(cy), int(row_w), int(max(1, scroll_area_h)))
 
     new_rects = []
     for i in range(3):
-      ry = cy + i * (row_h + BOX_GAP)
-      br = rl.Rectangle(cx, ry, row_w, row_h)
+      ry = cy + i * (ROW_HEIGHT + BOX_GAP) - self._scroll_offset
+      br = rl.Rectangle(cx, ry, row_w, ROW_HEIGHT)
       new_rects.append(br)
 
-      bg = BOX_HOVER_COLOR if self._box_hovered == i and not self._destination else BOX_COLOR
+      bg = BOX_HOVER_COLOR if self._box_hovered == i else BOX_COLOR
       rl.draw_rectangle_rounded(br, BOX_RADIUS, 10, bg)
 
       if self._destination:
@@ -265,11 +284,12 @@ class NavDestinationWidget(Widget):
       else:
         self._draw_shortcut_row(br, i, font, bold_font)
 
+    rl.end_scissor_mode()
     self._box_rects = new_rects
 
   def _draw_shortcut_row(self, rect: rl.Rectangle, index: int, font, bold_font):
-    label     = self._shortcut_labels[index]
-    addr      = self._shortcut_addrs[index]
+    label    = self._shortcut_labels[index]
+    addr     = self._shortcut_addrs[index]
     icon_keys = ['home', 'work', 'favorite']
     icon_tex  = self._shortcut_icons.get(icon_keys[index])
 
@@ -278,17 +298,14 @@ class NavDestinationWidget(Widget):
     icon_cx  = int(rect.x + pad_x + circle_r)
     icon_cy  = int(rect.y + rect.height / 2)
 
-    # Circular background for icon
     rl.draw_circle(icon_cx, icon_cy, circle_r, rl.Color(55, 60, 70, 255))
     if icon_tex is not None:
-      # Home (0) and work (1) draw smaller; favorite (2) just slightly smaller
       draw_scale = 0.72 if index < 2 else 0.88
       draw_half  = ROW_ICON_SIZE * draw_scale / 2
       ix = int(icon_cx - draw_half)
       iy = int(icon_cy - draw_half)
       rl.draw_texture_ex(icon_tex, rl.Vector2(ix, iy), 0.0, draw_scale, rl.WHITE)
 
-    # Text block to the right of the icon circle
     text_x   = rect.x + pad_x + circle_r * 2 + 14
     label_sz = measure_text_cached(bold_font, label, 46)
 
@@ -301,13 +318,9 @@ class NavDestinationWidget(Widget):
       rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 46, 0, BOX_VALUE_COLOR)
       rl.draw_text_ex(font, short_addr, rl.Vector2(text_x, addr_y), 36, 0, BOX_LABEL_COLOR)
     else:
-      sub_text     = "Tap to set"
-      sub_sz       = measure_text_cached(font, sub_text, 36)
-      total_text_h = label_sz.y + 6 + sub_sz.y
-      label_y      = int(rect.y + (rect.height - total_text_h) / 2)
-      sub_y        = int(label_y + label_sz.y + 6)
+      # No address saved — show label only, vertically centred
+      label_y = int(rect.y + (rect.height - label_sz.y) / 2)
       rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 46, 0, BOX_VALUE_COLOR)
-      rl.draw_text_ex(font, sub_text, rl.Vector2(text_x, sub_y), 36, 0, rl.Color(110, 120, 130, 255))
 
   def _draw_maneuver_row(self, rect: rl.Rectangle, maneuver, font, bold_font):
     pad_x     = 20
@@ -316,7 +329,6 @@ class NavDestinationWidget(Widget):
     dist_y    = int(rect.y + (rect.height - dist_sz.y) / 2)
     rl.draw_text_ex(bold_font, dist_text, rl.Vector2(rect.x + pad_x, dist_y), 40, 0, MANEUVER_COLOR)
 
-    # Instruction to the right of distance
     instr   = maneuver.instruction or f"{maneuver.type} {maneuver.modifier}".strip()
     text_x  = rect.x + pad_x + dist_sz.x + 20
     avail_w = rect.width - (text_x - rect.x) - pad_x

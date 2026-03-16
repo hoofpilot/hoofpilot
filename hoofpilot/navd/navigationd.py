@@ -112,6 +112,16 @@ class Navigationd:
       if nav.get('place_name'):
         self._safe_remove('NavDestination')
         self._safe_remove('MapboxRoute')
+        # Reset all in-memory navigation state so the daemon stops routing
+        self.nav_instructions.clear_route_cache()
+        self.route = None
+        self.destination = None
+        self.new_destination = ''
+        self._last_nav_destination = ''
+        self.cancel_route_counter = 0
+        self.reroute_counter = 0
+        self.recompute_allowed = True
+        self.allow_navigation = True
         cloudlog.warning('navigationd: server cleared destination, syncing local params')
     except Exception:
       pass
