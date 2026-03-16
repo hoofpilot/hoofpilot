@@ -26,7 +26,7 @@ class NavigationLayout(Widget):
     self._params = Params()
 
     self._route_item = button_item(
-      "Current route", "Edit", "Destination not set",
+      "Current route", "Edit", "",
       self._show_dest_input,
     )
 

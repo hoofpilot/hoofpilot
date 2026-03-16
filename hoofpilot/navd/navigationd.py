@@ -5,11 +5,14 @@ This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import json
+import os
+import requests
 from math import degrees
 from numpy import interp
 
 import cereal.messaging as messaging
 from cereal import custom
+from openpilot.common.api import Api
 from openpilot.common.params import Params
 from openpilot.common.realtime import Ratekeeper
 from openpilot.common.swaglog import cloudlog
@@ -18,6 +21,8 @@ from hoofpilot.navd.constants import NAV_CV
 from hoofpilot.navd.helpers import Coordinate, parse_banner_instructions
 from hoofpilot.navd.navigation_helpers.mapbox_integration import MapboxIntegration
 from hoofpilot.navd.navigation_helpers.nav_instructions import NavigationInstructions
+
+KONIK_API_HOST = os.getenv('API_HOST', 'https://api.konik.ai')
 
 
 class Navigationd:
@@ -48,6 +53,53 @@ class Navigationd:
     # Track last seen NavDestination to detect remote destination changes from Stable web
     self._last_nav_destination: str = ''
 
+    # Poll Konik /next endpoint every 15 seconds; start immediately
+    self._poll_frame: int = 0
+    self._poll_interval: int = 45  # frames at 3 Hz = 15 seconds
+
+  def _get_auth_headers(self) -> dict:
+    try:
+      dongle_id = self._safe_get('DongleId', '')
+      if not dongle_id:
+        return {}
+      token = Api(dongle_id).get_token()
+      return {'Authorization': f'JWT {token}'}
+    except Exception:
+      return {}
+
+  def _poll_konik_next(self):
+    """Poll /v1/navigation/:dongle_id/next and apply the destination if present."""
+    try:
+      dongle_id = self._safe_get('DongleId', '')
+      if not dongle_id:
+        return
+      headers = self._get_auth_headers()
+      if not headers:
+        return
+      resp = requests.get(
+        f'{KONIK_API_HOST}/v1/navigation/{dongle_id}/next',
+        headers=headers,
+        timeout=5,
+      )
+      if resp.status_code != 200:
+        return
+      dest = resp.json()
+      if not dest:
+        return
+      place_name = dest.get('place_name') or ''
+      lat = dest.get('latitude', 0)
+      lon = dest.get('longitude', 0)
+      if not place_name:
+        return
+
+      # Build NavDestination JSON and store so the UI and other components see it
+      nav_dest = json.dumps({'latitude': lat, 'longitude': lon, 'place_name': place_name, 'place_details': dest.get('place_details', '')})
+      self._safe_put('NavDestination', nav_dest)
+      self._safe_put('MapboxRoute', place_name)
+      cloudlog.warning(f'navigationd: polled destination from Konik: {place_name}')
+    except Exception as e:
+      cloudlog.warning(f'navigationd: poll_konik_next failed: {e}')
+
   def _safe_get(self, key, default=''):
     try:
       return self.params.get(key) or default
@@ -67,10 +119,16 @@ class Navigationd:
       pass
 
   def _update_params(self):
+    # Poll Konik /next regardless of GPS — stores destination in params so UI shows it
+    self._poll_frame += 1
+    if self._poll_frame >= self._poll_interval:
+      self._poll_frame = 0
+      self._poll_konik_next()
+
     if self.last_position is not None:
       self.frame += 1
       if self.frame % 15 == 0:
-        # Check NavDestination (set via Athena from Stable web) for coordinate-based routing
+        # Check NavDestination (set via Athena from Stable web or polled from Konik) for coordinate-based routing
         nav_dest_str = self._safe_get('NavDestination', '')
         if nav_dest_str and nav_dest_str != self._last_nav_destination:
           self._last_nav_destination = nav_dest_str
