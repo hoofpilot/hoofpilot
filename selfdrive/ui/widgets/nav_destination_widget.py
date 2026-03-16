@@ -28,13 +28,11 @@ BOX_VALUE_COLOR = rl.WHITE
 MANEUVER_COLOR  = rl.Color(120, 200, 255, 255)
 
 TITLE_COLOR    = rl.Color(200, 210, 220, 255)
-SUBTITLE_COLOR = rl.Color(140, 155, 170, 255)
 
 # ── Layout ─────────────────────────────────────────────────────────────────────
 PADDING_X          = 35
 PADDING_Y          = 28
 TITLE_FONT_SIZE    = 58
-SUBTITLE_FONT_SIZE = 40
 DEST_FONT_SIZE     = 48
 ICON_SIZE          = 64
 BOX_RADIUS         = 0.14
@@ -167,9 +165,9 @@ class NavDestinationWidget(Widget):
     self._refresh_shortcuts()
     self._load_icons()
     try:
-      mouse = rl.get_mouse_position()
       self._box_hovered = -1
-      if not self._destination:
+      if not self._destination and rl.is_mouse_button_down(rl.MouseButton.MOUSE_BUTTON_LEFT):
+        mouse = rl.get_mouse_position()
         for i, r in enumerate(self._box_rects):
           if rl.check_collision_point_rec(mouse, r):
             self._box_hovered = i
@@ -208,10 +206,7 @@ class NavDestinationWidget(Widget):
     # ── Title ─────────────────────────────────────────────────────────────
     title_sz = measure_text_cached(bold_font, "NAVIGATION", TITLE_FONT_SIZE)
     rl.draw_text_ex(bold_font, "NAVIGATION", rl.Vector2(int(cx), int(cy)), TITLE_FONT_SIZE, 0, TITLE_COLOR)
-    cy += title_sz.y + 6
-    subtitle_sz = measure_text_cached(font, "Manage at stable.konik.ai", SUBTITLE_FONT_SIZE)
-    rl.draw_text_ex(font, "Manage at stable.konik.ai", rl.Vector2(int(cx), int(cy)), SUBTITLE_FONT_SIZE, 0, SUBTITLE_COLOR)
-    cy += subtitle_sz.y + 14
+    cy += title_sz.y + 14
 
     # ── Destination pill ──────────────────────────────────────────────────
     pill_w    = rect.width - 2 * PADDING_X
