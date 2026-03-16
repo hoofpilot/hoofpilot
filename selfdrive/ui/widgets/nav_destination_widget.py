@@ -33,17 +33,14 @@ SUBTITLE_COLOR = rl.Color(140, 155, 170, 255)
 # ── Layout ─────────────────────────────────────────────────────────────────────
 PADDING_X          = 35
 PADDING_Y          = 28
-TITLE_FONT_SIZE    = 58     # 44 × 1.33
-SUBTITLE_FONT_SIZE = 40     # 30 × 1.33
+TITLE_FONT_SIZE    = 58
+SUBTITLE_FONT_SIZE = 40
 DEST_FONT_SIZE     = 48
 ICON_SIZE          = 64
 BOX_RADIUS         = 0.14
-BOX_GAP            = 20     # doubled from 10
-PILL_H             = 138    # 110 × 1.25
-PILL_TO_BOX_GAP    = 30
-ROW_HEIGHT         = 165    # tall enough to overflow scroll area slightly
+BOX_GAP            = 20
+PILL_H             = 138
 ROW_ICON_SIZE      = 56
-SCROLL_SPEED       = 40.0
 
 
 def _format_distance(meters: float) -> str:
@@ -69,18 +66,11 @@ class NavDestinationWidget(Widget):
     self._box_hovered: int = -1
     self._box_rects: list[rl.Rectangle] = [rl.Rectangle(0, 0, 0, 0)] * 3
 
-    self._scroll_offset: float = 0.0
-    self._scroll_max: float = 0.0
-    self._scroll_area_rect: rl.Rectangle = rl.Rectangle(0, 0, 0, 0)
-    self._touch_prev_y: float | None = None
-
   # ── Lifecycle ──────────────────────────────────────────────────────────────
 
   def show_event(self):
     self._refresh_destination()
     self._refresh_shortcuts()
-    self._scroll_offset = 0.0
-    self._touch_prev_y = None
 
   def _load_icons(self):
     if self._dest_icon is None:
@@ -178,30 +168,10 @@ class NavDestinationWidget(Widget):
     self._load_icons()
     try:
       mouse = rl.get_mouse_position()
-
-      # Scroll handling — touch drag (device) + mouse wheel (desktop)
-      touch_count = rl.get_touch_count()
-      if touch_count > 0:
-        touch = rl.get_touch_position(0)
-        if rl.check_collision_point_rec(touch, self._scroll_area_rect):
-          if self._touch_prev_y is not None:
-            delta = self._touch_prev_y - touch.y
-            self._scroll_offset = max(0.0, min(self._scroll_max, self._scroll_offset + delta))
-          self._touch_prev_y = touch.y
-        else:
-          self._touch_prev_y = None
-      else:
-        self._touch_prev_y = None
-        wheel = rl.get_mouse_wheel_move()
-        if wheel != 0 and rl.check_collision_point_rec(mouse, self._scroll_area_rect):
-          self._scroll_offset = max(0.0, min(self._scroll_max, self._scroll_offset - wheel * SCROLL_SPEED))
-
-      # Hover — only meaningful when no destination (shortcuts are tappable)
       self._box_hovered = -1
       if not self._destination:
         for i, r in enumerate(self._box_rects):
-          if (rl.check_collision_point_rec(mouse, r) and
-              rl.check_collision_point_rec(mouse, self._scroll_area_rect)):
+          if rl.check_collision_point_rec(mouse, r):
             self._box_hovered = i
             break
     except Exception:
@@ -211,8 +181,6 @@ class NavDestinationWidget(Widget):
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
     if self._destination:
-      return  # maneuver rows are display-only
-    if not rl.check_collision_point_rec(mouse_pos, self._scroll_area_rect):
       return
     for i, r in enumerate(self._box_rects):
       if rl.check_collision_point_rec(mouse_pos, r):
@@ -225,7 +193,6 @@ class NavDestinationWidget(Widget):
       self._safe_put("MapboxRoute", addr)
       self._safe_remove("NavDestination")
       self._refresh_destination()
-      self._scroll_offset = 0.0
 
   # ── Render ─────────────────────────────────────────────────────────────────
 
@@ -246,7 +213,7 @@ class NavDestinationWidget(Widget):
     rl.draw_text_ex(font, "Manage at stable.konik.ai", rl.Vector2(int(cx), int(cy)), SUBTITLE_FONT_SIZE, 0, SUBTITLE_COLOR)
     cy += subtitle_sz.y + 14
 
-    # ── Destination pill (always white) ───────────────────────────────────
+    # ── Destination pill ──────────────────────────────────────────────────
     pill_w    = rect.width - 2 * PADDING_X
     pill_rect = rl.Rectangle(cx, cy, pill_w, PILL_H)
     rl.draw_rectangle_rounded(pill_rect, 0.25, 10, PILL_COLOR)
@@ -267,25 +234,18 @@ class NavDestinationWidget(Widget):
       text_y  = int(cy + (PILL_H - nd_sz.y) / 2)
       rl.draw_text_ex(font, nd_text, rl.Vector2(text_x, text_y), DEST_FONT_SIZE, 0, PILL_TEXT_COLOR)
 
-    cy += PILL_H + PILL_TO_BOX_GAP
+    cy += PILL_H + BOX_GAP
 
-    # ── Scrollable rows ────────────────────────────────────────────────────
+    # ── 3 rows (fill remaining space equally) ─────────────────────────────
     row_w         = rect.width - 2 * PADDING_X
-    scroll_area_h = rect.y + rect.height - PADDING_Y - cy
-    self._scroll_area_rect = rl.Rectangle(cx, cy, row_w, max(1.0, scroll_area_h))
-
-    total_content_h = 3 * ROW_HEIGHT + 2 * BOX_GAP
-    self._scroll_max    = max(0.0, float(total_content_h - scroll_area_h))
-    self._scroll_offset = max(0.0, min(self._scroll_max, self._scroll_offset))
-
-    maneuvers = self._get_maneuvers() if self._destination else []
-
-    rl.begin_scissor_mode(int(cx), int(cy), int(row_w), int(max(1, scroll_area_h)))
+    available_h   = rect.y + rect.height - PADDING_Y - cy
+    row_h         = (available_h - 2 * BOX_GAP) / 3
+    maneuvers     = self._get_maneuvers() if self._destination else []
 
     new_rects = []
     for i in range(3):
-      ry = cy + i * (ROW_HEIGHT + BOX_GAP) - self._scroll_offset
-      br = rl.Rectangle(cx, ry, row_w, ROW_HEIGHT)
+      ry = cy + i * (row_h + BOX_GAP)
+      br = rl.Rectangle(cx, ry, row_w, row_h)
       new_rects.append(br)
 
       bg = BOX_HOVER_COLOR if self._box_hovered == i else BOX_COLOR
@@ -297,7 +257,6 @@ class NavDestinationWidget(Widget):
       else:
         self._draw_shortcut_row(br, i, font, bold_font)
 
-    rl.end_scissor_mode()
     self._box_rects = new_rects
 
   def _draw_shortcut_row(self, rect: rl.Rectangle, index: int, font, bold_font):
@@ -331,7 +290,6 @@ class NavDestinationWidget(Widget):
       rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 46, 0, BOX_VALUE_COLOR)
       rl.draw_text_ex(font, short_addr, rl.Vector2(text_x, addr_y), 36, 0, BOX_LABEL_COLOR)
     else:
-      # No address saved — show label only, vertically centred
       label_y = int(rect.y + (rect.height - label_sz.y) / 2)
       rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 46, 0, BOX_VALUE_COLOR)
 
