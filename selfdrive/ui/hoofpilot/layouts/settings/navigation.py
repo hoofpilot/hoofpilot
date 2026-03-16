@@ -5,8 +5,13 @@ This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import json
+import os
+import threading
 from functools import partial
 
+import requests
+
+from openpilot.common.api import Api
 from openpilot.common.params import Params
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.multilang import tr
@@ -19,11 +24,16 @@ from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.hoofpilot.widgets.input_dialog import InputDialogSP
 from openpilot.system.ui.hoofpilot.widgets.list_view import multiple_button_item_sp
 
+KONIK_API_HOST = os.getenv('API_HOST', 'https://api.konik.ai')
+
 
 class NavigationLayout(Widget):
   def __init__(self):
     super().__init__()
     self._params = Params()
+    self._poll_stop = threading.Event()
+    self._poll_thread = threading.Thread(target=self._poll_loop, daemon=True)
+    self._poll_thread.start()
 
     self._route_item = button_item(
       "Current route", "Edit", "",
@@ -40,6 +50,41 @@ class NavigationLayout(Widget):
       button_item("Remove Favorite", "Remove", "Remove a saved favorite", self._remove_fav),
     ]
     self._scroller = Scroller(self.items, line_separator=True, spacing=0)
+
+  # --- Konik API polling (runs in background thread) ---
+
+  def _poll_loop(self):
+    # Poll immediately, then every 10 seconds
+    while not self._poll_stop.wait(0):
+      self._fetch_konik_next()
+      if self._poll_stop.wait(10):
+        break
+
+  def _fetch_konik_next(self):
+    try:
+      dongle_id = self._safe_get('DongleId', '')
+      if not dongle_id:
+        return
+      token = Api(dongle_id).get_token()
+      resp = requests.get(
+        f'{KONIK_API_HOST}/v1/navigation/{dongle_id}/next',
+        headers={'Authorization': f'JWT {token}'},
+        timeout=5,
+      )
+      if resp.status_code != 200:
+        return
+      dest = resp.json()
+      if not dest:
+        return
+      place_name = dest.get('place_name') or ''
+      lat = dest.get('latitude', 0)
+      lon = dest.get('longitude', 0)
+      if place_name:
+        nav_dest = json.dumps({'latitude': lat, 'longitude': lon, 'place_name': place_name, 'place_details': dest.get('place_details', '')})
+        self._safe_put('NavDestination', nav_dest)
+        self._safe_put('MapboxRoute', place_name)
+    except Exception:
+      pass
 
   # --- Safe param helpers (guard against uncompiled keys) ---
 

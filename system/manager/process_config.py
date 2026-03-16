@@ -184,7 +184,7 @@ procs += [
   PythonProcess("mapd_manager", "hoofpilot.mapd_v2.mapd_manager", always_run),
 
   # navigationd
-  PythonProcess("navigationd", "hoofpilot.navd.navigationd", only_onroad),
+  PythonProcess("navigationd", "hoofpilot.navd.navigationd", always_run),
 
   # locationd
   NativeProcess("locationd_llk", "hoofpilot/selfdrive/locationd", ["./locationd"], only_onroad),
