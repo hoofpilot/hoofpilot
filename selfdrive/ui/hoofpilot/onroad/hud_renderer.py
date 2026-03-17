@@ -43,6 +43,8 @@ class HudRendererSP(HudRenderer):
     self.speed_conv: float = CV.MS_TO_KPH if ui_state.is_metric else CV.MS_TO_MPH
 
   def _update_state(self) -> None:
+    self.nav_banner.update()
+
     if ui_state.sm.recv_frame["carState"] < ui_state.started_frame:
       return
 
@@ -57,7 +59,6 @@ class HudRendererSP(HudRenderer):
     self.smart_cruise_control_renderer.update()
     self.circular_alerts_renderer.update()
     self.speed_renderer.update()
-    self.nav_banner.update()
 
   def _get_icbm_status(self):
     if not self.pcm_cruise_speed and ui_state.sm['carControl'].enabled:
