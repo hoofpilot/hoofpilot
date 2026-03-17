@@ -26,7 +26,7 @@ _FAKE_BANNER_TEXT = 'Emory Street'
 _NAV_ASSETS = "../../hoofpilot/selfdrive/assets/navigation/"
 
 # ── Colours ─────────────────────────────────────────────────────────────────
-_BG        = rl.Color(26, 26, 26, 185)
+_BG        = rl.Color(26, 26, 26, 235)
 _WHITE     = rl.Color(255, 255, 255, 255)
 _GREY      = rl.Color(175, 180, 190, 200)
 _THEN_GREY = rl.Color(160, 165, 175, 180)
@@ -153,27 +153,25 @@ class NavBannerRenderer:
   def _draw_center(self, rect: rl.Rectangle, m) -> None:
     icon_area_w = _ICON_SIZE + _PAD * 2
 
-    # Maneuver icon — centred vertically in the banner
+    # Icon + distance grouped and vertically centred together
     icon = self._get_icon(m.type, m.modifier, _ICON_SIZE)
     icon_x = int(rect.x + _PAD)
-    icon_y = int(rect.y + (rect.height - _ICON_SIZE) / 2)
+    dist_text = self._format_dist(m.distance)
+    dist_sz = measure_text_cached(self._font_medium, dist_text, 38)
+    group_h = _ICON_SIZE + 8 + int(dist_sz.y)
+    icon_y = int(rect.y + (rect.height - group_h) / 2)
     if icon:
       rl.draw_texture_ex(icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, _WHITE)
 
-    # Distance label below icon
-    dist_text = self._format_dist(m.distance)
-    dist_sz = measure_text_cached(self._font_medium, dist_text, 38)
     dist_x = int(icon_x + (_ICON_SIZE - dist_sz.x) / 2)
     dist_y = icon_y + _ICON_SIZE + 8
     rl.draw_text_ex(self._font_medium, dist_text, rl.Vector2(dist_x, dist_y), 38, 0, _GREY)
 
-    # Street / instruction name
+    # Street name — large, bold, vertically centred to the right of the icon column
     street = self._banner_text or m.instruction or ''
     avail_w = rect.width - icon_area_w - _PAD
-
-    street_sz = 54
+    street_sz = 72
     sz = measure_text_cached(self._font_bold, street, street_sz)
-    # Truncate if needed
     while sz.x > avail_w and len(street) > 3:
       street = street[:-1]
       sz = measure_text_cached(self._font_bold, street + '\u2026', street_sz)
@@ -186,15 +184,17 @@ class NavBannerRenderer:
     rl.draw_text_ex(self._font_bold, street, rl.Vector2(text_x, text_y), street_sz, 0, _WHITE)
 
   def _draw_then(self, rect: rl.Rectangle, m) -> None:
-    # "Then" label near the top, icon just below
+    # "Then" + icon centred as a group
     then_sz = measure_text_cached(self._font_medium, 'Then', 34)
-    then_y  = int(rect.y + 18)
-    then_x  = int(rect.x + (rect.width - then_sz.x) / 2)
-    rl.draw_text_ex(self._font_medium, 'Then', rl.Vector2(then_x, then_y), 34, 0, _THEN_GREY)
-
-    # Next maneuver icon below the label
     icon = self._get_icon(m.type, m.modifier, _ICON_THEN_SIZE)
+    gap = 8
+    group_h = int(then_sz.y) + gap + _ICON_THEN_SIZE
+    group_y = int(rect.y + (rect.height - group_h) / 2)
+
+    then_x = int(rect.x + (rect.width - then_sz.x) / 2)
+    rl.draw_text_ex(self._font_medium, 'Then', rl.Vector2(then_x, group_y), 34, 0, _THEN_GREY)
+
     if icon:
       icon_x = int(rect.x + (rect.width - _ICON_THEN_SIZE) / 2)
-      icon_y = then_y + int(then_sz.y) + 8
+      icon_y = group_y + int(then_sz.y) + gap
       rl.draw_texture_ex(icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, _WHITE)
