@@ -33,14 +33,14 @@ _THEN_GREY = rl.Color(160, 165, 175, 180)
 
 # ── Layout ───────────────────────────────────────────────────────────────────
 _BANNER_Y_OFFSET = 60    # from rect.y (matches set-speed box top + 20 px)
-_BANNER_H        = 216   # same height as the white speed-limit sign
+_BANNER_H        = 288   # 216 * 1.33
 _SECTION_RADIUS  = 0.35  # same corner radius as the speed-limit signs
-_CENTER_W        = 620   # width of the main maneuver section
-_THEN_W          = 185   # width of the "Then" preview section
+_CENTER_W        = 825   # 620 * 1.33
+_THEN_W          = 246   # 185 * 1.33
 _SECTION_GAP     = 10    # gap between centre and "then"
-_ICON_SIZE       = 95    # maneuver icon in center section
-_ICON_THEN_SIZE  = 62    # maneuver icon in "then" section
-_PAD             = 18    # inner horizontal padding
+_ICON_SIZE       = 126   # 95 * 1.33
+_ICON_THEN_SIZE  = 82    # 62 * 1.33
+_PAD             = 24    # inner horizontal padding
 
 
 def _icon_path(type_: str, modifier: str) -> str:
@@ -153,19 +153,18 @@ class NavBannerRenderer:
   def _draw_center(self, rect: rl.Rectangle, m) -> None:
     icon_area_w = _ICON_SIZE + _PAD * 2
 
-    # Maneuver icon — vertically center the icon+distance group
+    # Maneuver icon — centred vertically in the banner
     icon = self._get_icon(m.type, m.modifier, _ICON_SIZE)
     icon_x = int(rect.x + _PAD)
-    dist_text = self._format_dist(m.distance)
-    dist_sz = measure_text_cached(self._font_medium, dist_text, 38)
-    group_h = _ICON_SIZE + 6 + int(dist_sz.y)
-    icon_y = int(rect.y + (rect.height - group_h) / 2)
+    icon_y = int(rect.y + (rect.height - _ICON_SIZE) / 2)
     if icon:
       rl.draw_texture_ex(icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, _WHITE)
 
     # Distance label below icon
+    dist_text = self._format_dist(m.distance)
+    dist_sz = measure_text_cached(self._font_medium, dist_text, 38)
     dist_x = int(icon_x + (_ICON_SIZE - dist_sz.x) / 2)
-    dist_y = icon_y + _ICON_SIZE + 6
+    dist_y = icon_y + _ICON_SIZE + 8
     rl.draw_text_ex(self._font_medium, dist_text, rl.Vector2(dist_x, dist_y), 38, 0, _GREY)
 
     # Street / instruction name

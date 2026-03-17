@@ -78,11 +78,6 @@ class HudRendererSP(HudRenderer):
     x = rect.x + 60 + (UI_CONFIG.set_speed_width_imperial - set_speed_width) // 2
     y = rect.y + 45
 
-    # ── Nav active: taller combined box (current speed + divider + MAX/cruise) ──
-    _NAV_TOP_H   = 194   # 216 * 0.9 — top section 10% smaller than white sign
-    _NAV_TOTAL_H = 360   # total; bottom section = 166 px
-    _MAX_GREEN   = rl.Color(72, 205, 110, 255)
-
     max_color = COLORS.GREY
     set_speed_color = COLORS.DARK_GREY
     if self.is_cruise_set:
@@ -94,66 +89,36 @@ class HudRendererSP(HudRenderer):
       elif ui_state.status == UIStatus.OVERRIDE:
         max_color = COLORS.OVERRIDE
 
-    if self.nav_banner.is_active:
-      nav_w = set_speed_width + 22  # a little wider to reduce narrow appearance
-      nav_x = x - (nav_w - set_speed_width) // 2  # keep centred over original position
-      set_speed_rect = rl.Rectangle(nav_x, y, nav_w, _NAV_TOTAL_H)
-      rl.draw_rectangle_rounded(set_speed_rect, 0.35, 10, COLORS.BLACK_TRANSLUCENT)
-      rl.draw_rectangle_rounded_lines_ex(set_speed_rect, 0.35, 10, 6, COLORS.BORDER_TRANSLUCENT)
+    set_speed_rect = rl.Rectangle(x, y, set_speed_width, UI_CONFIG.set_speed_height)
+    rl.draw_rectangle_rounded(set_speed_rect, 0.35, 10, COLORS.BLACK_TRANSLUCENT)
+    rl.draw_rectangle_rounded_lines_ex(set_speed_rect, 0.35, 10, 6, COLORS.BORDER_TRANSLUCENT)
 
-      unit_text = tr("km/h") if ui_state.is_metric else tr("mph")
-      cur_speed = self.speed_renderer.speed
+    max_str_size = 60 if self.show_icbm_status else 40
+    max_str_y = 15 if self.show_icbm_status else 27
 
-      cur_str = str(round(cur_speed))
-      cur_sz = measure_text_cached(self._font_bold, cur_str, FONT_SIZES.set_speed)
-      cur_x = nav_x + (nav_w - cur_sz.x) / 2
-      rl.draw_text_ex(self._font_bold, cur_str, rl.Vector2(cur_x, y + 14), FONT_SIZES.set_speed, 0, COLORS.WHITE)
+    max_text = str(round(self.speed_cluster)) if self.show_icbm_status else tr("MAX")
+    max_text_width = measure_text_cached(self._font_semi_bold, max_text, max_str_size).x
+    rl.draw_text_ex(
+      self._font_semi_bold,
+      max_text,
+      rl.Vector2(x + (set_speed_width - max_text_width) / 2, y + max_str_y),
+      max_str_size,
+      0,
+      max_color,
+    )
 
-      unit_sz = measure_text_cached(self._font_semi_bold, unit_text, 32)
-      rl.draw_text_ex(self._font_semi_bold, unit_text, rl.Vector2(nav_x + (nav_w - unit_sz.x) / 2, y + 134), 32, 0, COLORS.WHITE_TRANSLUCENT)
-
-      div_y = int(y + _NAV_TOP_H)
-      rl.draw_line(int(nav_x + 12), div_y, int(nav_x + nav_w - 12), div_y, rl.Color(255, 255, 255, 40))
-
-      max_text = tr("MAX")
-      max_sz = measure_text_cached(self._font_semi_bold, max_text, FONT_SIZES.max_speed)
-      rl.draw_text_ex(self._font_semi_bold, max_text, rl.Vector2(nav_x + (nav_w - max_sz.x) / 2, y + _NAV_TOP_H + 12), FONT_SIZES.max_speed, 0, _MAX_GREEN)
-
-      set_speed_text = CRUISE_DISABLED_CHAR if not self.is_cruise_set else str(round(self.set_speed))
-      ss_sz = measure_text_cached(self._font_bold, set_speed_text, FONT_SIZES.set_speed)
-      rl.draw_text_ex(self._font_bold, set_speed_text, rl.Vector2(nav_x + (nav_w - ss_sz.x) / 2, y + _NAV_TOP_H + 64), FONT_SIZES.set_speed, 0, set_speed_color)
-    else:
-      set_speed_rect = rl.Rectangle(x, y, set_speed_width, UI_CONFIG.set_speed_height)
-      rl.draw_rectangle_rounded(set_speed_rect, 0.35, 10, COLORS.BLACK_TRANSLUCENT)
-      rl.draw_rectangle_rounded_lines_ex(set_speed_rect, 0.35, 10, 6, COLORS.BORDER_TRANSLUCENT)
-      max_str_size = 60 if self.show_icbm_status else 40
-      max_str_y = 15 if self.show_icbm_status else 27
-
-      max_text = str(round(self.speed_cluster)) if self.show_icbm_status else tr("MAX")
-      max_text_width = measure_text_cached(self._font_semi_bold, max_text, max_str_size).x
-      rl.draw_text_ex(
-        self._font_semi_bold,
-        max_text,
-        rl.Vector2(x + (set_speed_width - max_text_width) / 2, y + max_str_y),
-        max_str_size,
-        0,
-        max_color,
-      )
-
-      set_speed_text = CRUISE_DISABLED_CHAR if not self.is_cruise_set else str(round(self.set_speed))
-      speed_text_width = measure_text_cached(self._font_bold, set_speed_text, FONT_SIZES.set_speed).x
-      rl.draw_text_ex(
-        self._font_bold,
-        set_speed_text,
-        rl.Vector2(x + (set_speed_width - speed_text_width) / 2, y + 77),
-        FONT_SIZES.set_speed,
-        0,
-        set_speed_color,
-      )
+    set_speed_text = CRUISE_DISABLED_CHAR if not self.is_cruise_set else str(round(self.set_speed))
+    speed_text_width = measure_text_cached(self._font_bold, set_speed_text, FONT_SIZES.set_speed).x
+    rl.draw_text_ex(
+      self._font_bold,
+      set_speed_text,
+      rl.Vector2(x + (set_speed_width - speed_text_width) / 2, y + 81),
+      FONT_SIZES.set_speed,
+      0,
+      set_speed_color,
+    )
 
   def _draw_current_speed(self, rect: rl.Rectangle) -> None:
-    if self.nav_banner.is_active:
-      return
     self.speed_renderer.render(rect)
 
   def _render(self, rect: rl.Rectangle) -> None:
