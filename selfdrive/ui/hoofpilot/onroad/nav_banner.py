@@ -42,7 +42,7 @@ _ICON_SIZE       = 126   # maneuver icon
 _ICON_THEN_SIZE  = 126   # same as _ICON_SIZE
 _PAD             = 24    # inner horizontal padding
 # Clearance zones so the banner doesn't overlap the sidebar
-_SIGN_CLEAR_X    = 500   # left clear: right edge of speed-limit signs + gap
+_SIGN_CLEAR_X    = 484   # left clear: right edge of metric speed-limit sign (exact)
 _BTN_CLEAR_X     = 222   # right clear: exp-mode button (192) + border (30)
 
 
@@ -101,16 +101,21 @@ class NavBannerRenderer:
 
     y = rect.y + _BANNER_Y_OFFSET
     total_w = _CENTER_W + _SECTION_GAP + _THEN_W
-    avail_x = rect.x + _SIGN_CLEAR_X
-    avail_w = rect.width - _SIGN_CLEAR_X - _BTN_CLEAR_X
-    cx = avail_x + (avail_w - total_w) / 2
+    if rect.x > 0:
+      # Sidebar is open — centre between the speed-limit signs and the exp button
+      avail_x = rect.x + _SIGN_CLEAR_X
+      avail_w = rect.width - _SIGN_CLEAR_X - _BTN_CLEAR_X
+      cx = avail_x + (avail_w - total_w) / 2
+    else:
+      # Sidebar closed — centre on the full screen width
+      cx = rect.x + (rect.width - total_w) / 2
 
     # ── Single combined box ─────────────────────────────────────────────────
     banner_rect = rl.Rectangle(cx, y, total_w, _BANNER_H)
     rl.draw_rectangle_rounded(banner_rect, _SECTION_RADIUS, 10, _BG)
 
-    # Vertical divider between centre and "Then"
-    div_x = int(cx + _CENTER_W + _SECTION_GAP / 2)
+    # Vertical divider between centre and "Then" — nudged slightly right
+    div_x = int(cx + _CENTER_W + _SECTION_GAP / 2 + 8)
     rl.draw_line(div_x, int(y + 16), div_x, int(y + _BANNER_H - 16), rl.Color(255, 255, 255, 40))
 
     # ── Centre section content ──────────────────────────────────────────────
