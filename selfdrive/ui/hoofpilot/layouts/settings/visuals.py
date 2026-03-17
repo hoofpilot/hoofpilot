@@ -28,12 +28,6 @@ class VisualsLayout(Widget):
 
   def _initialize_items(self):
     self._toggle_defs = {
-      "BlindSpot": (
-        lambda: tr("Show Blind Spot Warnings"),
-        tr("Enabling this will display warnings when a vehicle is detected in your " +
-           "blind spot as long as your car has BSM supported."),
-        None,
-      ),
       "TorqueBar": (
         lambda: tr("Steering Arc"),
         tr("Display steering arc on the driving screen when lateral control is enabled."),
@@ -80,11 +74,6 @@ class VisualsLayout(Widget):
       "HideVEgoUI": (
         lambda: tr("Speedometer: Hide from Onroad Screen"),
         tr("When enabled, the speedometer on the onroad screen is not displayed."),
-        None,
-      ),
-      "ShowTurnSignals": (
-        lambda: tr("Display Turn Signals"),
-        tr("When enabled, visual turn indicators are drawn on the HUD."),
         None,
       ),
       "RocketFuel": (
