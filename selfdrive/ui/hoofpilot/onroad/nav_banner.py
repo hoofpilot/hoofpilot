@@ -26,21 +26,20 @@ _FAKE_BANNER_TEXT = 'Emory Street'
 _NAV_ASSETS = "../../hoofpilot/selfdrive/assets/navigation/"
 
 # ── Colours ─────────────────────────────────────────────────────────────────
-_BG        = rl.Color(26, 26, 26, 220)
+_BG        = rl.Color(12, 12, 12, 248)
 _WHITE     = rl.Color(255, 255, 255, 255)
 _GREY      = rl.Color(175, 180, 190, 200)
 _THEN_GREY = rl.Color(160, 165, 175, 180)
 
 # ── Layout ───────────────────────────────────────────────────────────────────
-_BANNER_Y_OFFSET = 40    # from rect.y — aligns with the set-speed box top
-_BANNER_H        = 130   # banner height in pixels
-_CENTER_X_START  = 460   # left edge of banner (clears speed-limit sign)
-_SECTION_RADIUS  = 0.14  # rounded-rect corner radius
+_BANNER_Y_OFFSET = 60    # from rect.y (matches set-speed box top + 20 px)
+_BANNER_H        = 216   # same height as the white speed-limit sign
+_SECTION_RADIUS  = 0.35  # same corner radius as the speed-limit signs
 _CENTER_W        = 620   # width of the main maneuver section
 _THEN_W          = 185   # width of the "Then" preview section
 _SECTION_GAP     = 10    # gap between centre and "then"
-_ICON_SIZE       = 80    # maneuver icon in center section
-_ICON_THEN_SIZE  = 50    # maneuver icon in "then" section
+_ICON_SIZE       = 95    # maneuver icon in center section
+_ICON_THEN_SIZE  = 62    # maneuver icon in "then" section
 _PAD             = 18    # inner horizontal padding
 
 
@@ -98,7 +97,8 @@ class NavBannerRenderer:
     m1 = self._maneuvers[1] if len(self._maneuvers) > 1 else None
 
     y = rect.y + _BANNER_Y_OFFSET
-    cx = rect.x + _CENTER_X_START
+    total_w = _CENTER_W + _SECTION_GAP + _THEN_W
+    cx = rect.x + (rect.width - total_w) / 2
 
     # ── Center section ─────────────────────────────────────────────────────
     center_rect = rl.Rectangle(cx, y, _CENTER_W, _BANNER_H)
@@ -147,18 +147,19 @@ class NavBannerRenderer:
   def _draw_center(self, rect: rl.Rectangle, m) -> None:
     icon_area_w = _ICON_SIZE + _PAD * 2
 
-    # Maneuver icon
+    # Maneuver icon — vertically center the icon+distance group
     icon = self._get_icon(m.type, m.modifier, _ICON_SIZE)
     icon_x = int(rect.x + _PAD)
-    icon_y = int(rect.y + (rect.height - _ICON_SIZE) / 2) - 10
+    dist_text = self._format_dist(m.distance)
+    dist_sz = measure_text_cached(self._font_medium, dist_text, 28)
+    group_h = _ICON_SIZE + 6 + int(dist_sz.y)
+    icon_y = int(rect.y + (rect.height - group_h) / 2)
     if icon:
       rl.draw_texture_ex(icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, _WHITE)
 
     # Distance label below icon
-    dist_text = self._format_dist(m.distance)
-    dist_sz = measure_text_cached(self._font_medium, dist_text, 28)
     dist_x = int(icon_x + (_ICON_SIZE - dist_sz.x) / 2)
-    dist_y = int(icon_y + _ICON_SIZE + 6)
+    dist_y = icon_y + _ICON_SIZE + 6
     rl.draw_text_ex(self._font_medium, dist_text, rl.Vector2(dist_x, dist_y), 28, 0, _GREY)
 
     # Street / instruction name
@@ -180,15 +181,17 @@ class NavBannerRenderer:
     rl.draw_text_ex(self._font_bold, street, rl.Vector2(text_x, text_y), street_sz, 0, _WHITE)
 
   def _draw_then(self, rect: rl.Rectangle, m) -> None:
-    # "Then" label
+    # Vertically center the "Then" label + icon group
     then_sz = measure_text_cached(self._font_medium, 'Then', 26)
+    icon = self._get_icon(m.type, m.modifier, _ICON_THEN_SIZE)
+    group_h = int(then_sz.y) + 8 + _ICON_THEN_SIZE
+    then_y = int(rect.y + (rect.height - group_h) / 2)
+
     then_x = int(rect.x + (rect.width - then_sz.x) / 2)
-    then_y = int(rect.y + 16)
     rl.draw_text_ex(self._font_medium, 'Then', rl.Vector2(then_x, then_y), 26, 0, _THEN_GREY)
 
     # Next maneuver icon
-    icon = self._get_icon(m.type, m.modifier, _ICON_THEN_SIZE)
     if icon:
       icon_x = int(rect.x + (rect.width - _ICON_THEN_SIZE) / 2)
-      icon_y = int(then_y + then_sz.y + 8)
+      icon_y = then_y + int(then_sz.y) + 8
       rl.draw_texture_ex(icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, _WHITE)
