@@ -64,6 +64,9 @@ class NavDestinationWidget(Widget):
     self._box_hovered: int = -1
     self._box_rects: list[rl.Rectangle] = [rl.Rectangle(0, 0, 0, 0)] * 3
 
+    self._clear_btn_rect: rl.Rectangle = rl.Rectangle(0, 0, 0, 0)
+    self._clear_btn_hovered: bool = False
+
   # ── Lifecycle ──────────────────────────────────────────────────────────────
 
   def show_event(self):
@@ -166,12 +169,16 @@ class NavDestinationWidget(Widget):
     self._load_icons()
     try:
       self._box_hovered = -1
-      if not self._destination and rl.is_mouse_button_down(rl.MouseButton.MOUSE_BUTTON_LEFT):
+      self._clear_btn_hovered = False
+      if rl.is_mouse_button_down(rl.MouseButton.MOUSE_BUTTON_LEFT):
         mouse = rl.get_mouse_position()
-        for i, r in enumerate(self._box_rects):
-          if rl.check_collision_point_rec(mouse, r):
-            self._box_hovered = i
-            break
+        if self._destination and rl.check_collision_point_rec(mouse, self._clear_btn_rect):
+          self._clear_btn_hovered = True
+        elif not self._destination:
+          for i, r in enumerate(self._box_rects):
+            if rl.check_collision_point_rec(mouse, r):
+              self._box_hovered = i
+              break
     except Exception:
       pass
 
@@ -179,11 +186,18 @@ class NavDestinationWidget(Widget):
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
     if self._destination:
+      if rl.check_collision_point_rec(mouse_pos, self._clear_btn_rect):
+        self._clear_destination()
       return
     for i, r in enumerate(self._box_rects):
       if rl.check_collision_point_rec(mouse_pos, r):
         self._on_box_tap(i)
         break
+
+  def _clear_destination(self):
+    self._safe_remove("NavDestination")
+    self._safe_remove("MapboxRoute")
+    self._refresh_destination()
 
   def _on_box_tap(self, index: int):
     addr = self._shortcut_addrs[index]
@@ -217,6 +231,18 @@ class NavDestinationWidget(Widget):
     icon_y = int(cy + (PILL_H - ICON_SIZE) / 2)
     if self._dest_icon is not None:
       rl.draw_texture_ex(self._dest_icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
+
+    # ── Clear (X) button — only when a destination is active ──────────────
+    btn_r  = 22
+    btn_cx = int(pill_rect.x + pill_rect.width - 20 - btn_r)
+    btn_cy = int(pill_rect.y + PILL_H / 2)
+    if self._destination:
+      self._clear_btn_rect = rl.Rectangle(btn_cx - btn_r, btn_cy - btn_r, btn_r * 2, btn_r * 2)
+      btn_color = rl.Color(210, 55, 55, 255) if self._clear_btn_hovered else rl.Color(160, 40, 40, 200)
+      rl.draw_circle(btn_cx, btn_cy, btn_r, btn_color)
+      xs = 8
+      rl.draw_line_ex(rl.Vector2(btn_cx - xs, btn_cy - xs), rl.Vector2(btn_cx + xs, btn_cy + xs), 2.5, rl.WHITE)
+      rl.draw_line_ex(rl.Vector2(btn_cx + xs, btn_cy - xs), rl.Vector2(btn_cx - xs, btn_cy + xs), 2.5, rl.WHITE)
 
     text_x = icon_x + ICON_SIZE + 14
     if self._destination:

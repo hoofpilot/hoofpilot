@@ -7,8 +7,6 @@ See the LICENSE.md file in the root directory for more details.
 import json
 import os
 import threading
-from functools import partial
-
 import requests
 
 from openpilot.common.api import Api
@@ -17,12 +15,12 @@ from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets import DialogResult, Widget
 from openpilot.system.ui.widgets.confirm_dialog import alert_dialog
-from openpilot.system.ui.widgets.list_view import button_item, toggle_item
+from openpilot.system.ui.widgets.list_view import button_item
 from openpilot.system.ui.widgets.option_dialog import MultiOptionDialog
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
 from openpilot.system.ui.hoofpilot.widgets.input_dialog import InputDialogSP
-from openpilot.system.ui.hoofpilot.widgets.list_view import multiple_button_item_sp
+from openpilot.system.ui.hoofpilot.widgets.list_view import multiple_button_item_sp, toggle_item_sp
 
 KONIK_API_HOST = os.getenv('API_HOST', 'https://api.konik.ai')
 
@@ -40,21 +38,17 @@ class NavigationLayout(Widget):
       self._show_dest_input,
     )
 
-    self._show_nav_widget_item = toggle_item(
-      "Show navigation widget",
-      "Replace the driving mode selector on the homescreen with the current navigation destination",
+    self._show_nav_widget_item = toggle_item_sp(
+      title=lambda: "Show Navigation Widget",
+      description=lambda: "Replace the driving mode selector on the homescreen with a widget for navigation.",
       initial_state=self._safe_get_bool("ShowNavWidget"),
-      callback=self._on_show_nav_widget,
+      param="ShowNavWidget",
     )
 
     self.items = [
       self._route_item,
       button_item("Clear route", "Clear", "", self._clear_route),
       multiple_button_item_sp("Favorites", "Navigate to saved location", ["Home", "Work", "Favorites"], 0, callback=self._favorites_callback),
-      button_item("Set Home", "Set", "", partial(self._open_fav_dialog, "home", "Set Home Address")),
-      button_item("Set Work", "Set", "", partial(self._open_fav_dialog, "work", "Set Work Address")),
-      button_item("Add Favorite", "Add", "Add a new favorite destination", self._add_fav),
-      button_item("Remove Favorite", "Remove", "Remove a saved favorite", self._remove_fav),
       self._show_nav_widget_item,
     ]
     self._scroller = Scroller(self.items, line_separator=True, spacing=0)
@@ -123,12 +117,6 @@ class NavigationLayout(Widget):
     except Exception:
       return default
 
-  def _on_show_nav_widget(self, state: bool):
-    try:
-      self._params.put_bool("ShowNavWidget", state)
-    except Exception:
-      pass
-
   def _safe_put(self, key, value):
     try:
       self._params.put(key, value)
@@ -173,22 +161,6 @@ class NavigationLayout(Widget):
 
   # --- Favorites management ---
 
-  def _handle_save_fav(self, key, is_fav, res, text):
-    if res == DialogResult.CONFIRM and text:
-      favs = self._favs
-      (favs.setdefault("favorites", {}) if is_fav else favs)[key] = text
-      self._save_favs(favs)
-
-  def _open_fav_dialog(self, key, title):
-    InputDialogSP(title, current_text=self._favs.get(key, ""), callback=partial(self._handle_save_fav, key, False)).show()
-
-  def _add_fav_name_cb(self, res, name):
-    if res == DialogResult.CONFIRM and name:
-      InputDialogSP(f"Set address for '{name}'", "", callback=partial(self._handle_save_fav, name, True), min_text_size=1).show()
-
-  def _add_fav(self):
-    InputDialogSP("Favorite name", "", callback=self._add_fav_name_cb, min_text_size=1).show()
-
   def _set_mapbox_route_cb(self, favorites, selection):
     self._safe_put("MapboxRoute", favorites[selection])
     self._safe_remove("NavDestination")
@@ -208,12 +180,6 @@ class NavigationLayout(Widget):
     favs = self._favs
     if favs.get("favorites", {}).pop(selection, None):
       self._save_favs(favs)
-
-  def _remove_fav(self):
-    if favorites := self._favs.get("favorites"):
-      self._show_list_dialog(tr("Remove Favorite"), list(favorites.keys()), self._remove_fav_cb)
-    else:
-      gui_app.set_modal_overlay(alert_dialog(tr("No custom favorites to remove")))
 
   def _list_dialog_cb(self, callback, res):
     if res == DialogResult.CONFIRM and self._dialog.selection:
