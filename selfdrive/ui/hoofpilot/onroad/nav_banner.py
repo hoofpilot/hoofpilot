@@ -96,8 +96,8 @@ class NavBannerRenderer:
     m0 = self._maneuvers[0]
     m1 = self._maneuvers[1] if len(self._maneuvers) > 1 else None
 
-    # Hide when sidebar is open
-    if rect.x > 0:
+    # Hide when sidebar is open (sidebar adds 300px to rect.x, border alone = 30)
+    if rect.x > 30:
       return
 
     y = rect.y + _BANNER_Y_OFFSET

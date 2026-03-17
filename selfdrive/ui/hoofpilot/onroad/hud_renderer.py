@@ -89,7 +89,7 @@ class HudRendererSP(HudRenderer):
       elif ui_state.status == UIStatus.OVERRIDE:
         max_color = COLORS.OVERRIDE
 
-    if self.nav_banner.is_active and rect.x == 0:
+    if self.nav_banner.is_active and rect.x <= 30:
       # Combined nav box: current speed (top) + divider + MAX + cruise (bottom)
       _NAV_TOP_H   = 194   # top section height
       _NAV_TOTAL_H = 356   # total box height
@@ -147,7 +147,7 @@ class HudRendererSP(HudRenderer):
       )
 
   def _draw_current_speed(self, rect: rl.Rectangle) -> None:
-    if self.nav_banner.is_active and rect.x == 0:
+    if self.nav_banner.is_active and rect.x <= 30:
       return
     self.speed_renderer.render(rect)
 
