@@ -41,6 +41,9 @@ _SECTION_GAP     = 10    # gap between centre and "then"
 _ICON_SIZE       = 126   # maneuver icon
 _ICON_THEN_SIZE  = 126   # same as _ICON_SIZE
 _PAD             = 24    # inner horizontal padding
+# Clearance zones so the banner doesn't overlap the sidebar
+_SIGN_CLEAR_X    = 484   # left clear: right edge of metric speed-limit sign (exact)
+_BTN_CLEAR_X     = 222   # right clear: exp-mode button (192) + border (30)
 
 
 def _icon_path(type_: str, modifier: str) -> str:
@@ -96,13 +99,16 @@ class NavBannerRenderer:
     m0 = self._maneuvers[0]
     m1 = self._maneuvers[1] if len(self._maneuvers) > 1 else None
 
-    if rect.x > 0:
-      # Sidebar is open — hide the banner entirely
-      return
-
     y = rect.y + _BANNER_Y_OFFSET
     total_w = _CENTER_W + _SECTION_GAP + _THEN_W
-    cx = rect.x + (rect.width - total_w) / 2
+    if rect.x > 0:
+      # Sidebar is open — centre between the speed-limit signs and the exp button
+      avail_x = rect.x + _SIGN_CLEAR_X
+      avail_w = rect.width - _SIGN_CLEAR_X - _BTN_CLEAR_X
+      cx = avail_x + (avail_w - total_w) / 2
+    else:
+      # Sidebar closed — centre on the full screen width
+      cx = rect.x + (rect.width - total_w) / 2
 
     # ── Single combined box ─────────────────────────────────────────────────
     banner_rect = rl.Rectangle(cx, y, total_w, _BANNER_H)
