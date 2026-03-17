@@ -249,6 +249,8 @@ class NavDestinationWidget(Widget):
       if self._destination:
         if i < len(maneuvers):
           self._draw_maneuver_row(br, maneuvers[i], font, bold_font)
+        elif i == 0 and not maneuvers:
+          self._draw_waiting_gps_row(br, font)
       else:
         self._draw_shortcut_row(br, i, font, bold_font)
 
@@ -287,6 +289,13 @@ class NavDestinationWidget(Widget):
     else:
       label_y = int(rect.y + (rect.height - label_sz.y) / 2)
       rl.draw_text_ex(bold_font, label, rl.Vector2(text_x, label_y), 46, 0, BOX_VALUE_COLOR)
+
+  def _draw_waiting_gps_row(self, rect: rl.Rectangle, font):
+    text = "Waiting for GPS…"
+    sz = measure_text_cached(font, text, 36)
+    tx = int(rect.x + 20)
+    ty = int(rect.y + (rect.height - sz.y) / 2)
+    rl.draw_text_ex(font, text, rl.Vector2(tx, ty), 36, 0, BOX_LABEL_COLOR)
 
   def _draw_maneuver_row(self, rect: rl.Rectangle, maneuver, font, bold_font):
     pad_x     = 20
