@@ -9,6 +9,8 @@ from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 
+from openpilot.selfdrive.ui.hoofpilot.layouts.sidebar import SidebarSP
+
 SIDEBAR_WIDTH = 300
 METRIC_HEIGHT = 126
 METRIC_WIDTH = 240
@@ -62,15 +64,16 @@ class MetricData:
     self.color = color
 
 
-class Sidebar(Widget):
+class Sidebar(Widget, SidebarSP):
   def __init__(self):
     Widget.__init__(self)
+    SidebarSP.__init__(self)
     self._net_type = NETWORK_TYPES.get(NetworkType.none)
     self._net_strength = 0
 
     self._temp_status = MetricData(tr_noop("TEMP"), tr_noop("GOOD"), Colors.GOOD)
     self._panda_status = MetricData(tr_noop("VEHICLE"), tr_noop("ONLINE"), Colors.GOOD)
-    self._connect_status = MetricData(tr_noop("STABLE"), tr_noop("OFFLINE"), Colors.WARNING)
+    self._connect_status = MetricData(tr_noop("CONNECT"), tr_noop("OFFLINE"), Colors.WARNING)
     self._recording_audio = False
 
     self._home_img = gui_app.texture("images/button_home.png", HOME_BTN.width, HOME_BTN.height)
@@ -112,6 +115,7 @@ class Sidebar(Widget):
     self._update_temperature_status(device_state)
     self._update_connection_status(device_state)
     self._update_panda_status()
+    SidebarSP._update_sunnylink_status(self)
 
   def _update_network_status(self, device_state):
     self._net_type = NETWORK_TYPES.get(device_state.networkType.raw, tr_noop("Unknown"))
@@ -131,11 +135,11 @@ class Sidebar(Widget):
   def _update_connection_status(self, device_state):
     last_ping = device_state.lastAthenaPingTime
     if last_ping == 0:
-      self._connect_status.update(tr_noop("STABLE"), tr_noop("OFFLINE"), Colors.WARNING)
+      self._connect_status.update(tr_noop("CONNECT"), tr_noop("OFFLINE"), Colors.WARNING)
     elif time.monotonic_ns() - last_ping < 80_000_000_000:  # 80 seconds in nanoseconds
-      self._connect_status.update(tr_noop("STABLE"), tr_noop("ONLINE"), Colors.GOOD)
+      self._connect_status.update(tr_noop("CONNECT"), tr_noop("ONLINE"), Colors.GOOD)
     else:
-      self._connect_status.update(tr_noop("STABLE"), tr_noop("ERROR"), Colors.DANGER)
+      self._connect_status.update(tr_noop("CONNECT"), tr_noop("ERROR"), Colors.DANGER)
 
   def _update_panda_status(self):
     if ui_state.panda_type == log.PandaState.PandaType.unknown:
@@ -200,6 +204,13 @@ class Sidebar(Widget):
     rl.draw_text_ex(self._font_regular, tr(self._net_type), text_pos, FONT_SIZE, 0, Colors.WHITE)
 
   def _draw_metrics(self, rect: rl.Rectangle):
+    if gui_app.sunnypilot_ui():
+      metrics, start_y, spacing = SidebarSP._draw_metrics_w_sunnylink(self, rect, self._temp_status, self._panda_status, self._connect_status)
+      for idx, metric in enumerate(metrics):
+        self._draw_metric(rect, metric, start_y + idx * spacing)
+
+      return
+
     metrics = [(self._temp_status, 338), (self._panda_status, 496), (self._connect_status, 654)]
 
     for metric, y_offset in metrics:

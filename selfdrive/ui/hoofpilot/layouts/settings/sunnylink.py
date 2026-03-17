@@ -1,14 +1,14 @@
 """
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
+Copyright (c) 2021-, Haibin Wen, hoofpilot, and a number of other contributors.
 
-This file is part of sunnypilot and is licensed under the MIT License.
+This file is part of hoofpilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import pyray as rl
 from cereal import custom
 from openpilot.selfdrive.ui.hoofpilot.layouts.onboarding import SunnylinkConsentPage
 from openpilot.selfdrive.ui.ui_state import ui_state
-from hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
+from openpilot.hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
 from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp
@@ -28,7 +28,7 @@ class SunnylinkHeader(Widget):
     super().__init__()
 
     self._title = UnifiedLabel(
-      text="ðŸš€ sunnylink ðŸš€",
+      text="🚀 sunnylink 🚀",
       font_size=90,
       font_weight=FontWeight.AUDIOWIDE,
       text_color=rl.WHITE,
@@ -164,7 +164,7 @@ class SunnylinkLayout(Widget):
       title=tr("Sponsor Status"),
       button_text=tr("SPONSOR"),
       description=tr(
-        "Become a sponsor of sunnypilot to get early access to sunnylink features when they become available."),
+        "Become a sponsor of hoofpilot to get early access to sunnylink features when they become available."),
       callback=lambda: self._handle_pair_btn(False)
     )
     self._pair_btn = button_item_sp(
@@ -176,7 +176,7 @@ class SunnylinkLayout(Widget):
     )
     self._sunnylink_uploader_toggle = toggle_item_sp(
       title=tr("Enable sunnylink uploader (infrastructure test)"),
-      description=tr("Enable sunnylink uploader to allow sunnypilot to upload your driving data to sunnypilot servers. ") +
+      description=tr("Enable sunnylink uploader to allow hoofpilot to upload your driving data to hoofpilot servers. ") +
                   tr("(Only for highest tiers, and does NOT bring ANY benefit to you yet. We are just testing data volume.)"),
       param="EnableSunnylinkUploader"
     )
@@ -215,21 +215,23 @@ class SunnylinkLayout(Widget):
   def _handle_pair_btn(self, sponsor_pairing: bool = False):
     sunnylink_dongle_id = self._get_sunnylink_dongle_id()
     if sunnylink_dongle_id == UNREGISTERED_SUNNYLINK_DONGLE_ID:
-      gui_app.set_modal_overlay(alert_dialog(message=tr("sunnylink Dongle ID not found. ") +
+      gui_app.push_widget(alert_dialog(message=tr("sunnylink Dongle ID not found. ") +
                                                      tr("This may be due to weak internet connection or sunnylink registration issue. ") +
                                                      tr("Please reboot and try again.")))
     elif not self._sunnylink_pairing_dialog:
       self._sunnylink_pairing_dialog = SunnylinkPairingDialog(sponsor_pairing)
-      gui_app.set_modal_overlay(self._sunnylink_pairing_dialog, callback=lambda result: setattr(self, '_sunnylink_pairing_dialog', None))
+      gui_app.push_widget(self._sunnylink_pairing_dialog)
 
   def _handle_backup_btn(self):
-    backup_dialog = ConfirmDialog(text=tr("Are you sure you want to backup your current sunnypilot settings?"), confirm_text="Backup")
-    gui_app.set_modal_overlay(backup_dialog, callback=self._backup_handler)
+    backup_dialog = ConfirmDialog(text=tr("Are you sure you want to backup your current hoofpilot settings?"), confirm_text="Backup",
+                                  callback=self._backup_handler)
+    gui_app.push_widget(backup_dialog)
 
   def _handle_restore_btn(self):
     self._restore_btn.set_enabled(False)
-    restore_dialog = ConfirmDialog(text=tr("Are you sure you want to restore the last backed up sunnypilot settings?"), confirm_text="Restore")
-    gui_app.set_modal_overlay(restore_dialog, callback=self._restore_handler)
+    restore_dialog = ConfirmDialog(text=tr("Are you sure you want to restore the last backed up hoofpilot settings?"),
+                                   confirm_text="Restore", callback=self._restore_handler)
+    gui_app.push_widget(restore_dialog)
 
   def _backup_handler(self, dialog_result: int):
     if dialog_result == DialogResult.CONFIRM:
@@ -269,7 +271,7 @@ class SunnylinkLayout(Widget):
             (backup_status == custom.BackupManagerSP.Status.idle and backup_progress == 100.0)):
         self._backup_in_progress = False
         dialog = alert_dialog(tr("Settings backup completed."))
-        gui_app.set_modal_overlay(dialog)
+        gui_app.push_widget(dialog)
         self._backup_btn.set_enabled(not ui_state.is_onroad())
 
     elif self._restore_in_progress:
@@ -286,13 +288,13 @@ class SunnylinkLayout(Widget):
         self._restore_btn.set_enabled(not ui_state.is_onroad())
         self._restore_btn.set_text(tr("Restore Failed"))
         dialog = alert_dialog(tr("Unable to restore the settings, try again later."))
-        gui_app.set_modal_overlay(dialog)
+        gui_app.push_widget(dialog)
 
       elif (restore_status == custom.BackupManagerSP.Status.completed or
             (restore_status == custom.BackupManagerSP.Status.idle and restore_progress == 100.0)):
         self._restore_in_progress = False
-        dialog = alert_dialog(tr("Settings restored. Confirm to restart the interface."))
-        gui_app.set_modal_overlay(dialog, callback=lambda: gui_app.request_close())
+        dialog = ConfirmDialog(tr("Settings restored. Confirm to restart the interface."), tr("OK"), cancel_text="", callback=lambda _: gui_app.request_close())
+        gui_app.push_widget(dialog)
 
     else:
       can_enable = self._sunnylink_enabled and not ui_state.is_onroad()
@@ -309,10 +311,10 @@ class SunnylinkLayout(Widget):
       def on_consent_done():
         enabled = ui_state.params.get_bool("SunnylinkEnabled")
         self._update_description(enabled)
-        gui_app.set_modal_overlay(None)
+        gui_app.pop_widget()
 
       sl_terms_dlg = SunnylinkConsentPage(done_callback=on_consent_done)
-      gui_app.set_modal_overlay(sl_terms_dlg)
+      gui_app.push_widget(sl_terms_dlg)
     else:
       ui_state.params.put_bool("SunnylinkEnabled", state)
       self._update_description(state)
@@ -323,7 +325,7 @@ class SunnylinkLayout(Widget):
         "Welcome back!! We're excited to see you've enabled sunnylink again!")
       color = rl.Color(0, 255, 0, 255)  # Green
     else:
-      description = ("ðŸ˜¢ " + tr("Not going to lie, it's sad to see you disabled sunnylink") +
+      description = ("😢 " + tr("Not going to lie, it's sad to see you disabled sunnylink") +
                      tr(", but we'll be here when you're ready to come back."))
       color = rl.Color(255, 165, 0, 255)  # Orange
     self._sunnylink_description.set_text(description)
@@ -340,7 +342,7 @@ class SunnylinkLayout(Widget):
     self._sunnylink_uploader_toggle.action_item.set_enabled(self._sunnylink_enabled)
     self.handle_backup_restore_progress()
 
-    sponsor_btn_text = tr("THANKS â™¥") if ui_state.sunnylink_state.is_sponsor() else tr("SPONSOR")
+    sponsor_btn_text = tr("THANKS ♥") if ui_state.sunnylink_state.is_sponsor() else tr("SPONSOR")
     tier_name = ui_state.sunnylink_state.get_sponsor_tier().name.capitalize() or tr("Not Sponsor")
     self._sponsor_btn.action_item.set_text(sponsor_btn_text)
     self._sponsor_btn.action_item.set_value(tier_name, ui_state.sunnylink_state.get_sponsor_tier_color())
@@ -355,6 +357,10 @@ class SunnylinkLayout(Widget):
 
   def show_event(self):
     super().show_event()
+    ui_state.sunnylink_state.set_settings_open(True)
     self._scroller.show_event()
     self._sunnylink_description.set_visible(False)
 
+  def hide_event(self):
+    super().hide_event()
+    ui_state.sunnylink_state.set_settings_open(False)

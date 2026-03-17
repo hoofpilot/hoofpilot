@@ -7,9 +7,9 @@ See the LICENSE.md file in the root directory for more details.
 from collections.abc import Callable
 import pyray as rl
 
-from opendbc.sunnypilot.car.tesla.values import TeslaFlagsSP
+from opendbc.hoofpilot.car.tesla.values import TeslaFlagsSP
 from openpilot.selfdrive.ui.ui_state import ui_state
-from hoofpilot.mads.helpers import MadsSteeringModeOnBrake
+from openpilot.hoofpilot.mads.helpers import MadsSteeringModeOnBrake
 from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.network import NavButton
@@ -135,4 +135,3 @@ class MadsSettingsLayout(Widget):
 
       self._steering_mode.action_item.set_enabled(True)
       self._steering_mode.action_item.set_enabled_buttons(None)
-

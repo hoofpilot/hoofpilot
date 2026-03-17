@@ -4,11 +4,10 @@ Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
-from parameterized import parameterized
-
+from openpilot.common.parameterized import parameterized
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper, LaneChangeState, LaneChangeDirection
-from hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeController, AutoLaneChangeMode, \
+from openpilot.hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeController, AutoLaneChangeMode, \
   AUTO_LANE_CHANGE_TIMER, ONE_SECOND_DELAY
 
 AUTO_LANE_CHANGE_TIMER_COMBOS = [
@@ -210,4 +209,3 @@ class TestAutoLaneChangeController:
 
     # Lane change should never be allowed
     assert not self.alc.auto_lane_change_allowed
-

@@ -4,6 +4,7 @@ Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
+
 import base64
 import json
 import requests
@@ -18,9 +19,9 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_version
 
 from cereal import messaging, custom
-from hoofpilot.sunnylink.api import SunnylinkApi
-from hoofpilot.sunnylink.backups.utils import decrypt_compressed_data, encrypt_compressed_data, SnakeCaseEncoder
-from hoofpilot.sunnylink.utils import get_param_as_byte, save_param_from_base64_encoded_string
+from openpilot.hoofpilot.sunnylink.api import SunnylinkApi
+from openpilot.hoofpilot.sunnylink.backups.utils import decrypt_compressed_data, encrypt_compressed_data, SnakeCaseEncoder
+from openpilot.hoofpilot.sunnylink.utils import get_param_as_byte, save_param_from_base64_encoded_string
 
 
 class OperationType(Enum):
@@ -283,4 +284,3 @@ def main():
 
 if __name__ == "__main__":
   main()
-

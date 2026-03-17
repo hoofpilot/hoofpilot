@@ -10,12 +10,12 @@ from opendbc.car import structs
 from opendbc.car.interfaces import CarInterfaceBase
 from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
-from hoofpilot.selfdrive.controls.lib.nnlc.helpers import get_nn_model_path
-from hoofpilot.selfdrive.controls.lib.speed_limit.helpers import set_speed_limit_assist_availability
+from openpilot.hoofpilot.selfdrive.controls.lib.nnlc.helpers import get_nn_model_path
+from openpilot.hoofpilot.selfdrive.controls.lib.speed_limit.helpers import set_speed_limit_assist_availability
 
 import openpilot.system.sentry as sentry
 
-from hoofpilot.sunnylink.statsd import STATSLOGSP
+from openpilot.hoofpilot.sunnylink.statsd import STATSLOGSP
 
 
 def log_fingerprint(CP: structs.CarParams) -> None:
@@ -106,7 +106,7 @@ def setup_interfaces(CI: CarInterfaceBase, params: Params = None) -> None:
     STATSLOGSP.raw('hoofpilot.car_params', CP.to_dict())
   except RuntimeError:
     pass  # to_dict fails on macOS due to library issues.
-  # STATSLOGSP.raw('hoofpilot_params.car_params_sp', CP_SP.to_dict()) # https://github.com/hoofpilot/opendbc/pull/361
+  # STATSLOGSP.raw('sunnypilot_params.car_params_sp', CP_SP.to_dict()) # https://github.com/hoofpilot/opendbc/pull/361
 
 
 def initialize_params(params) -> list[dict[str, Any]]:
@@ -131,7 +131,7 @@ def initialize_params(params) -> list[dict[str, Any]]:
   # toyota
   keys.extend([
     "ToyotaEnforceStockLongitudinal",
+    "ToyotaStopAndGoHack",
   ])
 
   return [{k: params.get(k, return_default=True)} for k in keys]
-

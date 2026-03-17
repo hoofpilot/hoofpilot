@@ -1,7 +1,7 @@
-from hoofpilot.models.helpers import get_active_bundle
-from hoofpilot.models.runners.model_runner import ModelRunner
-from hoofpilot.models.runners.tinygrad.tinygrad_runner import TinygradRunner, TinygradSplitRunner
-from hoofpilot.models.runners.constants import ModelType
+from openpilot.hoofpilot.models.helpers import get_active_bundle
+from openpilot.hoofpilot.models.runners.model_runner import ModelRunner
+from openpilot.hoofpilot.models.runners.tinygrad.tinygrad_runner import TinygradRunner, TinygradSplitRunner
+from openpilot.hoofpilot.models.runners.constants import ModelType
 
 
 def get_model_runner() -> ModelRunner:

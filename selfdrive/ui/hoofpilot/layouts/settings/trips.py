@@ -1,7 +1,7 @@
 """
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
+Copyright (c) 2021-, Haibin Wen, hoofpilot, and a number of other contributors.
 
-This file is part of sunnypilot and is licensed under the MIT License.
+This file is part of hoofpilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import requests
@@ -84,10 +84,7 @@ class TripsLayout(Widget):
 
     # Title
     title_font = gui_app.font(FontWeight.BOLD)
-    title_font_size = 50 * FONT_SCALE
-    title_size = measure_text_cached(title_font, title, title_font_size)
-    title_x = x + (width - title_size.x) / 2
-    rl.draw_text_ex(title_font, title, rl.Vector2(int(round(title_x)), y + 30), title_font_size, 0, rl.Color(200, 200, 200, 255))
+    rl.draw_text_ex(title_font, title, rl.Vector2(x + 60, y + 30), 50 * FONT_SCALE, 0, rl.Color(200, 200, 200, 255))
 
     # Internal content area
     # Center the content block (Icon + Value + Unit) vertically
@@ -150,5 +147,3 @@ class TripsLayout(Widget):
     y = self._render_stat_group(x, y, w, card_height, tr("ALL TIME"), all_time, is_metric)
     y += spacing
     y = self._render_stat_group(x, y, w, card_height, tr("PAST WEEK"), week, is_metric)
-
-    return -1

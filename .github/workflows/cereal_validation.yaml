@@ -27,12 +27,10 @@ jobs:
     name: Generate cereal validation artifacts
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
-      - run: |
-          sudo chmod +x tools/setup_dependencies.sh
-          ./tools/op.sh setup
+      - run: ./tools/op.sh setup
       - name: Build openpilot
         run: scons -j$(nproc) cereal
       - name: Generate the log file
@@ -55,20 +53,16 @@ jobs:
     runs-on: ubuntu-24.04
     needs: generate_cereal_artifact
     steps:
-      - name: Checkout hoofpilot
-        uses: actions/checkout@v4
+      - name: Checkout sunnypilot
+        uses: actions/checkout@v6
       - name: Checkout upstream openpilot
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: 'commaai/openpilot'
           path: openpilot
           submodules: true
           ref: "refs/heads/master"
-      - name: Setup upstream dependencies
-        working-directory: openpilot
-        run: |
-          sudo chmod +x tools/setup_dependencies.sh
-          ./tools/op.sh setup
+      - run: ./tools/op.sh setup
       - name: Build openpilot
         working-directory: openpilot
         run: scons -j$(nproc) cereal

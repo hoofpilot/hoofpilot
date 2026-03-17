@@ -145,4 +145,3 @@ class ChevronMetrics:
       d_rel_diff = abs(lead_one.dRel - lead_two.dRel) if has_lead_one else float('inf')
       if d_rel_diff > 3.0:
         self._draw_lead(lead_two, lead_vehicles[1], v_ego, rect)
-

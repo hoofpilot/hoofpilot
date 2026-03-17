@@ -31,7 +31,7 @@ class SunnylinkConsentPage(Widget):
         "highlight_primary": True
       },
       {
-        "text": tr("sunnylink is designed to be enabled as part of hoofpilot's core functionality. " +
+        "text": tr("sunnylink is designed to be enabled as part of sunnypilot's core functionality. " +
                    "If sunnylink is disabled, features such as settings management, remote monitoring, " +
                    "real-time dashboards will be unavailable."),
         "secondary_btn": tr("Back"),
@@ -96,8 +96,6 @@ class SunnylinkConsentPage(Widget):
       self._primary_btn.set_text(step_data["primary_btn"])
       self._primary_btn.render(rl.Rectangle(self._rect.x + 45 * 2 + btn_width, btn_y, btn_width, 160))
 
-    return -1
-
 
 class SunnylinkOnboarding:
   def __init__(self):
@@ -114,4 +112,3 @@ class SunnylinkOnboarding:
   def render(self, rect):
     if not self.consent_done:
       self.consent_page.render(rect)
-

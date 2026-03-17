@@ -9,10 +9,10 @@ import base64
 import pyray as rl
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.ui.mici.widgets.pairing_dialog import PairingDialog
-from hoofpilot.sunnylink.api import SunnylinkApi, UNREGISTERED_SUNNYLINK_DONGLE_ID, API_HOST
+from openpilot.hoofpilot.sunnylink.api import SunnylinkApi, UNREGISTERED_SUNNYLINK_DONGLE_ID, API_HOST
 from openpilot.system.ui.lib.application import FontWeight, gui_app
 from openpilot.system.ui.lib.multilang import tr
-from openpilot.system.ui.widgets import NavWidget
+from openpilot.system.ui.widgets.nav_widget import NavWidget
 from openpilot.system.ui.widgets.label import MiciLabel
 
 
@@ -22,7 +22,7 @@ class SunnylinkPairingDialog(PairingDialog):
   def __init__(self, sponsor_pairing: bool = False):
     PairingDialog.__init__(self)
     self._sponsor_pairing = sponsor_pairing
-    label_text = tr("pair with sunnylink") if sponsor_pairing else tr("become a hoofpilot sponsor")
+    label_text = tr("pair with sunnylink") if sponsor_pairing else tr("become a sunnypilot sponsor")
     self._pair_label = MiciLabel(label_text, 48, font_weight=FontWeight.BOLD,
                                  color=rl.Color(255, 255, 255, int(255 * 0.9)), line_height=40, wrap_text=True)
 
@@ -55,4 +55,3 @@ if __name__ == "__main__":
         break
   finally:
     del pairing
-

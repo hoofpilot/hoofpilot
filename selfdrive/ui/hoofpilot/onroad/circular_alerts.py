@@ -9,7 +9,7 @@ import pyray as rl
 from cereal import log
 from openpilot.selfdrive.ui import UI_BORDER_SIZE
 from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.selfdrive.ui.hoofpilot.onroad.developer_ui import DeveloperUiRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.developer_ui import DeveloperUiState
 from openpilot.system.ui.lib.application import gui_app, FontWeight, FONT_SCALE
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 
@@ -77,7 +77,7 @@ class CircularAlertsRenderer:
       return
 
     e2e_alert_size = 250
-    dev_ui_width_adjustment = 180 if ui_state.developer_ui in (DeveloperUiRenderer.DEV_UI_RIGHT, DeveloperUiRenderer.DEV_UI_BOTH) else 100
+    dev_ui_width_adjustment = 180 if ui_state.developer_ui in (DeveloperUiState.RIGHT, DeveloperUiState.BOTH) else 100
 
     x = rect.x + rect.width - e2e_alert_size - dev_ui_width_adjustment - (UI_BORDER_SIZE * 3)
     y = rect.y + rect.height / 2 + 20
@@ -138,4 +138,3 @@ class CircularAlertsRenderer:
         line_x = center.x - measure.x / 2
         rl.draw_text_ex(font, line, rl.Vector2(line_x, current_y), text_size, spacing, txt_color)
         current_y += text_size * FONT_SCALE
-

@@ -54,4 +54,3 @@ class RoadNameRenderer(Widget):
     sz = measure_text_cached(self.font_demi, text, 46)
     origin = rl.Vector2(road_rect.x + road_rect.width / 2 - sz.x / 2, road_rect.y + road_rect.height / 2 - sz.y / 2)
     rl.draw_text_ex(self.font_demi, text, origin, 46, 0, rl.Color(255, 255, 255, 200))
-

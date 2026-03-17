@@ -121,9 +121,6 @@ class DualButtonActionSP(DualButtonAction):
       left_rect.width = rect.width
 
     # Render buttons
-    enabled = _resolve_value(self.enabled)
-    self.left_button.set_enabled(enabled)
-    self.right_button.set_enabled(enabled)
     self.left_button.render(left_rect)
     self.right_button.render(right_rect)
 
@@ -412,4 +409,3 @@ class LineSeparatorSP(LineSeparator):
     rl.draw_line(int(self._rect.x) + LINE_PADDING, line_y,
                  int(self._rect.x + self._rect.width) - LINE_PADDING, line_y,
                  LINE_COLOR)
-

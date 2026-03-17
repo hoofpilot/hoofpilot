@@ -48,4 +48,3 @@ class RocketFuel:
 
     if hha > 0:
       rl.draw_rectangle(int(rect.x), int(rect.y + ra_y), int(wp), int(hha / 2.0), color)
-

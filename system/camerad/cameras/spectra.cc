@@ -274,7 +274,7 @@ int SpectraCamera::clear_req_queue() {
   return ret;
 }
 
-void SpectraCamera::camera_open(VisionIpcServer *v, cl_device_id device_id, cl_context ctx) {
+void SpectraCamera::camera_open(VisionIpcServer *v) {
   if (!openSensor()) {
     return;
   }
@@ -296,7 +296,7 @@ void SpectraCamera::camera_open(VisionIpcServer *v, cl_device_id device_id, cl_c
   linkDevices();
 
   LOGD("camera init %d", cc.camera_num);
-  buf.init(device_id, ctx, this, v, ife_buf_depth, cc.stream_type);
+  buf.init(this, v, ife_buf_depth, cc.stream_type);
   camera_map_bufs();
   clearAndRequeue(1);
 }
@@ -995,15 +995,14 @@ bool SpectraCamera::openSensor() {
   };
 
   // Figure out which sensor we have
-    if (!init_sensor_lambda(new AR0231) &&
-      !init_sensor_lambda(new OS04C10) &&
+  if (!init_sensor_lambda(new OS04C10) &&
       !init_sensor_lambda(new OX03C10)) {
     LOGE("** sensor %d FAILED bringup, disabling", cc.camera_num);
     enabled = false;
     return false;
   }
   LOGD("-- Probing sensor %d success", cc.camera_num);
-  
+
   // create session
   struct cam_req_mgr_session_info session_info = {};
   int ret = do_cam_control(m->video0_fd, CAM_REQ_MGR_CREATE_SESSION, &session_info, sizeof(session_info));

@@ -48,7 +48,7 @@ class Alert:
 
 # Pre-defined alert instances
 ALERT_STARTUP_PENDING = Alert(
-  text1=tr("hoofpilot Unavailable"),
+  text1=tr("sunnypilot Unavailable"),
   text2=tr("Waiting to start"),
   size=AlertSize.mid,
   status=AlertStatus.normal,
@@ -118,7 +118,7 @@ class AlertRenderer(Widget):
     alert = self.get_alert(ui_state.sm)
 
     if gui_app.sunnypilot_ui():
-      ui_state.onroad_brightness_handle_alerts(ui_state.started, alert)
+      ui_state.onroad_brightness_handle_alerts(ui_state, alert)
 
     if not alert:
       return

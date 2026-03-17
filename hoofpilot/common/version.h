@@ -1,1 +1,1 @@
-#define SUNNYPILOT_VERSION "Falabella"
+#define SUNNYPILOT_VERSION "2026.001.000"

@@ -8,7 +8,7 @@ import pyray as rl
 import time
 from dataclasses import dataclass
 from openpilot.selfdrive.ui.ui_state import ui_state
-from hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
+from openpilot.hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
 from openpilot.system.ui.lib.multilang import tr_noop
 
 
@@ -85,4 +85,3 @@ class SidebarSP:
     spacing = available_height / max(1, len(metrics) - 1)
 
     return metrics, start_y, spacing
-

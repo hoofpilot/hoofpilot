@@ -63,4 +63,3 @@ class SpeedLimitPolicyLayout(Widget):
   def show_event(self):
     self._scroller.show_event()
     self._speed_limit_policy.show_description(True)
-

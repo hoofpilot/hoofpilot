@@ -77,4 +77,3 @@ class RainbowPath:
   def draw_rainbow_path(self, rect, path):
     gradient = self.get_gradient()
     draw_polygon(rect, path.projected_points, gradient=gradient)
-

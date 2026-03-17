@@ -8,6 +8,7 @@ import os
 
 from openpilot.selfdrive.ui.layouts.settings.software import SoftwareLayout
 from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.system.hardware import HARDWARE
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.widgets import DialogResult
@@ -46,8 +47,8 @@ class SoftwareLayoutSP(SoftwareLayout):
       self.disable_updates_toggle.action_item.set_state(ui_state.params.get_bool("DisableUpdates"))
 
   def _on_disable_updates_toggled(self, enabled):
-    dialog = ConfirmDialog(tr("System reboot required for changes to take effect. Reboot now?"), tr("Reboot"))
-    gui_app.set_modal_overlay(dialog, callback=self._handle_reboot)
+    dialog = ConfirmDialog(tr("System reboot required for changes to take effect. Reboot now?"), tr("Reboot"), callback=self._handle_reboot)
+    gui_app.push_widget(dialog)
 
   def _on_select_branch(self):
     current_git_branch = ui_state.params.get("GitBranch") or ""
@@ -55,6 +56,10 @@ class SoftwareLayoutSP(SoftwareLayout):
     branches = [b for b in branches_str.split(",") if b]
     current_target = ui_state.params.get("UpdaterTargetBranch") or ""
     top_level_branches = [current_git_branch, "release-mici", "release-tizi", "staging", "dev", "master"]
+
+    if HARDWARE.get_device_type() == "tici":
+      top_level_branches = ["release-tici", "staging-tici"]
+      branches = [b for b in branches if b.endswith("-tici")]
 
     top_level_nodes = [TreeNode(b, {'display_name': b}) for b in top_level_branches if b in branches]
     remaining_branches = [b for b in branches if b not in top_level_branches]
@@ -79,7 +84,7 @@ class SoftwareLayoutSP(SoftwareLayout):
     self._branch_dialog = TreeOptionDialog(tr("Select a branch"), folders, current_target, "",
                                            on_exit=_on_branch_selected)
 
-    gui_app.set_modal_overlay(self._branch_dialog, callback=_on_branch_selected)
+    gui_app.push_widget(self._branch_dialog)
 
   def _update_state(self):
     super()._update_state()

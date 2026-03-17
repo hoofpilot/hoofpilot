@@ -38,7 +38,6 @@ jobs:
     - uses: actions/checkout@v6
       with:
         submodules: true
-        ref: ${{ github.sha }}
     - name: Getting LFS files
       uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e
       with:
@@ -47,10 +46,8 @@ jobs:
         command: git lfs pull
     - name: Build devel
       timeout-minutes: 1
-      run: ALLOW_WIPE_TARGET_DIR=1 TARGET_DIR=$STRIPPED_DIR release/build_stripped.sh
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
+      run: TARGET_DIR=$STRIPPED_DIR release/build_stripped.sh
+    - run: ./tools/op.sh setup
     - name: Build openpilot and run checks
       timeout-minutes: 30
       working-directory: ${{ env.STRIPPED_DIR }}
@@ -64,40 +61,34 @@ jobs:
       timeout-minutes: 3
       run: |
         if [ "${{ github.ref }}" != "refs/heads/master" ]; then
-          if ! git fetch --no-recurse-submodules origin master:refs/remotes/origin/master; then
-            echo "::warning::Failed to fetch origin/master for PR submodule diff. Continuing without PR-specific submodule path detection."
-          fi
+          git fetch  origin master:refs/remotes/origin/master
 
-          if git show-ref --verify --quiet refs/remotes/origin/master; then
-            SUBMODULE_PATHS=$(git diff origin/master HEAD --name-only | grep -E '^[^/]+$' | while read path; do
-              if git ls-files --stage "$path" | grep -q "^160000"; then
-                echo "$path"
-              fi
-            done | tr '\n' ' ')
-
-            if [ -n "$SUBMODULE_PATHS" ]; then
-              echo "Changed submodule paths: $SUBMODULE_PATHS"
-              export SUBMODULE_PATHS="$SUBMODULE_PATHS"
-              export CHECK_PR_REFS=true
+          SUBMODULE_PATHS=$(git diff origin/master HEAD --name-only | grep -E '^[^/]+$' | while read path; do
+            if git ls-files --stage "$path" | grep -q "^160000"; then
+              echo "$path"
             fi
-          else
-            echo "::warning::origin/master is unavailable. Skipping PR-specific submodule path detection."
+          done | tr '\n' ' ')
+
+          if [ -n "$SUBMODULE_PATHS" ]; then
+            echo "Changed submodule paths: $SUBMODULE_PATHS"
+            export SUBMODULE_PATHS="$SUBMODULE_PATHS"
+            export CHECK_PR_REFS=true
           fi
         fi
         release/check-submodules.sh
 
   build_mac:
     name: build macOS
-    if: false  # There'll be one day that this works. That day is not today.
     runs-on: ${{ ((github.repository == 'commaai/openpilot') && ((github.event_name != 'pull_request') || (github.event.pull_request.head.repo.full_name == 'commaai/openpilot'))) && 'namespace-profile-macos-8x14' || 'macos-latest' }}
     steps:
     - uses: actions/checkout@v6
       with:
         submodules: true
-        ref: ${{ github.sha }}
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
+    - name: Remove Homebrew from environment
+      run: |
+        FILTERED=$(echo "$PATH" | tr ':' '\n' | grep -v '/opt/homebrew' | tr '\n' ':')
+        echo "PATH=${FILTERED}/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin" >> $GITHUB_ENV
+    - run: ./tools/op.sh setup
     - name: Building openpilot
       run: scons
 
@@ -109,16 +100,11 @@ jobs:
       (github.event.pull_request.head.repo.full_name == 'commaai/openpilot'))
       && fromJSON('["namespace-profile-amd64-8x16"]')
       || fromJSON('["ubuntu-24.04"]') }}
-    env:
-      PYTHONWARNINGS: default
     steps:
     - uses: actions/checkout@v6
       with:
         submodules: true
-        ref: ${{ github.sha }}
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
+    - run: ./tools/op.sh setup
     - name: Static analysis
       timeout-minutes: 1
       run: scripts/lint/lint.sh
@@ -135,10 +121,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         submodules: true
-        ref: ${{ github.sha }}
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
+    - run: ./tools/op.sh setup
     - name: Build openpilot
       run: scons -j$(nproc)
     - name: Run unit tests
@@ -162,10 +145,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         submodules: true
-        ref: ${{ github.sha }}
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
+    - run: ./tools/op.sh setup
     - name: Build openpilot
       run: scons -j$(nproc)
     - name: Run replay
@@ -182,6 +162,32 @@ jobs:
       with:
         name: process_replay_diff.txt
         path: selfdrive/test/process_replay/diff.txt
+    - name: Checkout ci-artifacts
+      if: github.repository == 'commaai/openpilot' && github.ref == 'refs/heads/master'
+      uses: actions/checkout@v4
+      with:
+        repository: commaai/ci-artifacts
+        ssh-key: ${{ secrets.CI_ARTIFACTS_DEPLOY_KEY }}
+        path: ${{ github.workspace }}/ci-artifacts
+    - name: Push refs
+      if: github.repository == 'commaai/openpilot' && github.ref == 'refs/heads/master'
+      working-directory: ${{ github.workspace }}/ci-artifacts
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+        git fetch origin process-replay || true
+        git checkout process-replay 2>/dev/null || git checkout --orphan process-replay
+        cp ${{ github.workspace }}/selfdrive/test/process_replay/fakedata/*.zst .
+        echo "${{ github.sha }}" > ref_commit
+        git add .
+        git commit -m "process-replay refs for ${{ github.repository }}@${{ github.sha }}" || echo "No changes to commit"
+        git push origin process-replay
+    - name: Run regen
+      if: false
+      timeout-minutes: 4
+      env:
+        ONNXCPU: 1
+      run: $PYTEST selfdrive/test/process_replay/test_regen.py
 
   simulator_driving:
     name: simulator driving
@@ -196,10 +202,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         submodules: true
-        ref: ${{ github.sha }}
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
+    - run: ./tools/op.sh setup
     - name: Build openpilot
       run: scons -j$(nproc)
     - name: Driving test
@@ -208,8 +211,8 @@ jobs:
         source selfdrive/test/setup_xvfb.sh
         pytest -s tools/sim/tests/test_metadrive_bridge.py
 
-  create_raylib_ui_report:
-    name: Create raylib UI Report
+  create_ui_report:
+    name: Create UI Report
     runs-on: ${{
       (github.repository == 'commaai/openpilot') &&
       ((github.event_name != 'pull_request') ||
@@ -220,46 +223,16 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-          ref: ${{ github.sha }}
-      - run: |
-          sudo chmod +x tools/setup_dependencies.sh
-          ./tools/op.sh setup
+      - run: ./tools/op.sh setup
       - name: Build openpilot
         run: scons -j$(nproc)
-      - name: Create raylib UI Report
+      - name: Create UI Report
         run: |
           source selfdrive/test/setup_xvfb.sh
-          PYTHONWARNINGS=ignore python3 selfdrive/ui/tests/test_ui/raylib_screenshots.py
-      - name: Upload Raylib UI Report
+          python3 selfdrive/ui/tests/diff/replay.py
+          python3 selfdrive/ui/tests/diff/replay.py --big
+      - name: Upload UI Report
         uses: actions/upload-artifact@v6
         with:
-          name: raylib-report-${{ inputs.run_number || '1' }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && 'master' || github.event.number }}
-          path: selfdrive/ui/tests/test_ui/raylib_report/screenshots
-
-  create_mici_raylib_ui_report:
-    name: Create mici raylib UI Report
-    runs-on: ${{
-      (github.repository == 'commaai/openpilot') &&
-      ((github.event_name != 'pull_request') ||
-      (github.event.pull_request.head.repo.full_name == 'commaai/openpilot'))
-      && fromJSON('["namespace-profile-amd64-8x16"]')
-      || fromJSON('["ubuntu-24.04"]') }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: true
-          ref: ${{ github.sha }}
-      - run: |
-          sudo chmod +x tools/setup_dependencies.sh
-          ./tools/op.sh setup
-      - name: Build openpilot
-        run: scons -j$(nproc)
-      - name: Create mici raylib UI Report
-        run: |
-          source selfdrive/test/setup_xvfb.sh
-          PYTHONWARNINGS=ignore WINDOWED=1 python3 selfdrive/ui/tests/diff/replay.py
-      - name: Upload mici raylib UI Report
-        uses: actions/upload-artifact@v6
-        with:
-          name: mici-raylib-report-${{ inputs.run_number || '1' }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && 'master' || github.event.number }}
+          name: ui-report-${{ inputs.run_number || '1' }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && 'master' || github.event.number }}
           path: selfdrive/ui/tests/diff/report

@@ -37,7 +37,7 @@ class DeveloperLayoutSP(DeveloperLayout):
 
   def _initialize_items(self):
     self.show_advanced_controls = toggle_item_sp(tr("Show Advanced Controls"),
-                                                 tr("Toggle visibility of advanced hoofpilot controls.<br>This only changes the visibility of the toggles; " +
+                                                 tr("Toggle visibility of advanced sunnypilot controls.<br>This only changes the visibility of the toggles; " +
                                                     "it does not change the actual enabled/disabled state."), param="ShowAdvancedControls")
 
     self.enable_github_runner_toggle = toggle_item_sp(tr("GitHub Runner Service"), tr("Enables or disables the GitHub runner service."),
@@ -50,7 +50,7 @@ class DeveloperLayoutSP(DeveloperLayout):
 
     self.prebuilt_toggle = toggle_item_sp(tr("Quickboot Mode"), "", param="QuickBootToggle", callback=self._on_prebuilt_toggled)
 
-    self.error_log_btn = button_item(tr("Error Log"), tr("VIEW"), tr("View the error log for hoofpilot crashes."), callback=self._on_error_log_clicked)
+    self.error_log_btn = button_item(tr("Error Log"), tr("VIEW"), tr("View the error log for sunnypilot crashes."), callback=self._on_error_log_clicked)
 
     self.items: list = [self.show_advanced_controls, self.enable_github_runner_toggle, self.enable_copyparty_toggle, self.prebuilt_toggle, self.error_log_btn,]
 
@@ -69,8 +69,8 @@ class DeveloperLayoutSP(DeveloperLayout):
 
   def _on_error_log_closed(self, result, log_exists):
     if result == DialogResult.CONFIRM and log_exists:
-      dialog2 = ConfirmDialog(tr("Would you like to delete this log?"), tr("Yes"), tr("No"), rich=False)
-      gui_app.set_modal_overlay(dialog2, callback=self._on_delete_confirm)
+      dialog2 = ConfirmDialog(tr("Would you like to delete this log?"), tr("Yes"), tr("No"), rich=False, callback=self._on_delete_confirm)
+      gui_app.push_widget(dialog2)
 
   def _on_error_log_clicked(self):
     text = ""
@@ -82,7 +82,7 @@ class DeveloperLayoutSP(DeveloperLayout):
       except Exception:
         pass
     dialog = HtmlModalSP(text=text, callback=lambda result: self._on_error_log_closed(result, os.path.exists(self.error_log_path)))
-    gui_app.set_modal_overlay(dialog)
+    gui_app.push_widget(dialog)
 
   def _update_state(self):
     disable_updates = ui_state.params.get_bool("DisableUpdates")
@@ -104,4 +104,3 @@ class DeveloperLayoutSP(DeveloperLayout):
     self.enable_copyparty_toggle.set_visible(show_advanced)
     self.enable_github_runner_toggle.set_visible(show_advanced and not self._is_release_branch)
     self.error_log_btn.set_visible(not self._is_release_branch)
-

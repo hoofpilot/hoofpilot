@@ -212,7 +212,7 @@ class ModelManagerSP:
         self.active_bundle = self._resolve_active_bundle()
         self._mark_active_bundle_cached()
 
-        if index_to_download := self.params.get("ModelManager_DownloadIndex"):
+        if (index_to_download := self.params.get("ModelManager_DownloadIndex")) is not None:
           if model_to_download := next((model for model in self.available_models if model.index == index_to_download), None):
             try:
               self.download(model_to_download, Paths.model_root())

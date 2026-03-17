@@ -6,9 +6,9 @@ import sys
 import time
 import traceback
 
+from cereal import log
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
-from hoofpilot.common.boot_logo import ensure_boot_background
 from openpilot.common.utils import atomic_write
 from openpilot.common.params import Params, ParamKeyFlag
 from openpilot.common.text_window import TextWindow
@@ -20,14 +20,13 @@ from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_I
 from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata
 from openpilot.system.hardware.hw import Paths
-from openpilot.system.hardware.ignition_state import ignition_state
 from openpilot.system.hardware import PC
+
+from openpilot.hoofpilot.system.params_migration import run_migration
 
 
 def manager_init() -> None:
   save_bootlog()
-
-  ensure_boot_background()
 
   build_metadata = get_build_metadata()
 
@@ -51,6 +50,9 @@ def manager_init() -> None:
 
   if params.get_bool("RecordFrontLock"):
     params.put_bool("RecordFront", True)
+
+  if not PC:
+    run_migration(params)
 
   # set unset params to their default value
   for k in params.all_keys():
@@ -153,7 +155,7 @@ def manager_thread() -> None:
     elif not started and started_prev:
       params.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
 
-    ignition = ignition_state.update(sm['pandaStates'])
+    ignition = any(ps.ignitionLine or ps.ignitionCan for ps in sm['pandaStates'] if ps.pandaType != log.PandaState.PandaType.unknown)
     if ignition and not ignition_prev:
       params.clear_all(ParamKeyFlag.CLEAR_ON_IGNITION_ON)
 

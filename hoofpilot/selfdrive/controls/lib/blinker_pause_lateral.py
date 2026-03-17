@@ -42,4 +42,3 @@ class BlinkerPauseLateral:
       self.blinker_off_timer -= DT_CTRL
 
     return bool((one_blinker and below_speed) or self.blinker_off_timer > 0)
-

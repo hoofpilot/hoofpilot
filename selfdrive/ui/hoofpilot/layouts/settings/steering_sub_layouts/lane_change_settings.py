@@ -14,7 +14,7 @@ from openpilot.system.ui.widgets.network import NavButton
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.widgets import Widget
 
-from hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeMode
+from openpilot.hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeMode
 
 
 class LaneChangeSettingsLayout(Widget):
@@ -79,4 +79,3 @@ class LaneChangeSettingsLayout(Widget):
     if not enable_bsm and ui_state.params.get_bool("AutoLaneChangeBsmDelay"):
       ui_state.params.remove("AutoLaneChangeBsmDelay")
     self._bsm_delay.action_item.set_enabled(enable_bsm and ui_state.params.get("AutoLaneChangeTimer", return_default=True) > AutoLaneChangeMode.NUDGE)
-

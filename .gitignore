@@ -64,10 +64,8 @@ flycheck_*
 cppcheck_report.txt
 comma*.sh
 
-selfdrive/modeld/models/*.pkl
-hoofpilot/modeld*/thneed/compile
-hoofpilot/modeld*/models/*.thneed
-hoofpilot/modeld*/models/*.pkl
+selfdrive/modeld/models/*.pkl*
+sunnypilot/modeld*/models/*.pkl
 
 # openpilot log files
 *.bz2
@@ -103,6 +101,8 @@ Pipfile
 .context/
 PLAN.md
 TASK.md
+CLAUDE.md
+SKILL.md
 
 ### JetBrains ###
 !.idea/customTargets.xml

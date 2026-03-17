@@ -10,7 +10,7 @@ import pyray as rl
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.selfdrive.ui.widgets.pairing_dialog import PairingDialog
-from hoofpilot.sunnylink.api import SunnylinkApi, UNREGISTERED_SUNNYLINK_DONGLE_ID, API_HOST
+from openpilot.hoofpilot.sunnylink.api import SunnylinkApi, UNREGISTERED_SUNNYLINK_DONGLE_ID, API_HOST
 from openpilot.system.ui.lib.application import FontWeight, gui_app
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.lib.wrap_text import wrap_text
@@ -45,7 +45,7 @@ class SunnylinkPairingDialog(PairingDialog):
   def _update_state(self):
     is_paired = ui_state.sunnylink_state.is_paired()
     if not self._is_paired_prev and is_paired:
-      gui_app.set_modal_overlay(None)
+      gui_app.pop_widget()
 
   def _render(self, rect: rl.Rectangle) -> int:
     rl.clear_background(rl.Color(224, 224, 224, 255))
@@ -94,13 +94,13 @@ class SunnylinkPairingDialog(PairingDialog):
         tr("Scan the QR code to login to your GitHub account"),
         tr("Follow the prompts to complete the pairing process"),
         tr("Re-enter the \"sunnylink\" panel to verify sponsorship status"),
-        tr("If sponsorship status was not updated, please contact a moderator on the community forum at https://community.sunnypilot.ai")
+        tr("If sponsorship status was not updated, please contact a moderator on the community forum at https://community.hoofpilot.ai")
       ]
     else:
       instructions = [
         tr("Scan the QR code to visit sunnyhaibin's GitHub Sponsors page"),
         tr("Choose your sponsorship tier and confirm your support"),
-        tr("Join our Community Forum at https://community.sunnypilot.ai and reach out to a moderator if you have issues")
+        tr("Join our Community Forum at https://community.hoofpilot.ai and reach out to a moderator if you have issues")
       ]
 
     font = gui_app.font(FontWeight.BOLD)
@@ -137,4 +137,3 @@ if __name__ == "__main__":
         break
   finally:
     del pairing
-

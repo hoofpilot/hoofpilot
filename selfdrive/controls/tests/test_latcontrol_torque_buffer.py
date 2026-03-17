@@ -1,4 +1,4 @@
-from parameterized import parameterized
+from openpilot.common.parameterized import parameterized
 
 from cereal import car, log
 from opendbc.car.car_helpers import interfaces
@@ -10,7 +10,7 @@ from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque,
 from openpilot.selfdrive.car.helpers import convert_to_capnp
 from openpilot.selfdrive.locationd.helpers import Pose
 from openpilot.common.mock.generators import generate_livePose
-from hoofpilot.selfdrive.car import interfaces as sunnypilot_interfaces
+from openpilot.hoofpilot.selfdrive.car import interfaces as sunnypilot_interfaces
 
 def get_controller(car_name):
   CarInterface = interfaces[car_name]

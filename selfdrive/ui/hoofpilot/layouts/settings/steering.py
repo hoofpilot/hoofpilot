@@ -1,7 +1,7 @@
 """
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
+Copyright (c) 2021-, Haibin Wen, hoofpilot, and a number of other contributors.
 
-This file is part of sunnypilot and is licensed under the MIT License.
+This file is part of hoofpilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 from cereal import car
@@ -38,7 +38,7 @@ class SteeringLayout(Widget):
 
   def _initialize_items(self):
     self._mads_base_desc = tr("Enable the beloved MADS feature. " +
-                              "Disable toggle to revert back to stock sunnypilot engagement/disengagement.")
+                              "Disable toggle to revert back to stock hoofpilot engagement/disengagement.")
     self._mads_limited_desc = tr("This platform supports limited MADS settings.")
     self._mads_full_desc = tr("This platform supports all MADS settings.")
     self._mads_check_compat_desc = tr("Start the vehicle to check vehicle compatibility.")
@@ -84,7 +84,7 @@ class SteeringLayout(Widget):
     self._torque_control_toggle = toggle_item_sp(
       param="EnforceTorqueControl",
       title=lambda: tr("Enforce Torque Lateral Control"),
-      description=lambda: tr("Enable this to enforce sunnypilot to steer with Torque lateral control."),
+      description=lambda: tr("Enable this to enforce hoofpilot to steer with Torque lateral control."),
     )
     self._torque_customization_button = simple_button_item_sp(
       button_text=lambda: tr("Customize Torque Params"),
@@ -159,4 +159,3 @@ class SteeringLayout(Widget):
   def show_event(self):
     self._set_current_panel(PanelType.STEERING)
     self._scroller.show_event()
-

@@ -18,11 +18,10 @@ class HtmlModalSP(HtmlModal):
 
   def _on_ok_clicked(self):
     self._dialog_result = DialogResult.CONFIRM
-    gui_app.set_modal_overlay(None)
+    gui_app.pop_widget()
 
     if self._callback:
       self._callback(self._dialog_result)
 
   def reset(self):
     self._dialog_result = DialogResult.NO_ACTION
-

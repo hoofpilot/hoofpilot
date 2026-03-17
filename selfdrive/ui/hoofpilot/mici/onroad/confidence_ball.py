@@ -24,4 +24,3 @@ class ConfidenceBallSP:
 
     # UIStatus.LONG_ONLY
     return BORDER_COLORS[UIStatus.LONG_ONLY]
-

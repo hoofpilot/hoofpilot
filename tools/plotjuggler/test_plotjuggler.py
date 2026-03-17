@@ -1,8 +1,10 @@
 import os
 import glob
+import shutil
 import signal
 import subprocess
 import time
+
 import pytest
 
 from openpilot.common.basedir import BASEDIR
@@ -13,7 +15,7 @@ PJ_DIR = os.path.join(BASEDIR, "tools/plotjuggler")
 
 class TestPlotJuggler:
 
-  @pytest.mark.skip(reason="Test requires interactive input and network access, causing timeouts")
+  @pytest.mark.skipif(not shutil.which('qmake'), reason="Qt not installed")
   def test_demo(self):
     install()
 
