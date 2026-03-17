@@ -7,11 +7,20 @@ See the LICENSE.md file in the root directory for more details.
 from __future__ import annotations
 
 import pyray as rl
+from types import SimpleNamespace
 
 from openpilot.common.constants import CV
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.lib.text_measure import measure_text_cached
+
+# ── Dev override — always show the banner with fake data ─────────────────────
+_FORCE_SHOW = True
+_FAKE_MANEUVERS = [
+  SimpleNamespace(distance=482.0,  type='turn', modifier='right',       instruction='Emory Street'),
+  SimpleNamespace(distance=1609.0, type='turn', modifier='slight_left',  instruction='Pacific Coast Highway'),
+]
+_FAKE_BANNER_TEXT = 'Emory Street'
 
 # ── Asset path ──────────────────────────────────────────────────────────────
 _NAV_ASSETS = "../../hoofpilot/selfdrive/assets/navigation/"
@@ -76,6 +85,10 @@ class NavBannerRenderer:
     except Exception:
       self._maneuvers = []
       self._banner_text = ''
+
+    if _FORCE_SHOW and not self._maneuvers:
+      self._maneuvers = _FAKE_MANEUVERS
+      self._banner_text = _FAKE_BANNER_TEXT
 
   def render(self, rect: rl.Rectangle) -> None:
     if not self.is_active:
