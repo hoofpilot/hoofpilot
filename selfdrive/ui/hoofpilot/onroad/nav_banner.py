@@ -32,15 +32,18 @@ _GREY      = rl.Color(175, 180, 190, 200)
 _THEN_GREY = rl.Color(160, 165, 175, 180)
 
 # ── Layout ───────────────────────────────────────────────────────────────────
-_BANNER_Y_OFFSET = 60    # from rect.y (matches set-speed box top + 20 px)
+_BANNER_Y_OFFSET = 60    # from rect.y
 _BANNER_H        = 288   # 216 * 1.33
 _SECTION_RADIUS  = 0.35  # same corner radius as the speed-limit signs
 _CENTER_W        = 825   # 620 * 1.33
 _THEN_W          = 246   # 185 * 1.33
 _SECTION_GAP     = 10    # gap between centre and "then"
-_ICON_SIZE       = 126   # 95 * 1.33
-_ICON_THEN_SIZE  = 82    # 62 * 1.33
+_ICON_SIZE       = 126   # maneuver icon
+_ICON_THEN_SIZE  = 126   # same as _ICON_SIZE
 _PAD             = 24    # inner horizontal padding
+# Clearance zones so the banner doesn't overlap the sidebar
+_SIGN_CLEAR_X    = 500   # left clear: right edge of speed-limit signs + gap
+_BTN_CLEAR_X     = 222   # right clear: exp-mode button (192) + border (30)
 
 
 def _icon_path(type_: str, modifier: str) -> str:
@@ -98,7 +101,9 @@ class NavBannerRenderer:
 
     y = rect.y + _BANNER_Y_OFFSET
     total_w = _CENTER_W + _SECTION_GAP + _THEN_W
-    cx = rect.x + (rect.width - total_w) / 2
+    avail_x = rect.x + _SIGN_CLEAR_X
+    avail_w = rect.width - _SIGN_CLEAR_X - _BTN_CLEAR_X
+    cx = avail_x + (avail_w - total_w) / 2
 
     # ── Single combined box ─────────────────────────────────────────────────
     banner_rect = rl.Rectangle(cx, y, total_w, _BANNER_H)
@@ -157,7 +162,7 @@ class NavBannerRenderer:
     icon = self._get_icon(m.type, m.modifier, _ICON_SIZE)
     icon_x = int(rect.x + _PAD)
     dist_text = self._format_dist(m.distance)
-    dist_sz = measure_text_cached(self._font_medium, dist_text, 38)
+    dist_sz = measure_text_cached(self._font_bold, dist_text, 38)
     group_h = _ICON_SIZE + 8 + int(dist_sz.y)
     icon_y = int(rect.y + (rect.height - group_h) / 2)
     if icon:
@@ -165,7 +170,7 @@ class NavBannerRenderer:
 
     dist_x = int(icon_x + (_ICON_SIZE - dist_sz.x) / 2)
     dist_y = icon_y + _ICON_SIZE + 8
-    rl.draw_text_ex(self._font_medium, dist_text, rl.Vector2(dist_x, dist_y), 38, 0, _GREY)
+    rl.draw_text_ex(self._font_bold, dist_text, rl.Vector2(dist_x, dist_y), 38, 0, _GREY)
 
     # Street name — large, bold, vertically centred to the right of the icon column
     street = self._banner_text or m.instruction or ''
@@ -185,14 +190,14 @@ class NavBannerRenderer:
 
   def _draw_then(self, rect: rl.Rectangle, m) -> None:
     # "Then" + icon centred as a group
-    then_sz = measure_text_cached(self._font_medium, 'Then', 34)
+    then_sz = measure_text_cached(self._font_bold, 'Then', 34)
     icon = self._get_icon(m.type, m.modifier, _ICON_THEN_SIZE)
     gap = 8
     group_h = int(then_sz.y) + gap + _ICON_THEN_SIZE
     group_y = int(rect.y + (rect.height - group_h) / 2)
 
     then_x = int(rect.x + (rect.width - then_sz.x) / 2)
-    rl.draw_text_ex(self._font_medium, 'Then', rl.Vector2(then_x, group_y), 34, 0, _THEN_GREY)
+    rl.draw_text_ex(self._font_bold, 'Then', rl.Vector2(then_x, group_y), 34, 0, _THEN_GREY)
 
     if icon:
       icon_x = int(rect.x + (rect.width - _ICON_THEN_SIZE) / 2)
