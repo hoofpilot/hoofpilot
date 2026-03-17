@@ -15,6 +15,7 @@ from openpilot.selfdrive.ui.hoofpilot.onroad.speed_limit import SpeedLimitRender
 from openpilot.selfdrive.ui.hoofpilot.onroad.smart_cruise_control import SmartCruiseControlRenderer
 from openpilot.selfdrive.ui.hoofpilot.onroad.circular_alerts import CircularAlertsRenderer
 from openpilot.selfdrive.ui.hoofpilot.onroad.speed_renderer import SpeedRenderer
+from openpilot.selfdrive.ui.hoofpilot.onroad.nav_banner import NavBannerRenderer
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.onroad.hud_renderer import HudRenderer, UI_CONFIG, FONT_SIZES, COLORS, CRUISE_DISABLED_CHAR
 from openpilot.system.ui.lib.application import gui_app
@@ -32,6 +33,7 @@ class HudRendererSP(HudRenderer):
     self.smart_cruise_control_renderer = SmartCruiseControlRenderer()
     self.circular_alerts_renderer = CircularAlertsRenderer()
     self.speed_renderer = SpeedRenderer()
+    self.nav_banner = NavBannerRenderer()
     self._torque_bar = TorqueBar(scale=3.0, always=True)
 
     self.pcm_cruise_speed: bool = True
@@ -55,6 +57,7 @@ class HudRendererSP(HudRenderer):
     self.smart_cruise_control_renderer.update()
     self.circular_alerts_renderer.update()
     self.speed_renderer.update()
+    self.nav_banner.update()
 
   def _get_icbm_status(self):
     if not self.pcm_cruise_speed and ui_state.sm['carControl'].enabled:
@@ -89,32 +92,58 @@ class HudRendererSP(HudRenderer):
       elif ui_state.status == UIStatus.OVERRIDE:
         max_color = COLORS.OVERRIDE
 
-    max_str_size = 60 if self.show_icbm_status else 40
-    max_str_y = 15 if self.show_icbm_status else 27
+    if self.nav_banner.is_active:
+      # Combined nav layout: current speed (top) + divider + MAX + cruise (bottom)
+      unit_text = tr("km/h") if ui_state.is_metric else tr("mph")
+      cur_speed = self.speed_renderer.speed
 
-    max_text = str(round(self.speed_cluster)) if self.show_icbm_status else tr("MAX")
-    max_text_width = measure_text_cached(self._font_semi_bold, max_text, max_str_size).x
-    rl.draw_text_ex(
-      self._font_semi_bold,
-      max_text,
-      rl.Vector2(x + (set_speed_width - max_text_width) / 2, y + max_str_y),
-      max_str_size,
-      0,
-      max_color,
-    )
+      cur_str = str(round(cur_speed))
+      cur_sz = measure_text_cached(self._font_bold, cur_str, 68)
+      cur_x = x + (set_speed_width - cur_sz.x) / 2
+      rl.draw_text_ex(self._font_bold, cur_str, rl.Vector2(cur_x, y + 14), 68, 0, COLORS.WHITE)
 
-    set_speed_text = CRUISE_DISABLED_CHAR if not self.is_cruise_set else str(round(self.set_speed))
-    speed_text_width = measure_text_cached(self._font_bold, set_speed_text, FONT_SIZES.set_speed).x
-    rl.draw_text_ex(
-      self._font_bold,
-      set_speed_text,
-      rl.Vector2(x + (set_speed_width - speed_text_width) / 2, y + 77),
-      FONT_SIZES.set_speed,
-      0,
-      set_speed_color,
-    )
+      unit_sz = measure_text_cached(self._font_semi_bold, unit_text, 24)
+      rl.draw_text_ex(self._font_semi_bold, unit_text, rl.Vector2(x + (set_speed_width - unit_sz.x) / 2, y + 86), 24, 0, COLORS.WHITE_TRANSLUCENT)
+
+      div_y = int(y + 115)
+      rl.draw_line(int(x + 12), div_y, int(x + set_speed_width - 12), div_y, rl.Color(255, 255, 255, 40))
+
+      max_text = tr("MAX")
+      max_sz = measure_text_cached(self._font_semi_bold, max_text, 28)
+      rl.draw_text_ex(self._font_semi_bold, max_text, rl.Vector2(x + (set_speed_width - max_sz.x) / 2, y + 122), 28, 0, max_color)
+
+      set_speed_text = CRUISE_DISABLED_CHAR if not self.is_cruise_set else str(round(self.set_speed))
+      ss_sz = measure_text_cached(self._font_bold, set_speed_text, 58)
+      rl.draw_text_ex(self._font_bold, set_speed_text, rl.Vector2(x + (set_speed_width - ss_sz.x) / 2, y + 148), 58, 0, set_speed_color)
+    else:
+      max_str_size = 60 if self.show_icbm_status else 40
+      max_str_y = 15 if self.show_icbm_status else 27
+
+      max_text = str(round(self.speed_cluster)) if self.show_icbm_status else tr("MAX")
+      max_text_width = measure_text_cached(self._font_semi_bold, max_text, max_str_size).x
+      rl.draw_text_ex(
+        self._font_semi_bold,
+        max_text,
+        rl.Vector2(x + (set_speed_width - max_text_width) / 2, y + max_str_y),
+        max_str_size,
+        0,
+        max_color,
+      )
+
+      set_speed_text = CRUISE_DISABLED_CHAR if not self.is_cruise_set else str(round(self.set_speed))
+      speed_text_width = measure_text_cached(self._font_bold, set_speed_text, FONT_SIZES.set_speed).x
+      rl.draw_text_ex(
+        self._font_bold,
+        set_speed_text,
+        rl.Vector2(x + (set_speed_width - speed_text_width) / 2, y + 77),
+        FONT_SIZES.set_speed,
+        0,
+        set_speed_color,
+      )
 
   def _draw_current_speed(self, rect: rl.Rectangle) -> None:
+    if self.nav_banner.is_active:
+      return
     self.speed_renderer.render(rect)
 
   def _render(self, rect: rl.Rectangle) -> None:
@@ -130,6 +159,7 @@ class HudRendererSP(HudRenderer):
     self.road_name_renderer.render(rect)
     self.speed_limit_renderer.render(rect)
     self.smart_cruise_control_renderer.render(rect)
+    self.nav_banner.render(rect)
     self.circular_alerts_renderer.render(rect)
     self.rocket_fuel.render(rect, ui_state.sm)
 
