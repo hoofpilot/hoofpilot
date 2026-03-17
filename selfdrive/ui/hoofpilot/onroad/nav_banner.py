@@ -26,7 +26,7 @@ _FAKE_BANNER_TEXT = 'Emory Street'
 _NAV_ASSETS = "../../hoofpilot/selfdrive/assets/navigation/"
 
 # ── Colours ─────────────────────────────────────────────────────────────────
-_BG        = rl.Color(12, 12, 12, 248)
+_BG        = rl.Color(26, 26, 26, 185)
 _WHITE     = rl.Color(255, 255, 255, 255)
 _GREY      = rl.Color(175, 180, 190, 200)
 _THEN_GREY = rl.Color(160, 165, 175, 180)
@@ -100,15 +100,21 @@ class NavBannerRenderer:
     total_w = _CENTER_W + _SECTION_GAP + _THEN_W
     cx = rect.x + (rect.width - total_w) / 2
 
-    # ── Center section ─────────────────────────────────────────────────────
+    # ── Single combined box ─────────────────────────────────────────────────
+    banner_rect = rl.Rectangle(cx, y, total_w, _BANNER_H)
+    rl.draw_rectangle_rounded(banner_rect, _SECTION_RADIUS, 10, _BG)
+
+    # Vertical divider between centre and "Then"
+    div_x = int(cx + _CENTER_W + _SECTION_GAP / 2)
+    rl.draw_line(div_x, int(y + 16), div_x, int(y + _BANNER_H - 16), rl.Color(255, 255, 255, 40))
+
+    # ── Centre section content ──────────────────────────────────────────────
     center_rect = rl.Rectangle(cx, y, _CENTER_W, _BANNER_H)
-    rl.draw_rectangle_rounded(center_rect, _SECTION_RADIUS, 10, _BG)
     self._draw_center(center_rect, m0)
 
-    # ── "Then" section ─────────────────────────────────────────────────────
+    # ── "Then" section content ──────────────────────────────────────────────
     if m1 is not None:
       then_rect = rl.Rectangle(cx + _CENTER_W + _SECTION_GAP, y, _THEN_W, _BANNER_H)
-      rl.draw_rectangle_rounded(then_rect, _SECTION_RADIUS, 10, _BG)
       self._draw_then(then_rect, m1)
 
   # ── Private helpers ──────────────────────────────────────────────────────
@@ -151,7 +157,7 @@ class NavBannerRenderer:
     icon = self._get_icon(m.type, m.modifier, _ICON_SIZE)
     icon_x = int(rect.x + _PAD)
     dist_text = self._format_dist(m.distance)
-    dist_sz = measure_text_cached(self._font_medium, dist_text, 28)
+    dist_sz = measure_text_cached(self._font_medium, dist_text, 38)
     group_h = _ICON_SIZE + 6 + int(dist_sz.y)
     icon_y = int(rect.y + (rect.height - group_h) / 2)
     if icon:
@@ -160,7 +166,7 @@ class NavBannerRenderer:
     # Distance label below icon
     dist_x = int(icon_x + (_ICON_SIZE - dist_sz.x) / 2)
     dist_y = icon_y + _ICON_SIZE + 6
-    rl.draw_text_ex(self._font_medium, dist_text, rl.Vector2(dist_x, dist_y), 28, 0, _GREY)
+    rl.draw_text_ex(self._font_medium, dist_text, rl.Vector2(dist_x, dist_y), 38, 0, _GREY)
 
     # Street / instruction name
     street = self._banner_text or m.instruction or ''
@@ -181,16 +187,14 @@ class NavBannerRenderer:
     rl.draw_text_ex(self._font_bold, street, rl.Vector2(text_x, text_y), street_sz, 0, _WHITE)
 
   def _draw_then(self, rect: rl.Rectangle, m) -> None:
-    # Vertically center the "Then" label + icon group
-    then_sz = measure_text_cached(self._font_medium, 'Then', 26)
+    # "Then" label near the top, icon just below
+    then_sz = measure_text_cached(self._font_medium, 'Then', 34)
+    then_y  = int(rect.y + 18)
+    then_x  = int(rect.x + (rect.width - then_sz.x) / 2)
+    rl.draw_text_ex(self._font_medium, 'Then', rl.Vector2(then_x, then_y), 34, 0, _THEN_GREY)
+
+    # Next maneuver icon below the label
     icon = self._get_icon(m.type, m.modifier, _ICON_THEN_SIZE)
-    group_h = int(then_sz.y) + 8 + _ICON_THEN_SIZE
-    then_y = int(rect.y + (rect.height - group_h) / 2)
-
-    then_x = int(rect.x + (rect.width - then_sz.x) / 2)
-    rl.draw_text_ex(self._font_medium, 'Then', rl.Vector2(then_x, then_y), 26, 0, _THEN_GREY)
-
-    # Next maneuver icon
     if icon:
       icon_x = int(rect.x + (rect.width - _ICON_THEN_SIZE) / 2)
       icon_y = then_y + int(then_sz.y) + 8
