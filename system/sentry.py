@@ -99,7 +99,7 @@ def set_tag(key: str, value: str) -> None:
 
 
 def set_user() -> None:
-  dongle_id, git_username, _ = get_properties()
+  dongle_id, git_username = get_properties()
   sentry_sdk.set_user({"id": dongle_id, "name": git_username})
 
 
