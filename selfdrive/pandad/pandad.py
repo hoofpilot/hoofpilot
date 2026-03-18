@@ -17,7 +17,7 @@ from openpilot.hoofpilot.selfdrive.pandad.rivian_long_flasher import flash_rivia
 
 def get_expected_signature() -> bytes:
   try:
-    fn = os.path.join(FW_PATH, McuType.H7.config.app_fn)
+    fn = os.path.join(FW_PATH, panda.get_mcu_type().config.app_fn)
     return Panda.get_signature_from_firmware(fn)
   except Exception:
     cloudlog.exception("Error computing expected signature")
@@ -36,7 +36,7 @@ def flash_panda(panda_serial: str) -> Panda:
     cloudlog.warning(f"Panda {panda_serial} is not supported (hw_type: {panda.get_type()}), skipping flash...")
     return panda
 
-  fw_signature = get_expected_signature()
+  fw_signature = get_expected_signature(panda)
   internal_panda = panda.is_internal()
 
   panda_version = "bootstub" if panda.bootstub else panda.get_version()

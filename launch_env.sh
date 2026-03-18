@@ -17,6 +17,12 @@ export QCOM_PRIORITY=12
 
 if [ -z "$AGNOS_VERSION" ]; then
   export AGNOS_VERSION="16"
+  RAW_MODEL=$(tr -d '\0' < /sys/firmware/devicetree/base/model 2>/dev/null || true)
+  if echo "$RAW_MODEL" | grep -qi "tici"; then
+    export AGNOS_VERSION="12.8"
+  else
+    export AGNOS_VERSION="16"
+  fi
 fi
 
 export STAGING_ROOT="/data/safe_staging"
