@@ -8,7 +8,7 @@ from openpilot.system.hardware import PC, TICI
 from openpilot.system.manager.process import PythonProcess, NativeProcess, DaemonProcess
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.hoofpilot.mapd.mapd_manager import MAPD_PATH
+from openpilot.hoofpilot.mapd_v2 import MAPD_PATH
 
 from openpilot.hoofpilot.models.helpers import get_active_model_runner
 from openpilot.hoofpilot.sunnylink.utils import sunnylink_need_register, sunnylink_ready, use_sunnylink_uploader
