@@ -41,7 +41,7 @@ class SetupWidget(Widget):
     y += 113  # 75 + 38 spacing
 
     # Description
-    desc = tr("Pair your device with Konik Stable (stable.konik.ai) to get started.")
+    desc = tr("Pair your device with Konik Stable.")
     light_font = gui_app.font(FontWeight.NORMAL)
     wrapped = wrap_text(light_font, desc, 50, int(w))
     for line in wrapped:
