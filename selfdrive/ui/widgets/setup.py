@@ -48,7 +48,7 @@ class SetupWidget(Widget):
       rl.draw_text_ex(light_font, line, rl.Vector2(x, y), 50, 0, rl.WHITE)
       y += 50 * FONT_SCALE
 
-    button_rect = rl.Rectangle(x, y + 30, w, 200)
+    button_rect = rl.Rectangle(x, y + 30, w, 120)
     self._pair_device_btn.render(button_rect)
 
   @staticmethod
