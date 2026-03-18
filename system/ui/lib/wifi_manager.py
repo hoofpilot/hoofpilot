@@ -634,7 +634,7 @@ class WifiManager:
         'connection': {
           'type': ('s', '802-11-wireless'),
           'uuid': ('s', str(uuid.uuid4())),
-          'id': ('s', f'sunnypilot connection {ssid}'),
+          'id': ('s', f'hoofpilot connection {ssid}'),
           'autoconnect-retries': ('i', 0),
         },
         '802-11-wireless': {

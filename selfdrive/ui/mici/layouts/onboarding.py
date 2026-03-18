@@ -62,7 +62,7 @@ class TrainingGuidePreDMTutorial(NavScroller):
       GreyBigButton("driver monitoring\ncheck", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
       GreyBigButton("", "Next, we'll check if comma four can detect the driver properly."),
-      GreyBigButton("", "sunnypilot uses the cabin camera to check if the driver is distracted."),
+      GreyBigButton("", "hoofpilot uses the cabin camera to check if the driver is distracted."),
       GreyBigButton("", "If it does not have a clear view of the driver, unplug and remount before continuing."),
       continue_button,
     ])
@@ -239,7 +239,7 @@ class TrainingGuideRecordFront(NavScroller):
     self._scroller.add_widgets([
       GreyBigButton("driver camera data", "do you want to share video data for training?",
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
-      GreyBigButton("", "Sharing your data with comma helps improve openpilot and sunnypilot for everyone."),
+      GreyBigButton("", "Sharing your data with comma helps improve openpilot and hoofpilot for everyone."),
       self._accept_button,
       self._decline_button,
     ])
@@ -253,9 +253,9 @@ class TrainingGuideAttentionNotice(Scroller):
     continue_button.set_click_callback(continue_callback)
 
     self._scroller.add_widgets([
-      GreyBigButton("what is sunnypilot?", "scroll to continue",
+      GreyBigButton("what is hoofpilot?", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_info.png", 64, 64)),
-      GreyBigButton("", "1. sunnypilot is a driver assistance system."),
+      GreyBigButton("", "1. hoofpilot is a driver assistance system."),
       GreyBigButton("", "2. You must pay attention at all times."),
       GreyBigButton("", "3. You must be ready to take over at any time."),
       GreyBigButton("", "4. You are fully responsible for driving the car."),
@@ -343,7 +343,7 @@ class TermsPage(Scroller):
       GreyBigButton("swipe for QR code", "or go to https://sunnypilot.ai/terms",
                     gui_app.texture("icons_mici/setup/small_slider/slider_arrow.png", 64, 56, flip_x=True)),
       QRCodeWidget("https://sunnypilot.ai/terms"),
-      GreyBigButton("", "You must accept the Terms & Conditions to use sunnypilot."),
+      GreyBigButton("", "You must accept the Terms & Conditions to use hoofpilot."),
       self._accept_button,
       self._decline_button,
     ])
