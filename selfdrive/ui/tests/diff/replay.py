@@ -10,7 +10,7 @@ from cereal.messaging import PubMaster
 from openpilot.common.params import Params
 from openpilot.common.prefix import OpenpilotPrefix
 from openpilot.selfdrive.ui.tests.diff.diff import DIFF_OUT_DIR
-from openpilot.system.version import terms_version, training_version, terms_version_sp, sunnylink_consent_version
+from openpilot.system.version import terms_version, training_version, terms_version_sp
 
 LayoutVariant = Literal["mici", "tizi"]
 
@@ -26,7 +26,6 @@ def setup_state():
   # Combined description for layouts that still use it (BIG home, settings/software)
   params.put("UpdaterCurrentDescription", "0.10.1 / test-branch / abc1234 / Nov 30")
   params.put("HasAcceptedTermsSP", terms_version_sp)
-  params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_version)
 
   # Params for mici home
   params.put("Version", "0.10.1")

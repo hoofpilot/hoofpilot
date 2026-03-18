@@ -147,7 +147,6 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"CarParamsSPPersistent", {PERSISTENT, BYTES}},
     {"CarPlatformBundle", {PERSISTENT | BACKUP, JSON}},
     {"ChevronInfo", {PERSISTENT | BACKUP, INT, "4"}},
-    {"CompletedSunnylinkConsentVersion", {PERSISTENT, STRING, "0"}},
     {"CustomAccIncrementsEnabled", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"CustomAccLongPressIncrement", {PERSISTENT | BACKUP, INT, "5"}},
     {"CustomAccShortPressIncrement", {PERSISTENT | BACKUP, INT, "1"}},
@@ -199,16 +198,6 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
 
     // Neural Network Lateral Control
     {"NeuralNetworkLateralControl", {PERSISTENT | BACKUP, BOOL, "0"}},
-
-    // sunnylink params
-    {"EnableSunnylinkUploader", {PERSISTENT | BACKUP, BOOL}},
-    {"LastSunnylinkPingTime", {CLEAR_ON_MANAGER_START, INT}},
-    {"SunnylinkCache_Roles", {PERSISTENT, STRING}},
-    {"SunnylinkCache_Users", {PERSISTENT, STRING}},
-    {"SunnylinkDongleId", {PERSISTENT, STRING}},
-    {"SunnylinkdPid", {PERSISTENT, INT}},
-    {"SunnylinkEnabled", {PERSISTENT, BOOL, "1"}},
-    {"SunnylinkTempFault", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL, "0"}},
 
     // Backup Manager params
     {"BackupManager_CreateBackup", {PERSISTENT, BOOL}},

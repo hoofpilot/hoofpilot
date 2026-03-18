@@ -158,7 +158,6 @@ remote_pin_lock_until = 0.0
 cur_upload_items: dict[int, UploadItem | None] = {}
 
 
-# TODO-SP: adapt zst for sunnylink
 def strip_zst_extension(fn: str) -> str:
   if fn.endswith('.zst'):
     return fn[:-4]
@@ -1092,10 +1091,7 @@ def get_logs_to_send_sorted(log_attr_name=LOG_ATTR_NAME) -> list[str]:
   return sorted(logs)[:-1]
 
 
-def add_log_to_queue(log_path, log_id, is_sunnylink=False):
-  MAX_SIZE_KB = 32
-  MAX_SIZE_BYTES = MAX_SIZE_KB * 1024
-
+def add_log_to_queue(log_path, log_id):
   with open(log_path) as f:
     data = f.read()
 
@@ -1104,54 +1100,22 @@ def add_log_to_queue(log_path, log_id, is_sunnylink=False):
       cloudlog.warning(f"Log file {log_path} is empty.")
       return
 
-    # Initialize variables for encoding
-    payload = data
-    is_compressed = False
-
-    # Log the current size of the file
-    current_size = len(json.dumps(payload).encode("utf-8")) + len(log_id.encode("utf-8")) + 100  # Add 100 bytes to account for encoding overhead
-    cloudlog.debug(f"Current size of log file {log_path}: {current_size} bytes")
-
-    if is_sunnylink and current_size > MAX_SIZE_BYTES:
-      # Compress and encode the data if it exceeds the maximum size
-      compressed_data = gzip.compress(data.encode())
-      payload = base64.b64encode(compressed_data).decode()
-      is_compressed = True
-
-      # Log the size after compression and encoding
-      compressed_size = len(compressed_data)
-      encoded_size = len(payload)
-      cloudlog.debug(f"Size of log file {log_path} " +
-                     f"after compression: {compressed_size} bytes, " +
-                     f"after encoding: {encoded_size} bytes")
-
     jsonrpc = {
       "method": "forwardLogs",
       "params": {
-        "logs": payload
+        "logs": data
       },
       "jsonrpc": "2.0",
       "id": log_id
     }
 
-    if is_sunnylink and is_compressed:
-      jsonrpc["params"]["compressed"] = is_compressed
-
     jsonrpc_str = json.dumps(jsonrpc)
     size_in_bytes = len(jsonrpc_str.encode('utf-8'))
-
-    if is_sunnylink and size_in_bytes <= MAX_SIZE_BYTES:
-      cloudlog.debug(f"Target is sunnylink and log file {log_path} is small enough to send in one request ({size_in_bytes} bytes).")
-      low_priority_send_queue.put_nowait(jsonrpc_str)
-    elif is_sunnylink:
-      cloudlog.warning(f"Target is sunnylink and log file {log_path} is too large to send in one request.")
-    else:
-      cloudlog.debug(f"Target is not sunnylink, proceeding to send log file {log_path} in one request ({size_in_bytes} bytes).")
-      low_priority_send_queue.put_nowait(jsonrpc_str)
+    cloudlog.debug(f"Proceeding to send log file {log_path} in one request ({size_in_bytes} bytes).")
+    low_priority_send_queue.put_nowait(jsonrpc_str)
 
 
 def log_handler(end_event: threading.Event, log_attr_name=LOG_ATTR_NAME) -> None:
-  is_sunnylink = log_attr_name != LOG_ATTR_NAME
   if PC:
     cloudlog.debug("athena.log_handler: Not supported on PC")
     time.sleep(1)
@@ -1176,7 +1140,7 @@ def log_handler(end_event: threading.Event, log_attr_name=LOG_ATTR_NAME) -> None
           log_path = os.path.join(Paths.swaglog_root(), log_entry)
           setxattr(log_path, log_attr_name, int.to_bytes(curr_time, 4, sys.byteorder))
 
-          add_log_to_queue(log_path, log_entry, is_sunnylink)
+          add_log_to_queue(log_path, log_entry)
           curr_log = log_entry
         except OSError:
           pass  # file could be deleted by log rotation
@@ -1207,7 +1171,7 @@ def log_handler(end_event: threading.Event, log_attr_name=LOG_ATTR_NAME) -> None
       cloudlog.exception("athena.log_handler.exception")
 
 
-def stat_handler(end_event: threading.Event, stats_dir=None, is_sunnylink=False) -> None:
+def stat_handler(end_event: threading.Event, stats_dir=None) -> None:
   stats_dir = stats_dir or Paths.stats_root()
   last_scan = 0.0
 
@@ -1220,14 +1184,6 @@ def stat_handler(end_event: threading.Event, stats_dir=None, is_sunnylink=False)
           stat_path = os.path.join(stats_dir, stat_filenames[0])
           with open(stat_path) as f:
             payload = f.read()
-            is_compressed = False
-
-            # Log the current size of the file
-            if is_sunnylink:
-              # Compress and encode the data if it exceeds the maximum size
-              compressed_data = gzip.compress(payload.encode())
-              payload = base64.b64encode(compressed_data).decode()
-              is_compressed = True
 
             jsonrpc = {
               "method": "storeStats",
@@ -1237,9 +1193,6 @@ def stat_handler(end_event: threading.Event, stats_dir=None, is_sunnylink=False)
               "jsonrpc": "2.0",
               "id": stat_filenames[0]
             }
-
-            if is_sunnylink and is_compressed:
-              jsonrpc["params"]["compressed"] = is_compressed
 
             low_priority_send_queue.put_nowait(json.dumps(jsonrpc))
           os.remove(stat_path)
