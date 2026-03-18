@@ -182,7 +182,7 @@ class HudRenderer(Widget):
   def _draw_steering_wheel(self, rect: rl.Rectangle) -> None:
     wheel_txt = self._txt_wheel_critical if self._show_wheel_critical else self._txt_wheel
 
-    bsm_detected = self._has_blind_spot_detected() if gui_app.sunnypilot_ui() else False
+    bsm_detected = self._has_blind_spot_detected() if gui_app.hoofpilot_ui() else False
 
     if self._show_wheel_critical:
       self._wheel_alpha_filter.update(255)
