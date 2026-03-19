@@ -226,6 +226,7 @@ exclude = [
   "teleoprtc/",
   "teleoprtc_repo/",
   "third_party/",
+  "hoofpilot/third_party/",
 ]
 
 [tool.ty.rules]
@@ -250,9 +251,6 @@ unsupported-operator = "ignore"
 # Ignore not-subscriptable - false positives from dynamic types
 not-subscriptable = "ignore"
 # not-iterable errors are now fixed
-
-[tool.ty.src]
-exclude = ["hoofpilot/third_party/"]
 
 [tool.uv]
 python-preference = "only-managed"
