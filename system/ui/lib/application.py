@@ -467,8 +467,8 @@ class GuiApplication(GuiApplicationExt):
 
     # Set logical size so widget layout math stays at 1x coordinates
     if self._scale != 1.0 and width is not None and height is not None:
-      texture_obj.width = width
-      texture_obj.height = height
+      texture_obj.width = int(width)
+      texture_obj.height = int(height)
 
     self._textures[cache_key] = texture_obj
     return texture_obj
