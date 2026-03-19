@@ -95,7 +95,7 @@ class TripsWidget(Widget):
     col_width = width / 3
 
     number_font = gui_app.font(FontWeight.BOLD)
-    unit_font = gui_app.font(FontWeight.LIGHT)
+    unit_font = gui_app.font(FontWeight.NORMAL)
     number_base_size = 92
     unit_base_size = 55
     number_size = number_base_size * FONT_SCALE

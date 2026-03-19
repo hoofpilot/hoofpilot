@@ -15,7 +15,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.hoofpilot.selfdrive.pandad.rivian_long_flasher import flash_rivian_long
 
 
-def get_expected_signature() -> bytes:
+def get_expected_signature(panda: Panda) -> bytes:
   try:
     fn = os.path.join(FW_PATH, panda.get_mcu_type().config.app_fn)
     return Panda.get_signature_from_firmware(fn)
