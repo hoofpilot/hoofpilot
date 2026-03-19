@@ -13,11 +13,12 @@ from openpilot.system.ui.mici_setup import GreyBigButton, BigPillButton
 from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.version import terms_version, training_version, terms_version_sp
+from openpilot.system.version import sunnylink_consent_version, sunnylink_consent_declined
 from openpilot.selfdrive.ui.ui_state import ui_state, device
-from openpilot.selfdrive.ui.mici.widgets.button import BigCircleButton
-from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationDialogV2
+from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
 from openpilot.selfdrive.ui.mici.onroad.driver_state import DriverStateRenderer
 from openpilot.selfdrive.ui.mici.onroad.driver_camera_dialog import BaseDriverCameraDialog
+from openpilot.selfdrive.ui.sunnypilot.mici.layouts.onboarding import SunnylinkConsentPage
 
 
 class DriverCameraSetupDialog(BaseDriverCameraDialog):
@@ -62,7 +63,7 @@ class TrainingGuidePreDMTutorial(NavScroller):
       GreyBigButton("driver monitoring\ncheck", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
       GreyBigButton("", "Next, we'll check if comma four can detect the driver properly."),
-      GreyBigButton("", "hoofpilot uses the cabin camera to check if the driver is distracted."),
+      GreyBigButton("", "sunnypilot uses the cabin camera to check if the driver is distracted."),
       GreyBigButton("", "If it does not have a clear view of the driver, unplug and remount before continuing."),
       continue_button,
     ])
@@ -152,8 +153,10 @@ class TrainingGuideDMTutorial(NavWidget):
   def _render(self, _):
     self._dialog.render(self._rect)
 
-    rl.draw_rectangle_gradient_v(int(self._rect.x), int(self._rect.y + self._rect.height - 80),
-                                 int(self._rect.width), 80, rl.BLANK, rl.BLACK)
+    gradient_y = int(self._rect.y + self._rect.height - 80)
+    gradient_h = int(self._rect.y) + int(self._rect.height) - gradient_y
+    rl.draw_rectangle_gradient_v(int(self._rect.x), gradient_y,
+                                 int(self._rect.width), gradient_h, rl.BLANK, rl.BLACK)
 
     # draw white ring around dm icon to indicate progress
     ring_thickness = 8
@@ -215,31 +218,24 @@ class TrainingGuideRecordFront(NavScroller):
   def __init__(self, continue_callback: Callable[[], None]):
     super().__init__()
 
-    def show_accept_dialog():
-      def on_accept():
-        ui_state.params.put_bool_nonblocking("RecordFront", True)
-        continue_callback()
+    def on_accept():
+      ui_state.params.put_bool_nonblocking("RecordFront", True)
+      continue_callback()
 
-      gui_app.push_widget(BigConfirmationDialogV2("allow data uploading", "icons_mici/setup/driver_monitoring/dm_check.png", exit_on_confirm=False,
-                                                  confirm_callback=on_accept))
+    def on_decline():
+      ui_state.params.put_bool_nonblocking("RecordFront", False)
+      continue_callback()
 
-    def show_decline_dialog():
-      def on_decline():
-        ui_state.params.put_bool_nonblocking("RecordFront", False)
-        continue_callback()
+    self._accept_button = BigConfirmationCircleButton("allow data uploading", gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
+                                                      on_accept, exit_on_confirm=False)
 
-      gui_app.push_widget(BigConfirmationDialogV2("no, don't upload", "icons_mici/setup/cancel.png", exit_on_confirm=False, confirm_callback=on_decline))
-
-    self._accept_button = BigCircleButton("icons_mici/setup/driver_monitoring/dm_check.png")
-    self._accept_button.set_click_callback(show_accept_dialog)
-
-    self._decline_button = BigCircleButton("icons_mici/setup/cancel.png")
-    self._decline_button.set_click_callback(show_decline_dialog)
+    self._decline_button = BigConfirmationCircleButton("no, don't upload", gui_app.texture("icons_mici/setup/cancel.png", 64, 64), on_decline,
+                                                       exit_on_confirm=False)
 
     self._scroller.add_widgets([
       GreyBigButton("driver camera data", "do you want to share video data for training?",
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
-      GreyBigButton("", "Sharing your data with comma helps improve openpilot and hoofpilot for everyone."),
+      GreyBigButton("", "Sharing your data with comma helps improve openpilot and sunnypilot for everyone."),
       self._accept_button,
       self._decline_button,
     ])
@@ -253,9 +249,9 @@ class TrainingGuideAttentionNotice(Scroller):
     continue_button.set_click_callback(continue_callback)
 
     self._scroller.add_widgets([
-      GreyBigButton("what is hoofpilot?", "scroll to continue",
+      GreyBigButton("what is sunnypilot?", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_info.png", 64, 64)),
-      GreyBigButton("", "1. hoofpilot is a driver assistance system."),
+      GreyBigButton("", "1. sunnypilot is a driver assistance system."),
       GreyBigButton("", "2. You must pay attention at all times."),
       GreyBigButton("", "3. You must be ready to take over at any time."),
       GreyBigButton("", "4. You are fully responsible for driving the car."),
@@ -274,11 +270,8 @@ class TrainingGuide(NavWidget):
       TrainingGuideRecordFront(continue_callback=completed_callback),
     ]
 
+    self._child(self._steps[0])
     self._steps[0].set_enabled(lambda: self.enabled and not self.is_dismissing)  # for nav stack
-
-  def show_event(self):
-    super().show_event()
-    self._steps[0].show_event()
 
   def _render(self, _):
     self._steps[0].render(self._rect)
@@ -312,7 +305,7 @@ class QRCodeWidget(Widget):
   def _render(self, _):
     if self._qr_texture:
       scale = self._size / self._qr_texture.height
-      rl.draw_texture_ex(self._qr_texture, rl.Vector2(self._rect.x, self._rect.y), 0.0, scale, rl.WHITE)
+      rl.draw_texture_ex(self._qr_texture, rl.Vector2(round(self._rect.x), round(self._rect.y)), 0.0, scale, rl.WHITE)
 
   def __del__(self):
     if self._qr_texture and self._qr_texture.id != 0:
@@ -323,27 +316,20 @@ class TermsPage(Scroller):
   def __init__(self, on_accept, on_decline):
     super().__init__()
 
-    def show_accept_dialog():
-      gui_app.push_widget(BigConfirmationDialogV2("accept\nterms", "icons_mici/setup/driver_monitoring/dm_check.png",
-                                                  confirm_callback=on_accept))
+    self._accept_button = BigConfirmationCircleButton("accept\nterms", gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64), on_accept)
+    self._decline_button = BigConfirmationCircleButton("decline &\nuninstall", gui_app.texture("icons_mici/setup/cancel.png", 64, 64), on_decline,
+                                                       red=True, exit_on_confirm=False)
 
-    def show_decline_dialog():
-      gui_app.push_widget(BigConfirmationDialogV2("decline &\nuninstall", "icons_mici/setup/cancel.png",
-                                                  red=True, exit_on_confirm=False, confirm_callback=on_decline))
-
-    self._accept_button = BigCircleButton("icons_mici/setup/driver_monitoring/dm_check.png")
-    self._accept_button.set_click_callback(show_accept_dialog)
-
-    self._decline_button = BigCircleButton("icons_mici/setup/cancel.png", red=True)
-    self._decline_button.set_click_callback(show_decline_dialog)
+    self._terms_header = GreyBigButton("terms of\nservice", "scroll to continue",
+                                       gui_app.texture("icons_mici/setup/green_info.png", 64, 64))
+    self._must_accept_card = GreyBigButton("", "You must accept the Terms of Service to use sunnypilot.")
 
     self._scroller.add_widgets([
-      GreyBigButton("terms and\nconditions", "scroll to continue",
-                    gui_app.texture("icons_mici/setup/green_info.png", 64, 64)),
+      self._terms_header,
       GreyBigButton("swipe for QR code", "or go to https://sunnypilot.ai/terms",
                     gui_app.texture("icons_mici/setup/small_slider/slider_arrow.png", 64, 56, flip_x=True)),
       QRCodeWidget("https://sunnypilot.ai/terms"),
-      GreyBigButton("", "You must accept the Terms & Conditions to use hoofpilot."),
+      self._must_accept_card,
       self._accept_button,
       self._decline_button,
     ])
@@ -360,12 +346,20 @@ class OnboardingWindow(Widget):
     self._accepted_terms: bool = (ui_state.params.get("HasAcceptedTerms") == terms_version and
                                   ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp)
     self._training_done: bool = ui_state.params.get("CompletedTrainingVersion") == training_version
+    self._sunnylink_consent_done: bool = ui_state.params.get("CompletedSunnylinkConsentVersion") in {
+      sunnylink_consent_version, sunnylink_consent_declined
+    }
 
     self.set_rect(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
 
     # Windows — all pushed onto nav stack, _terms is always rendered as base layer
     self._terms = TermsPage(on_accept=self._on_terms_accepted, on_decline=self._on_uninstall)
     self._terms.set_enabled(lambda: self.enabled)  # for nav stack
+
+    self._sunnylink_consent = SunnylinkConsentPage(
+      on_accept=self._on_sunnylink_accepted,
+      on_decline=self._on_sunnylink_declined,
+    )
 
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._training_guide.set_enabled(lambda: self.enabled)  # for nav stack
@@ -389,7 +383,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._training_done
+    return self._accepted_terms and self._sunnylink_consent_done and self._training_done
 
   def close(self):
     ui_state.params.put_bool_nonblocking("IsDriverViewEnabled", False)
@@ -399,6 +393,26 @@ class OnboardingWindow(Widget):
     ui_state.params.put("HasAcceptedTerms", terms_version)
     ui_state.params.put("HasAcceptedTermsSP", terms_version_sp)
     self._accepted_terms = True
+    if not self._sunnylink_consent_done:
+      gui_app.push_widget(self._sunnylink_consent)
+    elif not self._training_done:
+      gui_app.push_widget(self._training_guide)
+    else:
+      self.close()
+
+  def _on_sunnylink_accepted(self):
+    ui_state.params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_version)
+    ui_state.params.put_bool("SunnylinkEnabled", True)
+    self._sunnylink_consent_done = True
+    if not self._training_done:
+      gui_app.push_widget(self._training_guide)
+    else:
+      self.close()
+
+  def _on_sunnylink_declined(self):
+    ui_state.params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_declined)
+    ui_state.params.put_bool("SunnylinkEnabled", False)
+    self._sunnylink_consent_done = True
     if not self._training_done:
       gui_app.push_widget(self._training_guide)
     else:
@@ -415,7 +429,9 @@ class OnboardingWindow(Widget):
     # Deferred from show_event to avoid nested push_widget re-enable bug
     if self._needs_initial_push:
       self._needs_initial_push = False
-      if self._accepted_terms and not self._training_done:
+      if self._accepted_terms and not self._sunnylink_consent_done:
+        gui_app.push_widget(self._sunnylink_consent)
+      elif self._accepted_terms and self._sunnylink_consent_done and not self._training_done:
         gui_app.push_widget(self._training_guide)
 
     self._terms.render(self._rect)
