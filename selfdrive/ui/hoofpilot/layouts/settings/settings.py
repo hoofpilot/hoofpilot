@@ -18,6 +18,7 @@ from openpilot.selfdrive.ui.hoofpilot.layouts.settings.models import ModelsLayou
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.network import NetworkUISP
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.osm import OSMLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.software import SoftwareLayoutSP
+from openpilot.selfdrive.ui.hoofpilot.layouts.settings.stable import StableLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.steering import SteeringLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.trips import TripsLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.vehicle import VehicleLayout
@@ -47,6 +48,7 @@ OP.PanelType = IntEnum(
     "NAVIGATION",
     "TRIPS",
     "VEHICLE",
+    "STABLE",
   ],
   start=0,
 )
@@ -119,6 +121,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
       # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
       OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_trips.png"),
       OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_vehicle.png"),
+      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png"),
       OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/shell.png"),
     }
 
