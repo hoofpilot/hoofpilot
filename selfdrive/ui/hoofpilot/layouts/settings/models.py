@@ -157,7 +157,8 @@ class ModelsLayout(Widget):
       device._reset_interactive_timeout()
 
     for model in bundle.models:
-      if label := labels.get(getattr(model.type, 'raw', model.type)):
+      model_type = model.type if hasattr(model.type, 'raw') else model.type
+      if label := labels.get(model_type, labels.get(getattr(model_type, 'raw', model_type))):
         label.set_visible(True)
         p = model.artifact.downloadProgress
         text, show, color = f"pending - {bundle.displayName}", False, rl.GRAY

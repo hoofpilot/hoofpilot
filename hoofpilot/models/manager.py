@@ -171,6 +171,15 @@ class ModelManagerSP:
         self.available_models = self.model_fetcher.get_available_bundles()
         self.active_bundle = get_active_bundle(self.params)
 
+        # Mark files that exist on disk as cached so the UI shows "ready"
+        if self.active_bundle:
+          dest = Paths.model_root()
+          for model in self.active_bundle.models:
+            for artifact in [model.artifact, model.metadata]:
+              if artifact.fileName and os.path.exists(os.path.join(dest, artifact.fileName)):
+                artifact.downloadProgress.status = custom.ModelManagerSP.DownloadStatus.cached
+                artifact.downloadProgress.progress = 100
+
         if (index_to_download := self.params.get("ModelManager_DownloadIndex")) is not None:
           if model_to_download := next((model for model in self.available_models if model.index == index_to_download), None):
             try:
