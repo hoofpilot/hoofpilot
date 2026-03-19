@@ -3,7 +3,7 @@ import os
 import hashlib
 
 from openpilot.common.basedir import BASEDIR
-from hoofpilot import get_file_hash
+from openpilot.hoofpilot import get_file_hash
 
 DEFAULT_MODEL_NAME_PATH = os.path.join(BASEDIR, "common", "model.h")
 MODEL_HASH_PATH = os.path.join(BASEDIR, "hoofpilot", "models", "tests", "model_hash")

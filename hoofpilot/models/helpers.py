@@ -69,6 +69,9 @@ def get_active_bundle(params: Params = None) -> custom.ModelManagerSP.ModelBundl
 
   try:
     if (active_bundle := params.get("ModelManager_ActiveBundle") or {}) and is_bundle_version_compatible(active_bundle):
+      if isinstance(active_bundle, dict) and 'short_name' in active_bundle:
+        from openpilot.hoofpilot.models.fetcher import ModelParser
+        return ModelParser._parse_bundle(active_bundle)
       return active_bundle
   except Exception:
     pass
