@@ -251,5 +251,8 @@ unsupported-operator = "ignore"
 not-subscriptable = "ignore"
 # not-iterable errors are now fixed
 
+[tool.ty]
+exclude = ["hoofpilot/third_party/"]
+
 [tool.uv]
 python-preference = "only-managed"
