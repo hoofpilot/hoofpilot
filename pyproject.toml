@@ -251,7 +251,7 @@ unsupported-operator = "ignore"
 not-subscriptable = "ignore"
 # not-iterable errors are now fixed
 
-[tool.ty]
+[tool.ty.src]
 exclude = ["hoofpilot/third_party/"]
 
 [tool.uv]
