@@ -22,15 +22,15 @@ class ModelParser:
   @staticmethod
   def _parse_download_uri(download_uri_data) -> custom.ModelManagerSP.DownloadUri:
     download_uri = custom.ModelManagerSP.DownloadUri()
-    download_uri.uri = download_uri_data.get("url")
-    download_uri.sha256 = download_uri_data.get("sha256")
+    download_uri.uri = download_uri_data.get("url", download_uri_data.get("uri", ""))
+    download_uri.sha256 = download_uri_data.get("sha256", "")
     return download_uri
 
   @staticmethod
   def _parse_artifact(artifact_data) -> custom.ModelManagerSP.Artifact:
     artifact = custom.ModelManagerSP.Artifact()
-    artifact.fileName = artifact_data.get("file_name")
-    artifact.downloadUri = ModelParser._parse_download_uri(artifact_data.get("download_uri", {}))
+    artifact.fileName = artifact_data.get("file_name", artifact_data.get("fileName", ""))
+    artifact.downloadUri = ModelParser._parse_download_uri(artifact_data.get("download_uri", artifact_data.get("downloadUri", {})))
     return artifact
 
   @staticmethod
@@ -54,20 +54,25 @@ class ModelParser:
     return overrides
 
   @staticmethod
+  def _g(bundle, snake, camel, default=None):
+    """Get value from bundle dict, trying snake_case first then camelCase."""
+    return bundle.get(snake, bundle.get(camel, default))
+
+  @staticmethod
   def _parse_bundle(bundle) -> custom.ModelManagerSP.ModelBundle:
     model_bundle = custom.ModelManagerSP.ModelBundle()
-    model_bundle.index = int(bundle["index"])
-    model_bundle.internalName = bundle["short_name"]
-    model_bundle.displayName = bundle["display_name"]
-    model_bundle.models = [ModelParser._parse_model(model) for model in bundle.get("models",[])]
+    model_bundle.index = int(ModelParser._g(bundle, "index", "index", 0))
+    model_bundle.internalName = ModelParser._g(bundle, "short_name", "internalName", "")
+    model_bundle.displayName = ModelParser._g(bundle, "display_name", "displayName", "")
+    model_bundle.models = [ModelParser._parse_model(model) for model in bundle.get("models", [])]
     model_bundle.status = 0
-    model_bundle.generation = int(bundle["generation"])
-    model_bundle.environment = bundle["environment"]
-    model_bundle.runner = bundle.get("runner", custom.ModelManagerSP.Runner.snpe)
-    model_bundle.is20hz = bundle.get("is_20hz", False)
-    model_bundle.minimumSelectorVersion = int(bundle["minimum_selector_version"])
+    model_bundle.generation = int(ModelParser._g(bundle, "generation", "generation", 0))
+    model_bundle.environment = ModelParser._g(bundle, "environment", "environment", "")
+    model_bundle.runner = ModelParser._g(bundle, "runner", "runner", custom.ModelManagerSP.Runner.snpe)
+    model_bundle.is20hz = ModelParser._g(bundle, "is_20hz", "is20hz", False)
+    model_bundle.minimumSelectorVersion = int(ModelParser._g(bundle, "minimum_selector_version", "minimumSelectorVersion", 0))
     model_bundle.overrides = ModelParser._parse_overrides(bundle.get("overrides", {}))
-    model_bundle.ref = bundle.get("ref")
+    model_bundle.ref = bundle.get("ref", "")
 
     return model_bundle
 
