@@ -46,7 +46,7 @@ jobs:
         command: git lfs pull
     - name: Build devel
       timeout-minutes: 1
-      run: TARGET_DIR=$STRIPPED_DIR release/build_stripped.sh
+      run: ALLOW_WIPE_TARGET_DIR=1 TARGET_DIR=$STRIPPED_DIR release/build_stripped.sh
     - run: ./tools/op.sh setup
     - name: Build openpilot and run checks
       timeout-minutes: 30
