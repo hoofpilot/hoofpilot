@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: generate_cereal_artifact
     steps:
-      - name: Checkout sunnypilot
+      - name: Checkout hoofpilot
         uses: actions/checkout@v6
       - name: Checkout upstream openpilot
         uses: actions/checkout@v6
