@@ -1,12 +1,12 @@
-name: release
+name: nightly
 on:
   schedule:
     - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
-  build___nightly:
-    name: build __nightly
+  build_nightly:
+    name: build nightly
     runs-on: ubuntu-latest
     if: github.repository == 'hoofpilot/hoofpilot'
     permissions:
@@ -19,7 +19,7 @@ jobs:
       with:
         ref: master
         wait-interval: 30
-        running-workflow-name: 'build __nightly'
+        running-workflow-name: 'build nightly'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         check-regexp: ^((?!.*(build prebuilt|create badges).*).)*$
     - uses: actions/checkout@v4
@@ -27,5 +27,5 @@ jobs:
         submodules: true
         fetch-depth: 0
     - run: ./tools/op.sh setup
-    - name: Push __nightly
-      run: BRANCH=__nightly release/build_stripped.sh
+    - name: Push nightly
+      run: BRANCH=nightly release/build_stripped.sh
