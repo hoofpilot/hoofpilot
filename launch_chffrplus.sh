@@ -88,6 +88,11 @@ function launch {
   # write tmux scrollback to a file
   tmux capture-pane -pq -S-1000 > /tmp/launch_log
 
+  # ensure python dependencies are up to date after OTA updates
+  if command -v uv &> /dev/null; then
+    uv sync --quiet 2>/dev/null || true
+  fi
+
   # start manager
   cd "$DIR/system/manager"
   if [ ! -f $DIR/prebuilt ]; then
