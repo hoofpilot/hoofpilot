@@ -27,8 +27,8 @@ jobs:
 
         git checkout --orphan badges
         git rm -rf --cached .
-        git config user.email "badge-researcher@hoofpilot.ai"
-        git config user.name "Badge Researcher"
+        git config user.email "konikhorse@hoofpilot.ai"
+        git config user.name "A random horse named Konik"
 
         git add translation_badge.svg
         git commit -m "Add/Update badges"

@@ -192,8 +192,8 @@ jobs:
       - name: Push updated models to GitHub and LFS objects to HuggingFace
         run: |
           cd models
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+          git config --global user.email "konikhorse@hoofpilot.ai"
+          git config --global user.name "A random horse named Konik"
           git checkout master
           cp "$JSON_FILE" driving_models.json
           git add models/
