@@ -64,7 +64,7 @@ jobs:
       - name: Getting mici master ui
         uses: actions/checkout@v6
         with:
-          repository: sunnypilot/ci-artifacts
+          repository: hoofpilot/ci-artifacts
           ssh-key: ${{ secrets.CI_ARTIFACTS_DEPLOY_KEY }}
           path: ${{ github.workspace }}/master_mici
           ref: openpilot_master_ui_mici_raylib
@@ -72,7 +72,7 @@ jobs:
       - name: Getting big master ui
         uses: actions/checkout@v6
         with:
-          repository: sunnypilot/ci-artifacts
+          repository: hoofpilot/ci-artifacts
           ssh-key: ${{ secrets.CI_ARTIFACTS_DEPLOY_KEY }}
           path: ${{ github.workspace }}/master_big
           ref: openpilot_master_ui_big_raylib
@@ -88,8 +88,8 @@ jobs:
             git rm -rf *
             git branch -D "$branch"
             git branch -m "$branch"
-            git config user.name "GitHub Actions Bot"
-            git config user.email "<>"
+            git config user.email "konikhorse@hoofpilot.ai"
+            git config user.name "A random horse named Konik"
             cp "${{ github.workspace }}/pr_ui/${video}.mp4" .
             git add .
             git commit -m "${name} video for commit ${{ env.SHA }}"
@@ -104,7 +104,7 @@ jobs:
         id: find_diff
         run: |
           export PYTHONPATH=${{ github.workspace }}
-          baseurl="https://github.com/sunnypilot/ci-artifacts/raw/refs/heads/${{ env.BRANCH_NAME }}"
+          baseurl="https://github.com/hoofpilot/ci-artifacts/raw/refs/heads/${{ env.BRANCH_NAME }}"
 
           COMMENT=""
           for variant in $VARIANTS; do
@@ -123,7 +123,7 @@ jobs:
             cp "${{ github.workspace }}/selfdrive/ui/tests/diff/report/${diff_name}.html" "${{ github.workspace }}/pr_ui/"
             cp "${{ github.workspace }}/selfdrive/ui/tests/diff/report/${diff_name}.mp4" "${{ github.workspace }}/pr_ui/"
 
-            REPORT_URL="https://sunnypilot.github.io/ci-artifacts/${diff_name}_pr_${{ github.event.number }}.html"
+            REPORT_URL="https://hoofpilot.github.io/ci-artifacts/${diff_name}_pr_${{ github.event.number }}.html"
             if [ $diff_exit_code -eq 0 ]; then
               COMMENT+="**${name}**: Videos are identical! [View Diff Report]($REPORT_URL)"$'\n'
             else
@@ -141,8 +141,8 @@ jobs:
         if: github.event_name == 'pull_request_target'
         working-directory: ${{ github.workspace }}/master_mici
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
+          git config user.email "konikhorse@hoofpilot.ai"
+          git config user.name "A random horse named Konik"
           git checkout --orphan=${{ env.BRANCH_NAME }}
           git rm -rf *
           mv ${{ github.workspace }}/pr_ui/* .
