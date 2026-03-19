@@ -19,7 +19,6 @@ import sys
 import tempfile
 import threading
 import time
-import gzip
 import asyncio
 import termios
 from dataclasses import asdict, dataclass, replace
