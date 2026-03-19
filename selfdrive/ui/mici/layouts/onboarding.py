@@ -13,12 +13,10 @@ from openpilot.system.ui.mici_setup import GreyBigButton, BigPillButton
 from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.version import terms_version, training_version, terms_version_sp
-from openpilot.system.version import sunnylink_consent_version, sunnylink_consent_declined
 from openpilot.selfdrive.ui.ui_state import ui_state, device
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
 from openpilot.selfdrive.ui.mici.onroad.driver_state import DriverStateRenderer
 from openpilot.selfdrive.ui.mici.onroad.driver_camera_dialog import BaseDriverCameraDialog
-from openpilot.selfdrive.ui.sunnypilot.mici.layouts.onboarding import SunnylinkConsentPage
 
 
 class DriverCameraSetupDialog(BaseDriverCameraDialog):
@@ -63,7 +61,7 @@ class TrainingGuidePreDMTutorial(NavScroller):
       GreyBigButton("driver monitoring\ncheck", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
       GreyBigButton("", "Next, we'll check if comma four can detect the driver properly."),
-      GreyBigButton("", "sunnypilot uses the cabin camera to check if the driver is distracted."),
+      GreyBigButton("", "hoofpilot uses the cabin camera to check if the driver is distracted."),
       GreyBigButton("", "If it does not have a clear view of the driver, unplug and remount before continuing."),
       continue_button,
     ])
@@ -235,7 +233,7 @@ class TrainingGuideRecordFront(NavScroller):
     self._scroller.add_widgets([
       GreyBigButton("driver camera data", "do you want to share video data for training?",
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
-      GreyBigButton("", "Sharing your data with comma helps improve openpilot and sunnypilot for everyone."),
+      GreyBigButton("", "Sharing your data with comma helps improve openpilot and hoofpilot for everyone."),
       self._accept_button,
       self._decline_button,
     ])
@@ -249,9 +247,9 @@ class TrainingGuideAttentionNotice(Scroller):
     continue_button.set_click_callback(continue_callback)
 
     self._scroller.add_widgets([
-      GreyBigButton("what is sunnypilot?", "scroll to continue",
+      GreyBigButton("what is hoofpilot?", "scroll to continue",
                     gui_app.texture("icons_mici/setup/green_info.png", 64, 64)),
-      GreyBigButton("", "1. sunnypilot is a driver assistance system."),
+      GreyBigButton("", "1. hoofpilot is a driver assistance system."),
       GreyBigButton("", "2. You must pay attention at all times."),
       GreyBigButton("", "3. You must be ready to take over at any time."),
       GreyBigButton("", "4. You are fully responsible for driving the car."),
@@ -322,7 +320,7 @@ class TermsPage(Scroller):
 
     self._terms_header = GreyBigButton("terms of\nservice", "scroll to continue",
                                        gui_app.texture("icons_mici/setup/green_info.png", 64, 64))
-    self._must_accept_card = GreyBigButton("", "You must accept the Terms of Service to use sunnypilot.")
+    self._must_accept_card = GreyBigButton("", "You must accept the Terms of Service to use hoofpilot.")
 
     self._scroller.add_widgets([
       self._terms_header,
@@ -346,20 +344,12 @@ class OnboardingWindow(Widget):
     self._accepted_terms: bool = (ui_state.params.get("HasAcceptedTerms") == terms_version and
                                   ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp)
     self._training_done: bool = ui_state.params.get("CompletedTrainingVersion") == training_version
-    self._sunnylink_consent_done: bool = ui_state.params.get("CompletedSunnylinkConsentVersion") in {
-      sunnylink_consent_version, sunnylink_consent_declined
-    }
 
     self.set_rect(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
 
     # Windows — all pushed onto nav stack, _terms is always rendered as base layer
     self._terms = TermsPage(on_accept=self._on_terms_accepted, on_decline=self._on_uninstall)
     self._terms.set_enabled(lambda: self.enabled)  # for nav stack
-
-    self._sunnylink_consent = SunnylinkConsentPage(
-      on_accept=self._on_sunnylink_accepted,
-      on_decline=self._on_sunnylink_declined,
-    )
 
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._training_guide.set_enabled(lambda: self.enabled)  # for nav stack
@@ -383,7 +373,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._sunnylink_consent_done and self._training_done
+    return self._accepted_terms and self._training_done
 
   def close(self):
     ui_state.params.put_bool_nonblocking("IsDriverViewEnabled", False)
@@ -393,26 +383,6 @@ class OnboardingWindow(Widget):
     ui_state.params.put("HasAcceptedTerms", terms_version)
     ui_state.params.put("HasAcceptedTermsSP", terms_version_sp)
     self._accepted_terms = True
-    if not self._sunnylink_consent_done:
-      gui_app.push_widget(self._sunnylink_consent)
-    elif not self._training_done:
-      gui_app.push_widget(self._training_guide)
-    else:
-      self.close()
-
-  def _on_sunnylink_accepted(self):
-    ui_state.params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_version)
-    ui_state.params.put_bool("SunnylinkEnabled", True)
-    self._sunnylink_consent_done = True
-    if not self._training_done:
-      gui_app.push_widget(self._training_guide)
-    else:
-      self.close()
-
-  def _on_sunnylink_declined(self):
-    ui_state.params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_declined)
-    ui_state.params.put_bool("SunnylinkEnabled", False)
-    self._sunnylink_consent_done = True
     if not self._training_done:
       gui_app.push_widget(self._training_guide)
     else:
@@ -429,9 +399,7 @@ class OnboardingWindow(Widget):
     # Deferred from show_event to avoid nested push_widget re-enable bug
     if self._needs_initial_push:
       self._needs_initial_push = False
-      if self._accepted_terms and not self._sunnylink_consent_done:
-        gui_app.push_widget(self._sunnylink_consent)
-      elif self._accepted_terms and self._sunnylink_consent_done and not self._training_done:
+      if self._accepted_terms and not self._training_done:
         gui_app.push_widget(self._training_guide)
 
     self._terms.render(self._rect)
