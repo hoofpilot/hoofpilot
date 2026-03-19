@@ -37,8 +37,12 @@ assert arch in [
   "Darwin",   # macOS arm64 (x86 not supported)
 ]
 
-pkg_names = ['bzip2', 'capnproto', 'eigen', 'ffmpeg', 'libjpeg', 'libyuv', 'ncurses', 'zeromq', 'zstd']
-pkgs = [importlib.import_module(name) for name in pkg_names]
+if arch == "larch64":
+  # on AGNOS (comma device), vendored native deps aren't pip-installed
+  pkgs = []
+else:
+  pkg_names = ['bzip2', 'capnproto', 'eigen', 'ffmpeg', 'libjpeg', 'libyuv', 'ncurses', 'zeromq', 'zstd']
+  pkgs = [importlib.import_module(name) for name in pkg_names]
 
 
 # ***** enforce a whitelist of system libraries *****
