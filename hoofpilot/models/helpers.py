@@ -58,7 +58,8 @@ def is_bundle_version_compatible(bundle: dict) -> bool:
   :return: True if the selector version is within the accepted range for the bundle; otherwise False.
   :rtype: Bool
   """
-  return bool(REQUIRED_MIN_SELECTOR_VERSION <= bundle.get("minimumSelectorVersion", 0) <= CURRENT_SELECTOR_VERSION)
+  min_ver = bundle.get("minimumSelectorVersion") or bundle.get("minimum_selector_version") or 0
+  return bool(REQUIRED_MIN_SELECTOR_VERSION <= int(min_ver) <= CURRENT_SELECTOR_VERSION)
 
 
 def get_active_bundle(params: Params = None) -> custom.ModelManagerSP.ModelBundle:
@@ -68,7 +69,7 @@ def get_active_bundle(params: Params = None) -> custom.ModelManagerSP.ModelBundl
 
   try:
     if (active_bundle := params.get("ModelManager_ActiveBundle") or {}) and is_bundle_version_compatible(active_bundle):
-      return custom.ModelManagerSP.ModelBundle(**active_bundle)
+      return active_bundle
   except Exception:
     pass
 
