@@ -18,7 +18,7 @@ from pathlib import Path
 
 # see the README.md for more details on the model selector versioning
 CURRENT_SELECTOR_VERSION = 15
-REQUIRED_MIN_SELECTOR_VERSION = 14
+REQUIRED_MIN_SELECTOR_VERSION = 1
 
 
 CUSTOM_MODEL_PATH = Paths.model_root()
