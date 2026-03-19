@@ -44,13 +44,20 @@ class ModelParser:
     return model
 
   @staticmethod
-  def _parse_overrides(overrides_data: dict[str, str]) -> list[custom.ModelManagerSP.Override]:
+  def _parse_overrides(overrides_data) -> list[custom.ModelManagerSP.Override]:
     overrides = []
-    for key, value in overrides_data.items():
-      override = custom.ModelManagerSP.Override()
-      override.key = key
-      override.value = value
-      overrides.append(override)
+    if isinstance(overrides_data, dict):
+      for key, value in overrides_data.items():
+        override = custom.ModelManagerSP.Override()
+        override.key = key
+        override.value = str(value)
+        overrides.append(override)
+    elif isinstance(overrides_data, list):
+      for item in overrides_data:
+        override = custom.ModelManagerSP.Override()
+        override.key = item.get("key", "")
+        override.value = str(item.get("value", ""))
+        overrides.append(override)
     return overrides
 
   @staticmethod
