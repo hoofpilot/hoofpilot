@@ -1,5 +1,5 @@
 """
-Sunnypilot mici Stable panel.
+hoofpilot mici Stable panel.
 
 This is the mici implementation of the "Stable" settings menu (PIN, Live View, Remote SSH, Reset PIN).
 """
