@@ -6,7 +6,9 @@
 #include "cereal/services.h"
 
 #include <QButtonGroup>
+#include <QFileInfo>
 #include <QFormLayout>
+#include <QMessageBox>
 #include <QRadioButton>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
@@ -15,6 +17,32 @@
 // DeviceStream
 
 DeviceStream::DeviceStream(QObject *parent, QString address) : zmq_address(address), LiveStream(parent) {
+}
+
+DeviceStream::~DeviceStream() {
+  if (!bridge_process)
+    return;
+
+  bridge_process->terminate();
+  if (!bridge_process->waitForFinished(3000)) {
+    bridge_process->kill();
+    bridge_process->waitForFinished();
+  }
+}
+
+void DeviceStream::start() {
+  if (!zmq_address.isEmpty()) {
+    bridge_process = new QProcess(this);
+    QString bridge_path = QCoreApplication::applicationDirPath() + "/../../cereal/messaging/bridge";
+    bridge_process->start(QFileInfo(bridge_path).absoluteFilePath(), QStringList { zmq_address, "/\"can/\"" });
+
+    if (!bridge_process->waitForStarted()) {
+      QMessageBox::warning(nullptr, tr("Error"), tr("Failed to start bridge: %1").arg(bridge_process->errorString()));
+      return;
+    }
+  }
+
+  LiveStream::start();
 }
 
 void DeviceStream::streamThread() {

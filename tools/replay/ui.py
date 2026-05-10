@@ -28,10 +28,8 @@ os.environ['BASEDIR'] = BASEDIR
 
 ANGLE_SCALE = 5.0
 
-
 def ui_thread(addr):
   cv2.setNumThreads(1)
-
   # Get monitor info before creating window
   rl.set_config_flags(rl.ConfigFlags.FLAG_MSAA_4X_HINT)
   rl.init_window(1, 1, "")
@@ -89,7 +87,6 @@ def ui_thread(addr):
   )
 
   img = np.zeros((480, 640, 3), dtype='uint8')
-  imgff = None
   num_px = 0
   calibration = None
 
@@ -159,6 +156,7 @@ def ui_thread(addr):
     sm.update(0)
 
     camera = DEVICE_CAMERAS[("tici", str(sm['roadCameraState'].sensor))]
+    calib_scale = camera.fcam.width / 640.0
 
     # Use received buffer dimensions (full HEVC can have stride != buffer_len/rows due to VENUS padding)
     h, w, stride = yuv_img_raw.height, yuv_img_raw.width, yuv_img_raw.stride
@@ -183,7 +181,8 @@ def ui_thread(addr):
     else:
       angle_steers_k = np.inf
 
-    plot_arr[:-1] = plot_arr[1:]
+    if sm.updated['carState']:
+      plot_arr[:-1] = plot_arr[1:]
     plot_arr[-1, name_to_arr_idx['angle_steers']] = sm['carState'].steeringAngleDeg
     plot_arr[-1, name_to_arr_idx['angle_steers_des']] = sm['carControl'].actuators.steeringAngleDeg
     plot_arr[-1, name_to_arr_idx['angle_steers_k']] = angle_steers_k
@@ -198,9 +197,10 @@ def ui_thread(addr):
     plot_arr[-1, name_to_arr_idx['v_cruise']] = sm['carState'].cruiseState.speed
     plot_arr[-1, name_to_arr_idx['a_ego']] = sm['carState'].aEgo
 
-    if len(sm['longitudinalPlan'].accels):
-      plot_arr[-1, name_to_arr_idx['a_target']] = sm['longitudinalPlan'].accels[0]
+    plot_arr[-1, name_to_arr_idx['a_target']] = sm['longitudinalPlan'].aTarget
 
+    # Draw model overlays onto img, then blit as transparent overlay
+    img[:] = 0
     if sm.recv_frame['modelV2']:
       plot_model(sm['modelV2'], img, calibration, top_down)
 

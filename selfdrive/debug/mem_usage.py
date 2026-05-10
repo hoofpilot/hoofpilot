@@ -4,11 +4,11 @@ import os
 from collections import defaultdict
 
 import numpy as np
-from tabulate import tabulate
 
+from openpilot.common.utils import tabulate
 from openpilot.tools.lib.logreader import LogReader
 
-DEMO_ROUTE = "a2a0ccea32023010|2023-07-27--13-01-19"
+DEMO_ROUTE = "5beb9b58bd12b691/0000010a--a51155e496"
 MB = 1024 * 1024
 TABULATE_OPTS = dict(tablefmt="simple_grid", stralign="center", numalign="center")
 
@@ -110,7 +110,6 @@ def process_table_rows(by_proc, total_mb, use_pss, show_detail):
       row.append(f"{round(np.mean(m['pss_shmem']))} MB")
     rows.append(row)
 
-  # Total row
   total_row = None
   if by_proc:
     max_samples = max(len(v[mem_key]) for v in by_proc.values())
@@ -136,10 +135,10 @@ def print_process_tables(op_procs, other_procs, total_mb, use_pss):
     header += ["anon", "shmem"]
 
   op_rows, op_total = process_table_rows(op_procs, total_mb, use_pss, show_detail)
-  # filter other: >5MB avg and not bare interpreter paths (test infra noise)
-  other_filtered = {n: v for n, v in other_procs.items()
-                    if np.mean(v['pss' if use_pss else 'rss']) > 5.0
-                    and os.path.basename(n.split()[0]) not in ('python', 'python3')}
+  other_filtered = {
+    n: v for n, v in other_procs.items()
+    if np.mean(v['pss' if use_pss else 'rss']) > 5.0 and os.path.basename(n.split()[0]) not in ('python', 'python3')
+  }
   other_rows, other_total = process_table_rows(other_filtered, total_mb, use_pss, show_detail)
 
   rows = op_rows
@@ -162,7 +161,7 @@ def print_memory_accounting(proc_logs, op_procs, other_procs, total_mb, use_pss)
   last = proc_logs[-1].procLog.mem
   used = (last.total - last.available) / MB
   shared = last.shared / MB
-  cached_buf = (last.buffers + last.cached) / MB - shared  # shared (MSGQ) is in Cached; separate it
+  cached_buf = (last.buffers + last.cached) / MB - shared
   msgq = shared
 
   mem_key = 'pss' if use_pss else 'rss'
@@ -172,7 +171,6 @@ def print_memory_accounting(proc_logs, op_procs, other_procs, total_mb, use_pss)
   remainder = used - (cached_buf + msgq) - proc_sum
 
   if not use_pss:
-    # RSS double-counts shared; add back once to partially correct
     remainder += shared
 
   header = ["", "MB", "%", ""]

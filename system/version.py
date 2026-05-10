@@ -10,11 +10,25 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.git import get_commit, get_origin, get_branch, get_short_branch, get_commit_date
 
-RELEASE_SP_BRANCHES = ['release']
-TESTED_SP_BRANCHES = ['release', 'staging']
+RELEASE_SP_BRANCHES = ['release', 'release-c3', 'release-tizi', 'release-tici', 'release-tizi-staging', 'release-tici-staging']
+TESTED_SP_BRANCHES = ['staging-c3', 'staging-c3-new', 'staging']
 MASTER_SP_BRANCHES = ['master']
-RELEASE_BRANCHES = ['release']
-TESTED_BRANCHES = RELEASE_SP_BRANCHES + TESTED_SP_BRANCHES + RELEASE_BRANCHES
+RELEASE_BRANCHES = ['release-tizi-staging', 'release-mici-staging', 'release-tizi', 'release-mici', 'nightly']
+TESTED_BRANCHES = RELEASE_BRANCHES + ['devel-staging', 'nightly-dev'] + RELEASE_SP_BRANCHES + TESTED_SP_BRANCHES
+
+SP_BRANCH_MIGRATIONS = {
+  ("tici", "staging-c3-new"): "staging-tici",
+  ("tici", "dev-c3-new"): "staging-tici",
+  ("tici", "master"): "master-tici",
+  ("tici", "master-dev-c3-new"): "master-tici",
+  ("tizi", "staging-c3-new"): "staging",
+  ("tizi", "dev-c3-new"): "dev",
+  ("tizi", "master-dev-c3-new"): "master-dev",
+  ("tizi", "release3"): "release-tizi",
+  ("tizi", "release3-staging"): "release-tizi-staging",
+  ("mici", "release3"): "release-mici",
+  ("mici", "release3-staging"): "release-mici-staging",
+}
 
 BUILD_METADATA_FILENAME = "build.json"
 

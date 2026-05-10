@@ -107,7 +107,6 @@ function install_ubuntu_deps() {
     libqt5x11extras5-dev \
     libqt5opengl5-dev \
     gettext
-
   if [[ -d "/etc/udev/rules.d/" ]]; then
     # Setup jungle udev rules
     $SUDO tee /etc/udev/rules.d/12-panda_jungle.rules > /dev/null <<EOF
@@ -170,7 +169,6 @@ function install_macos_deps() {
     brew install cmake
   fi
 }
-
 # --- Main ---
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then

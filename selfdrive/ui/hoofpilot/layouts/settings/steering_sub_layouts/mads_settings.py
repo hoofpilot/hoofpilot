@@ -1,13 +1,13 @@
 """
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
+Copyright (c) 2021-, Haibin Wen, hoofpilot, and a number of other contributors.
 
-This file is part of sunnypilot and is licensed under the MIT License.
+This file is part of hoofpilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 from collections.abc import Callable
 import pyray as rl
 
-from opendbc.sunnypilot.car.tesla.values import TeslaFlagsSP
+from opendbc.hoofpilot.car.tesla.values import TeslaFlagsSP
 from openpilot.selfdrive.ui.ui_state import ui_state
 from hoofpilot.mads.helpers import MadsSteeringModeOnBrake
 from openpilot.system.ui.lib.multilang import tr, tr_noop
@@ -135,4 +135,3 @@ class MadsSettingsLayout(Widget):
 
       self._steering_mode.action_item.set_enabled(True)
       self._steering_mode.action_item.set_enabled_buttons(None)
-

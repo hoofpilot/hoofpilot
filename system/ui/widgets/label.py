@@ -1,3 +1,4 @@
+import math
 from enum import IntEnum
 from collections.abc import Callable
 from itertools import zip_longest
@@ -26,7 +27,6 @@ class ScrollState(IntEnum):
   SCROLLING = 1
 
 
-# TODO: merge anything new here to master
 class MiciLabel(Widget):
   def __init__(self,
                text: str,
@@ -184,8 +184,6 @@ class MiciLabel(Widget):
         rl.draw_rectangle_gradient_h(int(rect.x), int(rect.y), fade_width, int(rect.height), rl.BLACK, rl.BLANK)
 
       rl.end_scissor_mode()
-
-
 # TODO: This should be a Widget class
 def gui_label(
   rect: rl.Rectangle,
@@ -392,7 +390,7 @@ class Label(Widget):
 
 class UnifiedLabel(Widget):
   """
-  Unified label widget that combines functionality from gui_label, gui_text_box, Label, and MiciLabel.
+  Unified label widget that combines functionality from gui_label, gui_text_box, and Label.
 
   Supports:
   - Emoji rendering
@@ -401,6 +399,13 @@ class UnifiedLabel(Widget):
   - Proper multiline vertical alignment
   - Height calculation for layout purposes
   """
+  # Shimmer constants
+  SHIMMER_BAND_WIDTH = 0.3       # shimmer width as fraction of text width
+  SHIMMER_BLUR_RADIUS = 0.12     # gaussian blur as fraction of text width
+  SHIMMER_CYCLE_PERIOD = 2.5     # seconds per full shimmer cycle
+  SHIMMER_SWEEP_FRACTION = 0.9   # fraction of cycle spent sweeping (rest is pause)
+  SHIMMER_LOW_OPACITY = 0.65     # text opacity at rest, shimmer brings to 1.0
+
   def __init__(self,
                text: str | Callable[[], str],
                font_size: int = DEFAULT_TEXT_SIZE,
@@ -414,7 +419,8 @@ class UnifiedLabel(Widget):
                wrap_text: bool = True,
                scroll: bool = False,
                line_height: float = 1.0,
-               letter_spacing: float = 0.0):
+               letter_spacing: float = 0.0,
+               shimmer: bool = False):
     super().__init__()
     self._text = text
     self._font_size = font_size
@@ -431,6 +437,10 @@ class UnifiedLabel(Widget):
     self._line_height = line_height * 0.9
     self._letter_spacing = letter_spacing  # 0.1 = 10%
     self._spacing_pixels = font_size * letter_spacing
+
+    # Shimmer state
+    self._shimmer = shimmer
+    self._shimmer_start_time = 0.0
 
     # Scroll state
     self._scroll = scroll
@@ -467,6 +477,14 @@ class UnifiedLabel(Widget):
     """Get the current text content."""
     return str(_resolve_value(self._text))
 
+  @property
+  def font_size(self) -> int:
+    return self._font_size
+
+  @property
+  def text_width(self) -> float:
+    return max((s.x for s in self._cached_line_sizes), default=0.0)
+
   def set_text_color(self, color: rl.Color):
     """Update the text color."""
     self._text_color = color
@@ -489,6 +507,13 @@ class UnifiedLabel(Widget):
       self._spacing_pixels = self._font_size * letter_spacing
       self._cached_text = None  # Invalidate cache
 
+  def set_line_height(self, line_height: float):
+    """Update line height (multiplier, e.g., 1.0 = default)."""
+    new_line_height = line_height * 0.9
+    if self._line_height != new_line_height:
+      self._line_height = new_line_height
+      self._cached_text = None  # Invalidate cache (affects total height)
+
   def set_font_weight(self, font_weight: FontWeight):
     """Update the font weight."""
     if self._font_weight != font_weight:
@@ -510,6 +535,14 @@ class UnifiedLabel(Widget):
     self._scroll_pause_t = None
     self._scroll_state = ScrollState.STARTING
 
+  def show_event(self):
+    super().show_event()
+    if self._shimmer:
+      self.reset_shimmer()
+
+  def reset_shimmer(self, offset: float = 0.0):
+    """Reset shimmer animation timing."""
+    self._shimmer_start_time = rl.get_time() + offset
   def set_max_width(self, max_width: int | None):
     """Set the maximum width constraint for wrapping/eliding."""
     if self._max_width != max_width:
@@ -753,10 +786,33 @@ class UnifiedLabel(Widget):
       # draw black fade on left and right
       fade_width = 20
       rl.draw_rectangle_gradient_h(int(self._rect.x + self._rect.width - fade_width), int(self._rect.y), fade_width, int(self._rect.height), rl.BLANK, rl.BLACK)
-      if self._scroll_state != ScrollState.STARTING:
+
+      # stop drawing left fade once text scrolls past
+      text_width = visible_sizes[0].x if visible_sizes else 0
+      first_copy_in_view = self._scroll_offset + text_width > 0
+      draw_left_fade = self._scroll_state != ScrollState.STARTING and first_copy_in_view
+      if draw_left_fade:
         rl.draw_rectangle_gradient_h(int(self._rect.x), int(self._rect.y), fade_width, int(self._rect.height), rl.BLACK, rl.BLANK)
 
       rl.end_scissor_mode()
+
+  def _shimmer_alpha(self, char_x: float, shimmer_left: float, shimmer_width: float) -> float:
+    """Compute shimmer opacity multiplier for a character at the given x position."""
+    sigma = shimmer_width * self.SHIMMER_BLUR_RADIUS
+    if sigma <= 0:
+      return self.SHIMMER_LOW_OPACITY
+
+    elapsed = rl.get_time() - self._shimmer_start_time
+    t_raw = (elapsed % self.SHIMMER_CYCLE_PERIOD) / self.SHIMMER_CYCLE_PERIOD
+    t_clamped = max(0.0, min(t_raw / self.SHIMMER_SWEEP_FRACTION, 1.0))
+    t = t_clamped * t_clamped * (3.0 - 2.0 * t_clamped)  # smoothstep
+
+    margin = shimmer_width * self.SHIMMER_BAND_WIDTH
+    center = shimmer_left + shimmer_width + margin - t * (shimmer_width + 2.0 * margin)
+
+    d = char_x - center
+    shimmer = math.exp(-0.5 * d * d / (sigma * sigma))
+    return self.SHIMMER_LOW_OPACITY + (1.0 - self.SHIMMER_LOW_OPACITY) * shimmer
 
   def _render_line(self, line, size, emojis, current_y, x_offset=0.0):
     # Calculate horizontal position
@@ -770,7 +826,13 @@ class UnifiedLabel(Widget):
       line_x = self._rect.x + self._text_padding
     line_x += self._scroll_offset + x_offset
 
-    # Render line with emojis
+    if self._shimmer:
+      self._render_line_shimmer(line, line_x, current_y)
+    else:
+      # Render line with emojis
+      self._render_line_normal(line, emojis, line_x, current_y)
+
+  def _render_line_normal(self, line, emojis, line_x, current_y):
     line_pos = rl.Vector2(line_x, current_y)
     prev_index = 0
 
@@ -794,3 +856,23 @@ class UnifiedLabel(Widget):
     text_after = line[prev_index:]
     if text_after:
       rl.draw_text_ex(self._font, text_after, line_pos, self._font_size, self._spacing_pixels, self._text_color)
+
+  def _render_line_shimmer(self, line, line_x, current_y):
+    # Shimmer range based on widest line so sweep is even across all lines
+    max_width = self.text_width
+    if self._alignment == rl.GuiTextAlignment.TEXT_ALIGN_RIGHT:
+      shimmer_left = self._rect.x + self._rect.width - self._text_padding - max_width
+    elif self._alignment == rl.GuiTextAlignment.TEXT_ALIGN_CENTER:
+      shimmer_left = self._rect.x + (self._rect.width - max_width) / 2
+    else:
+      shimmer_left = self._rect.x + self._text_padding
+
+    base_a = self._text_color.a / 255.0
+    cursor_x = line_x
+    for ch in line:
+      char_width = measure_text_cached(self._font, ch, self._font_size, self._spacing_pixels).x
+      char_center_x = cursor_x + char_width / 2.0
+      alpha = int(255 * self._shimmer_alpha(char_center_x, shimmer_left, max_width) * base_a)
+      color = rl.Color(self._text_color.r, self._text_color.g, self._text_color.b, alpha)
+      rl.draw_text_ex(self._font, ch, rl.Vector2(cursor_x, current_y), self._font_size, 0, color)
+      cursor_x += char_width + self._spacing_pixels

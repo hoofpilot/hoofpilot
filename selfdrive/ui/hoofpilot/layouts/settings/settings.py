@@ -1,7 +1,7 @@
 """
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
+Copyright (c) 2021-, Haibin Wen, hoofpilot, and a number of other contributors.
 
-This file is part of sunnypilot and is licensed under the MIT License.
+This file is part of hoofpilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 from dataclasses import dataclass
@@ -9,6 +9,7 @@ from enum import IntEnum
 
 import pyray as rl
 from openpilot.selfdrive.ui.layouts.settings import settings as OP
+from openpilot.selfdrive.ui.layouts.settings.firehose import FirehoseLayout
 from openpilot.selfdrive.ui.layouts.settings.toggles import TogglesLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.cruise import CruiseLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.developer import DeveloperLayoutSP
@@ -20,6 +21,7 @@ from openpilot.selfdrive.ui.hoofpilot.layouts.settings.osm import OSMLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.software import SoftwareLayoutSP
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.stable import StableLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.steering import SteeringLayout
+from openpilot.selfdrive.ui.hoofpilot.layouts.settings.sunnylink import SunnylinkLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.trips import TripsLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.vehicle import VehicleLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.visuals import VisualsLayout
@@ -83,8 +85,7 @@ class NavButton(Widget):
 
     if self.panel_info.icon:
       icon_texture = gui_app.texture(self.panel_info.icon, ICON_SIZE, ICON_SIZE, keep_aspect_ratio=True)
-      rl.draw_texture(icon_texture, int(content_x), int(rect.y + (OP.NAV_BTN_HEIGHT - icon_texture.height) / 2),
-                      rl.WHITE)
+      rl.draw_texture_ex(icon_texture, rl.Vector2(content_x, rect.y + (OP.NAV_BTN_HEIGHT - icon_texture.height) / 2), 0.0, 1.0, rl.WHITE)
       content_x += ICON_SIZE + 20
 
     # Draw button text (right-aligned)
@@ -115,8 +116,8 @@ class SettingsLayoutSP(OP.SettingsLayout):
       OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_home.png"),
       OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png"),
       OP.PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUISP(wifi_manager), icon="icons/network.png"),
+      OP.PanelType.SUNNYLINK: PanelInfo(tr_noop("sunnylink"), SunnylinkLayout(), icon="icons/wifi_strength_full.png"),
       OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_toggle.png"),
-      OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),
       OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),
       OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_models.png"),
       OP.PanelType.STEERING: PanelInfo(tr_noop("Steering"), SteeringLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_lateral.png"),
@@ -127,6 +128,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
       # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
       OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_trips.png"),
       OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_vehicle.png"),
+      OP.PanelType.FIREHOSE: PanelInfo(tr_noop("Firehose"), FirehoseLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_firehose.png"),
       OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/shell.png"),
     }
 
@@ -216,4 +218,3 @@ class SettingsLayoutSP(OP.SettingsLayout):
     super().show_event()
     self._panels[self._current_panel].instance.show_event()
     self._sidebar_scroller.show_event()
-

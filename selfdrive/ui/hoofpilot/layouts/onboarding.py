@@ -1,7 +1,7 @@
 """
-Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
+Copyright (c) 2021-, Haibin Wen, hoofpilot, and a number of other contributors.
 
-This file is part of sunnypilot and is licensed under the MIT License.
+This file is part of hoofpilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import pyray as rl
@@ -20,7 +20,7 @@ class SunnylinkConsentPage(Widget):
     self._done_callback = done_callback
     self._step = 0
 
-    self._title = Label(tr("sunnylink"), font_size=90, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
+    self._title = self._child(Label(tr("sunnylink"), font_size=90, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT))
 
     self._content = [
       {
@@ -40,9 +40,10 @@ class SunnylinkConsentPage(Widget):
       }
     ]
 
-    self._primary_btn = Button("", button_style=ButtonStyle.PRIMARY, click_callback=lambda: self._handle_choice("enable"))
-    self._secondary_btn = Button("", button_style=ButtonStyle.NORMAL, click_callback=lambda: self._handle_choice("secondary"))
-    self._danger_btn = Button("", button_style=ButtonStyle.DANGER, click_callback=lambda: self._handle_choice("disable"))
+    self._primary_btn = self._child(Button("", button_style=ButtonStyle.PRIMARY, click_callback=lambda: self._handle_choice("enable")))
+    self._secondary_btn = self._child(Button("", button_style=ButtonStyle.NORMAL, click_callback=lambda: self._handle_choice("secondary")))
+    self._danger_btn = self._child(Button("", button_style=ButtonStyle.DANGER, click_callback=lambda: self._handle_choice("disable")))
+    self._desc = self._child(Label("", font_size=90, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT))
 
   def _handle_choice(self, choice):
     if choice == "enable":
@@ -73,8 +74,8 @@ class SunnylinkConsentPage(Widget):
     desc_y = welcome_y + 120
     desc_rect = rl.Rectangle(desc_x, desc_y, self._rect.width - desc_x, self._rect.height - desc_y - 250)
 
-    desc_label = Label(step_data["text"], font_size=90, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
-    desc_label.render(desc_rect)
+    self._desc.set_text(step_data["text"])
+    self._desc.render(desc_rect)
 
     btn_y = self._rect.y + self._rect.height - 160 - 45
 
@@ -96,8 +97,6 @@ class SunnylinkConsentPage(Widget):
       self._primary_btn.set_text(step_data["primary_btn"])
       self._primary_btn.render(rl.Rectangle(self._rect.x + 45 * 2 + btn_width, btn_y, btn_width, 160))
 
-    return -1
-
 
 class SunnylinkOnboarding:
   def __init__(self):
@@ -114,4 +113,3 @@ class SunnylinkOnboarding:
   def render(self, rect):
     if not self.consent_done:
       self.consent_page.render(rect)
-

@@ -38,6 +38,7 @@ class ExperimentalModeButton(Widget):
       self._mono_font = gui_app.font(FontWeight.BOLD)
 
   def show_event(self):
+    super().show_event()
     self.experimental_mode = self.params.get_bool("ExperimentalMode")
     self.openpilot_enabled = self.params.get_bool("OpenpilotEnabledToggle")
 
