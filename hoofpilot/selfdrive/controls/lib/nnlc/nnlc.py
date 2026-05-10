@@ -13,7 +13,7 @@ from opendbc.sunnypilot.car.interfaces import LatControlInputs
 from opendbc.sunnypilot.car.lateral_ext import get_friction as get_friction_in_torque_space
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.params import Params
-from openpilot.selfdrive.modeld.constants import ModelConstants
+from openpilot.hoofpilot.modeld_v2_v2.constants import ModelConstants
 from hoofpilot.selfdrive.controls.lib.latcontrol_torque_ext_base import LatControlTorqueExtBase, sign
 from hoofpilot.selfdrive.controls.lib.nnlc.helpers import MOCK_MODEL_PATH
 from hoofpilot.selfdrive.controls.lib.nnlc.model import NNTorqueModel

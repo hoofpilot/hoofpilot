@@ -9,7 +9,7 @@ import numpy as np
 
 from openpilot.common.pid import PIDController
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
-from openpilot.selfdrive.modeld.constants import ModelConstants
+from openpilot.hoofpilot.modeld_v2_v2.constants import ModelConstants
 
 LAT_PLAN_MIN_IDX = 5
 LATERAL_LAG_MOD = 0.0  # seconds, modifies how far in the future we look ahead for the lateral plan
