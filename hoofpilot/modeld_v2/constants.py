@@ -13,9 +13,12 @@ class ModelConstants:
   META_T_IDXS = [2., 4., 6., 8., 10.]
 
   # model inputs constants
-  MODEL_FREQ = 20
+  N_FRAMES = 2
+  MODEL_RUN_FREQ = 20
+  MODEL_CONTEXT_FREQ = 5 # "model_trained_fps"
+
   FEATURE_LEN = 512
-  FULL_HISTORY_BUFFER_LEN = 99
+
   DESIRE_LEN = 8
   TRAFFIC_CONVENTION_LEN = 2
   LAT_PLANNER_STATE_LEN = 4
