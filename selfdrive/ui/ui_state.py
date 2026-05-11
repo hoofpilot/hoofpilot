@@ -117,7 +117,6 @@ class UIState(UIStateSP):
     if time.monotonic() - self._param_update_time > 5.0:
       self.update_params()
     device.update()
-    UIStateSP.update(self)
 
   def _update_state(self) -> None:
     # Handle panda states updates
