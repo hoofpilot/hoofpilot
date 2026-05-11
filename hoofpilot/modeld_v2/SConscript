@@ -1,88 +1,59 @@
-import glob
-import json
 import os
-from SCons.Script import Value
-from openpilot.common.file_chunker import chunk_file, get_chunk_paths
-from tinygrad import Device
+import glob
 
 Import('env', 'arch')
-chunker_file = File("#common/file_chunker.py")
 lenv = env.Clone()
-
-tinygrad_root = env.Dir("#").abspath
-tinygrad_files = ["#"+x for x in glob.glob(env.Dir("#tinygrad_repo").relpath + "/**", recursive=True, root_dir=tinygrad_root)
-                  if 'pycache' not in x and os.path.isfile(os.path.join(tinygrad_root, x))]
-
-def estimate_pickle_max_size(onnx_size):
-  return 1.2 * onnx_size  + 10 * 1024 * 1024  # 20% + 10MB is plenty
-
-# THREADS=0 is need to prevent bug: https://github.com/tinygrad/tinygrad/issues/14689
-# get fastest TG config
-available = set(Device.get_available_devices())
-# FIXME-SP: reset when we bump tg
-if False:  # 'CUDA' in available:
-  tg_backend = 'CUDA'
-  tg_flags = f'DEV={tg_backend}'
-elif 'QCOM' in available:
-  tg_backend = 'QCOM'
-  tg_flags = f'DEV={tg_backend} FLOAT16=1 NOLOCALS=1 JIT_BATCH_SIZE=0'
-else:
-  tg_backend = 'CPU' if arch == 'Darwin' else 'CPU CPU_LLVM=1'  # FIXME-SP: reset when we bump tg
-  tg_flags = f'DEV={tg_backend} THREADS=0'
-
-def write_tg_compiled_flags(target, source, env):
-  with open(str(target[0]), "w") as f:
-    json.dump({"DEV": tg_backend}, f)
-    f.write("\n")
-
-compiled_flags_node = lenv.Command(
-  File("models/tg_compiled_flags.json").abspath,
-  tinygrad_files + [Value(tg_backend)],
-  write_tg_compiled_flags,
-)
-
-# tinygrad calls brew which needs a $HOME in the env
-mac_brew_string = f'HOME={os.path.expanduser("~")}' if arch == 'Darwin' else ''
+tinygrad_files = ["#"+x for x in glob.glob(env.Dir("#tinygrad_repo").relpath + "/**", recursive=True, root_dir=env.Dir("#").abspath) if 'pycache' not in x]
 
 # Get model metadata
-for model_name in ['driving_vision', 'driving_policy', 'dmonitoring_model']:
-  fn = File(f"models/{model_name}").abspath
-  script_files = [File(Dir("#hoofpilot/modeld_v2").File("get_model_metadata.py").abspath)]
-  cmd = f'{tg_flags} {mac_brew_string} python3 {Dir("#hoofpilot/modeld_v2").abspath}/get_model_metadata.py {fn}.onnx'
-  lenv.Command(fn + "_metadata.pkl", [fn + ".onnx"] + tinygrad_files + script_files + [compiled_flags_node], cmd)
+PC = not os.path.isfile('/TICI')
+if PC:
+  inputs = tinygrad_files + [File(Dir("#hoofpilot/modeld_v2").File("install_models_pc.py").abspath)]
+  outputs = []
+  model_dir = Dir("models").abspath
+  cmd = f'python3 {Dir("#hoofpilot/modeld_v2").abspath}/install_models_pc.py {model_dir}'
+
+  for model_name in ['supercombo', 'driving_vision', 'driving_off_policy', 'driving_on_policy', 'driving_policy']:
+    if File(f"models/{model_name}.onnx").exists():
+        inputs.append(File(f"models/{model_name}.onnx"))
+        inputs.append(File(f"models/{model_name}_tinygrad.pkl"))
+        outputs.append(File(f"models/{model_name}_metadata.pkl"))
+  if outputs:
+    lenv.Command(outputs, inputs, cmd)
+
+tg_flags = {
+  'larch64': 'DEV=QCOM FLOAT16=1 NOLOCALS=1 JIT_BATCH_SIZE=0',
+  'Darwin': f'DEV=CPU THREADS=0 HOME={os.path.expanduser("~")}',
+}.get(arch, 'DEV=CPU CPU_LLVM=1 THREADS=0')
 
 image_flag = {
-     'larch64': 'IMAGE=2',
+  'larch64': 'IMAGE=2',
 }.get(arch, 'IMAGE=0')
-script_files = [File(Dir("#hoofpilot/modeld_v2").File("compile_warp.py").abspath)]
-compile_warp_cmd = f'{tg_flags} {mac_brew_string} python3 {Dir("#hoofpilot/modeld_v2").abspath}/compile_warp.py '
-from openpilot.common.transformations.camera import _ar_ox_fisheye, _os_fisheye
-warp_targets = []
-for cam in [_ar_ox_fisheye, _os_fisheye]:
-  w, h = cam.width, cam.height
-  warp_targets += [File(f"models/warp_{w}x{h}_tinygrad.pkl").abspath, File(f"models/dm_warp_{w}x{h}_tinygrad.pkl").abspath]
-lenv.Command(warp_targets, tinygrad_files + script_files + [compiled_flags_node], compile_warp_cmd)
 
 def tg_compile(flags, model_name):
   pythonpath_string = 'PYTHONPATH="${PYTHONPATH}:' + env.Dir("#tinygrad_repo").abspath + '"'
   fn = File(f"models/{model_name}").abspath
-  pkl = fn + "_tinygrad.pkl"
-  onnx_path = fn + ".onnx"
-  chunk_targets = get_chunk_paths(pkl, estimate_pickle_max_size(os.path.getsize(onnx_path)))
-  compile_node = lenv.Command(
-    pkl,
-    [onnx_path] + tinygrad_files + [chunker_file, compiled_flags_node],
-    f'{pythonpath_string} {flags} {image_flag} python3 {Dir("#tinygrad_repo").abspath}/examples/openpilot/compile3.py {fn}.onnx {pkl}',
-  )
-  def do_chunk(target, source, env):
-    chunk_file(pkl, chunk_targets)
+  out = fn + "_tinygrad.pkl"
+
   return lenv.Command(
-    chunk_targets,
-    compile_node,
-    do_chunk,
+    out,
+    [fn + ".onnx"] + tinygrad_files,
+    f'{pythonpath_string} {flags} {image_flag} python3 {Dir("#tinygrad_repo").abspath}/examples/openpilot/compile3.py {fn}.onnx {out}'
   )
 
-# Compile small models
-for model_name in ['driving_vision', 'driving_policy', 'dmonitoring_model']:
-  tg_compile(tg_flags, model_name)
+# Compile models
+for model_name in ['supercombo', 'driving_vision', 'driving_off_policy', 'driving_on_policy', 'driving_policy']:
+  if File(f"models/{model_name}.onnx").exists():
+    tg_compile(tg_flags, model_name)
 
+script_files = [File("warp.py"), File(Dir("#selfdrive/modeld").File("compile_warp.py").abspath)]
+pythonpath_string = 'PYTHONPATH="${PYTHONPATH}:' + env.Dir("#tinygrad_repo").abspath + ':' + env.Dir("#").abspath + '"'
+compile_warp_cmd = f'{pythonpath_string} {tg_flags} python3 -m hoofpilot.modeld_v2.warp'
+
+from openpilot.common.transformations.camera import _ar_ox_fisheye, _os_fisheye
+warp_targets = []
+for cam in [_ar_ox_fisheye, _os_fisheye]:
+  w, h = cam.width, cam.height
+  for bl in [2, 5]:
+    warp_targets.append(File(f"models/warp_{w}x{h}_b{bl}_tinygrad.pkl").abspath)
+lenv.Command(warp_targets, tinygrad_files + script_files, compile_warp_cmd)
