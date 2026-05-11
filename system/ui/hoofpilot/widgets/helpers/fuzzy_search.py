@@ -38,4 +38,3 @@ def search_from_list(query: str, items: list[str]) -> list[str]:
       results.append(item)
 
   return results
-

@@ -3,10 +3,10 @@ from collections.abc import Callable
 
 import pyray as rl
 
-from openpilot.common.filter_simple import FirstOrderFilter, BounceFilter
 from openpilot.system.ui.lib.application import gui_app, FontWeight
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.label import UnifiedLabel
+from openpilot.common.filter_simple import FirstOrderFilter, BounceFilter
 
 
 class SliderBase(Widget, abc.ABC):
@@ -28,14 +28,16 @@ class SliderBase(Widget, abc.ABC):
 
     self._drag_threshold = -self._rect.width // 2
 
+    # State
     self._opacity_filter = FirstOrderFilter(1.0, 0.1, 1 / gui_app.target_fps)
     self._confirmed_time = 0.0
-    self._confirm_callback_called = False
+    self._confirm_callback_called = False  # we keep dialog open by default, only call once
     self._start_x_circle = 0.0
     self._scroll_x_circle = 0.0
     self._scroll_x_circle_filter = FirstOrderFilter(0, 0.05, 1 / gui_app.target_fps)
     self._circle_scale_filter = BounceFilter(1.0, 0.1, 1 / gui_app.target_fps)
     self._circle_press_time: float | None = None
+
     self._is_dragging_circle = False
 
     self._label = self._child(UnifiedLabel(title, font_size=36, font_weight=FontWeight.SEMI_BOLD, text_color=rl.WHITE,
@@ -55,6 +57,7 @@ class SliderBase(Widget, abc.ABC):
     self.reset()
 
   def reset(self):
+    # reset all slider state
     self._is_dragging_circle = False
     self._circle_press_time = None
     self._confirmed_time = 0.0
@@ -80,6 +83,7 @@ class SliderBase(Widget, abc.ABC):
     super()._handle_mouse_event(mouse_event)
 
     if mouse_event.left_pressed:
+      # touch rect goes to the padding
       circle_button_rect = rl.Rectangle(
         self._rect.x + (self._rect.width - self._circle_bg_txt.width) + self._scroll_x_circle_filter.x - self.HORIZONTAL_PADDING * 2,
         self._rect.y,
@@ -92,6 +96,7 @@ class SliderBase(Widget, abc.ABC):
         self._circle_press_time = rl.get_time()
 
     elif mouse_event.left_released:
+      # swiped to left
       if self._scroll_x_circle_filter.x < self._drag_threshold:
         self._confirmed_time = rl.get_time()
 
@@ -102,18 +107,25 @@ class SliderBase(Widget, abc.ABC):
 
   def _update_state(self):
     super()._update_state()
+    # TODO: this math can probably be cleaned up to remove duplicate stuff
     activated_pos = int(-self._bg_txt.width + self._circle_bg_txt.width)
     self._scroll_x_circle = max(min(self._scroll_x_circle, 0), activated_pos)
 
     if self.confirmed:
+      # swiped left to confirm
       self._scroll_x_circle_filter.update(activated_pos)
+
+      # activate once animation completes, small threshold for small floats
       if self._scroll_x_circle_filter.x < (activated_pos + 1):
         if not self._confirm_callback_called and (rl.get_time() - self._confirmed_time) >= self.CONFIRM_DELAY:
           self._confirm_callback_called = True
           self._on_confirm()
+
     elif not self._is_dragging_circle:
+      # reset back to right
       self._scroll_x_circle_filter.update(0)
     else:
+      # not activated yet, keep movement 1:1
       self._scroll_x_circle_filter.x = self._scroll_x_circle
 
   def _render(self, _):
@@ -137,6 +149,7 @@ class SliderBase(Widget, abc.ABC):
       )
       self._label.render(label_rect)
 
+    # circle and arrow with grow animation
     circle_pressed = self._is_dragging_circle or self.confirmed or (self._circle_press_time is not None and rl.get_time() - self._circle_press_time < 0.075)
     circle_bg_txt = self._circle_bg_pressed_txt if circle_pressed else self._circle_bg_txt
     scale = self._circle_scale_filter.update(self.PRESSED_SCALE if circle_pressed else 1.0)
@@ -147,16 +160,6 @@ class SliderBase(Widget, abc.ABC):
     arrow_x = btn_x + (self._circle_bg_txt.width - self._circle_arrow_txt.width) / 2
     arrow_y = scaled_btn_y + (self._circle_bg_txt.height - self._circle_arrow_txt.height) / 2
     rl.draw_texture_ex(self._circle_arrow_txt, rl.Vector2(arrow_x, arrow_y), 0.0, 1.0, white)
-
-
-class SmallSlider(SliderBase):
-  def _load_assets(self):
-    self.set_rect(rl.Rectangle(0, 0, 316 + self.HORIZONTAL_PADDING * 2, 100))
-
-    self._bg_txt = gui_app.texture("icons_mici/setup/small_slider/slider_bg.png", 316, 100)
-    self._circle_bg_txt = gui_app.texture("icons_mici/setup/small_slider/slider_red_circle.png", 100, 100)
-    self._circle_bg_pressed_txt = self._circle_bg_txt
-    self._circle_arrow_txt = gui_app.texture("icons_mici/setup/small_slider/slider_arrow.png", 37, 32)
 
 
 class LargerSlider(SliderBase):

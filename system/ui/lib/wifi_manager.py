@@ -512,12 +512,7 @@ class WifiManager:
     # Return the first NetworkManager device path matching adapter_type
     try:
       device_paths = self._router_main.send_and_get_reply(new_method_call(self._nm, 'GetDevices')).body[0]
-      if isinstance(device_paths, (str, bytes)):
-        device_paths = [device_paths]
       for device_path in device_paths:
-        device_path = str(device_path)
-        if not device_path.startswith("/"):
-          continue
         dev_addr = DBusAddress(device_path, bus_name=NM, interface=NM_DEVICE_IFACE)
         dev_type = self._router_main.send_and_get_reply(Properties(dev_addr).get('DeviceType')).body[0][1]
         if dev_type == adapter_type:
@@ -529,14 +524,9 @@ class WifiManager:
   def _init_connections(self) -> None:
     settings_addr = DBusAddress(NM_SETTINGS_PATH, bus_name=NM, interface=NM_SETTINGS_IFACE)
     known_connections = self._router_main.send_and_get_reply(new_method_call(settings_addr, 'ListConnections')).body[0]
-    if isinstance(known_connections, (str, bytes)):
-      known_connections = [known_connections]
 
     conns: dict[str, str] = {}
     for conn_path in known_connections:
-      conn_path = str(conn_path)
-      if not conn_path.startswith("/"):
-        continue
       settings = self._get_connection_settings(conn_path)
 
       if len(settings) == 0:
@@ -589,8 +579,6 @@ class WifiManager:
     return None, None
 
   def _get_connection_settings(self, conn_path: str) -> dict:
-    if not str(conn_path).startswith("/"):
-      return {}
     conn_addr = DBusAddress(conn_path, bus_name=NM, interface=NM_CONNECTION_IFACE)
     reply = self._router_main.send_and_get_reply(new_method_call(conn_addr, 'GetSettings'))
     if reply.header.message_type == MessageType.error:
@@ -1008,13 +996,8 @@ class WifiManager:
     try:
       settings_addr = DBusAddress(NM_SETTINGS_PATH, bus_name=NM, interface=NM_SETTINGS_IFACE)
       known_connections = self._router_main.send_and_get_reply(new_method_call(settings_addr, 'ListConnections')).body[0]
-      if isinstance(known_connections, (str, bytes)):
-        known_connections = [known_connections]
 
       for conn_path in known_connections:
-        conn_path = str(conn_path)
-        if not conn_path.startswith("/"):
-          continue
         settings = self._get_connection_settings(conn_path)
         if settings and settings.get('connection', {}).get('id', ('s', ''))[1] == 'lte':
           return str(conn_path)

@@ -282,12 +282,6 @@ class TreeOptionDialog(MultiOptionDialog):
       return True
     return super()._handle_mouse_press(mouse_pos)
 
-  def _handle_mouse_press(self, mouse_pos):
-    if self._search_rect and rl.check_collision_point_rec(mouse_pos, self._search_rect):
-      self._search_pressed = True
-      return True
-    return super()._handle_mouse_press(mouse_pos)
-
   def _handle_mouse_release(self, mouse_pos):
     clicked_search = False
     if self._search_rect and rl.check_collision_point_rec(mouse_pos, self._search_rect):
@@ -300,4 +294,3 @@ class TreeOptionDialog(MultiOptionDialog):
       return True
 
     return super()._handle_mouse_release(mouse_pos)
-

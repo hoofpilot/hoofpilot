@@ -13,7 +13,6 @@ import subprocess
 from contextlib import contextmanager
 from collections.abc import Callable
 from collections import deque
-from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 from typing import NamedTuple
@@ -26,8 +25,6 @@ from openpilot.common.realtime import Ratekeeper
 from openpilot.system.ui.hoofpilot.lib.application import GuiApplicationExt
 
 _DEFAULT_FPS = int(os.getenv("FPS", {'tizi': 20}.get(HARDWARE.get_device_type(), 60)))
-OFFROAD_FPS = int(os.getenv("OFFROAD_FPS", "59"))
-ONROAD_FPS = int(os.getenv("ONROAD_FPS", "20"))
 FPS_LOG_INTERVAL = 5  # Seconds between logging FPS drops
 FPS_DROP_THRESHOLD = 0.9  # FPS drop threshold for triggering a warning
 FPS_CRITICAL_THRESHOLD = 0.5  # Critical threshold for triggering strict actions
@@ -104,7 +101,6 @@ class FontWeight(StrEnum):
   MEDIUM = "Inter-Medium.fnt"
   BOLD = "Inter-Bold.fnt"
   SEMI_BOLD = "Inter-SemiBold.fnt"
-  JETBRAINS_MONO = "JetBrainsMono-Medium.fnt"
   UNIFONT = "unifont.fnt"
   AUDIOWIDE = "Audiowide-Regular.fnt"
 
@@ -119,12 +115,6 @@ def font_fallback(font: rl.Font) -> rl.Font:
   if multilang.requires_unifont():
     return gui_app.font(FontWeight.UNIFONT)
   return font
-
-
-@dataclass
-class ModalOverlay:
-  overlay: object = None
-  callback: Callable | None = None
 
 
 class MousePos(NamedTuple):
@@ -236,9 +226,6 @@ class GuiApplication(GuiApplicationExt):
     self._last_fps_log_time: float = time.monotonic()
     self._frame = 0
     self._window_close_requested = False
-    self._modal_overlay = ModalOverlay()
-    self._modal_overlay_shown = False
-    self._modal_overlay_tick: Callable[[], None] | None = None
     self._nav_stack: list[object] = []
     self._nav_stack_ticks: list[Callable[[], None]] = []
     self._nav_stack_widgets_to_render = 1 if self.big_ui() else 2
@@ -280,14 +267,6 @@ class GuiApplication(GuiApplicationExt):
 
   def request_close(self):
     self._window_close_requested = True
-
-  def set_target_fps(self, fps: int):
-    fps = max(1, int(fps))
-    if fps == self._target_fps:
-      return
-    self._target_fps = fps
-    if rl.is_window_ready():
-      rl.set_target_fps(0 if OFFSCREEN else fps)
 
   def init_window(self, title: str, fps: int = _DEFAULT_FPS):
     with self._startup_profile_context():
@@ -400,15 +379,6 @@ class GuiApplication(GuiApplicationExt):
         continue
       except Exception:
         break
-  def set_modal_overlay(self, overlay, callback: Callable | None = None):
-    if self._modal_overlay.overlay is not None:
-      if hasattr(self._modal_overlay.overlay, 'hide_event'):
-        self._modal_overlay.overlay.hide_event()
-
-      if self._modal_overlay.callback is not None:
-        self._modal_overlay.callback(-1)
-    self._modal_overlay = ModalOverlay(overlay, callback)
-    self._modal_overlay_shown = False
 
   def push_widget(self, widget: object):
     if widget in self._nav_stack:
@@ -481,9 +451,6 @@ class GuiApplication(GuiApplicationExt):
   def remove_nav_stack_tick(self, tick_function: Callable[[], None]):
     if tick_function in self._nav_stack_ticks:
       self._nav_stack_ticks.remove(tick_function)
-
-  def set_modal_overlay_tick(self, tick_function: Callable | None):
-    self._modal_overlay_tick = tick_function
 
   def set_should_render(self, should_render: bool):
     self._should_render = should_render
@@ -659,11 +626,7 @@ class GuiApplication(GuiApplicationExt):
         for widget in self._nav_stack[-self._nav_stack_widgets_to_render:]:
           widget.render(rl.Rectangle(0, 0, self.width, self.height))
 
-        overlay_active = self._handle_modal_overlay()
-        if self._modal_overlay_tick is not None:
-          self._modal_overlay_tick()
-
-        yield not overlay_active
+        yield True
 
         if self._scale != 1.0:
           rl.rl_pop_matrix()
@@ -723,32 +686,6 @@ class GuiApplication(GuiApplicationExt):
   def height(self):
     return self._height
 
-  def _handle_modal_overlay(self) -> bool:
-    if self._modal_overlay.overlay:
-      if hasattr(self._modal_overlay.overlay, 'render'):
-        result = self._modal_overlay.overlay.render(rl.Rectangle(0, 0, self.width, self.height))
-      elif callable(self._modal_overlay.overlay):
-        result = self._modal_overlay.overlay()
-      else:
-        raise Exception
-
-      # Send show event to Widget
-      if not self._modal_overlay_shown and hasattr(self._modal_overlay.overlay, 'show_event'):
-        self._modal_overlay.overlay.show_event()
-        self._modal_overlay_shown = True
-
-      if result >= 0:
-        # Clear the overlay and execute the callback
-        original_modal = self._modal_overlay
-        self._modal_overlay = ModalOverlay()
-        if hasattr(original_modal.overlay, 'hide_event'):
-          original_modal.overlay.hide_event()
-        if original_modal.callback is not None:
-          original_modal.callback(result)
-      return True
-    else:
-      self._modal_overlay_shown = False
-      return False
   def _load_fonts(self):
     for font_weight_file in FontWeight:
       with as_file(FONT_DIR) as fspath:

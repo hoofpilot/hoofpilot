@@ -190,7 +190,7 @@ class _Scroller(Widget):
     self.scroll_panel.set_enabled(scroll_enabled and self.enabled and not self._scrolling_to[1])
     self.scroll_panel.update(self._rect, content_size)
     if not self._snap_items:
-      return round(self.scroll_panel.get_offset())
+      return self.scroll_panel.get_offset()
 
     # Snap closest item to center
     center_pos = self._rect.x + self._rect.width / 2 if self._horizontal else self._rect.y + self._rect.height / 2
@@ -300,6 +300,7 @@ class _Scroller(Widget):
     self._content_size += self._pad * 2
 
     self._scroll_offset = self._get_scroll(self._visible_items, self._content_size)
+
     self._item_pos_filter.update(self._scroll_offset)
 
     cur_pos = 0
@@ -419,22 +420,11 @@ class _Scroller(Widget):
 
 class Scroller(Widget):
   """Wrapper for _Scroller so that children do not need to call events or pass down enabled for nav stack."""
-  def __init__(self, items: list[Widget] | None = None, horizontal: bool = True, snap_items: bool = False,
-               spacing: int = ITEM_SPACING, line_separator: bool = False, pad_start: int = ITEM_SPACING,
-               pad_end: int = ITEM_SPACING, pad: int | None = None, scroll_indicator: bool = True,
-               edge_shadows: bool = True):
+  def __init__(self, **kwargs):
     super().__init__()
-    del line_separator  # visual separators are handled by item widgets in the current implementation
-    pad_value = pad if pad is not None else max(pad_start, pad_end)
-    self._scroller = self._child(_Scroller(items or [], horizontal=horizontal, snap_items=snap_items, spacing=spacing,
-                                           pad=pad_value, scroll_indicator=scroll_indicator, edge_shadows=edge_shadows))
+    self._scroller = self._child(_Scroller([], **kwargs))
     # pass down enabled to child widget for nav stack
     self._scroller.set_enabled(lambda: self.enabled)
-
-  def __getattr__(self, name):
-    if name == "_scroller":
-      raise AttributeError(name)
-    return getattr(self._scroller, name)
 
   def _render(self, _):
     self._scroller.render(self._rect)

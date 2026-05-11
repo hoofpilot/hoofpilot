@@ -55,4 +55,3 @@ class ProgressBarAction(ItemAction):
 def progress_item(title):
   action = ProgressBarAction()
   return ListItem(title=title, action_item=action)
-
