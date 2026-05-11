@@ -14,7 +14,7 @@ from openpilot.system.ui.widgets.network import NavButton
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.widgets import Widget
 
-from openpilot.hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeMode
+from hoofpilot.selfdrive.controls.lib.auto_lane_change import AutoLaneChangeMode
 
 
 class LaneChangeSettingsLayout(Widget):
