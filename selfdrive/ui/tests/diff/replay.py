@@ -14,7 +14,7 @@ from openpilot.common.params import Params
 from openpilot.common.prefix import OpenpilotPrefix
 from openpilot.selfdrive.ui.tests.diff.diff import DIFF_OUT_DIR
 from openpilot.system.updated.updated import parse_release_notes
-from openpilot.system.version import terms_version, training_version, terms_version_sp, sunnylink_consent_version
+from openpilot.system.version import terms_version, training_version, terms_version_sp
 
 LayoutVariant = Literal["mici", "tizi"]
 
@@ -31,7 +31,6 @@ def setup_state():
   params.put("UpdaterCurrentDescription", "0.10.1 / test-branch / abc1234 / Nov 30")
   params.put("UpdaterCurrentReleaseNotes", parse_release_notes(BASEDIR))
   params.put("HasAcceptedTermsSP", terms_version_sp)
-  params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_version)
 
   # Params for mici home
   params.put("Version", "0.10.1")
