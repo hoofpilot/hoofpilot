@@ -280,3 +280,5 @@ class SpeedLimitRenderer(Widget):
 
     return f"{int(round(d_ft / 100) * 100)} ft"
 
+
+SpeedLimitAlertRenderer = SpeedLimitRenderer
