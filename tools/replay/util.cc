@@ -53,35 +53,6 @@ std::string formattedDataSize(size_t size) {
   }
 }
 
-size_t getRemoteFileSize(const std::string &url, std::atomic<bool> *abort) {
-  CURL *curl = curl_easy_init();
-  if (!curl) return -1;
-
-  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, dumy_write_cb);
-  curl_easy_setopt(curl, CURLOPT_HEADER, 1);
-  curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-  curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
-  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-  CURLM *cm = curl_multi_init();
-  curl_multi_add_handle(cm, curl);
-  int still_running = 1;
-  while (still_running > 0 && !(abort && *abort)) {
-    CURLMcode mc = curl_multi_perform(cm, &still_running);
-    if (mc != CURLM_OK) break;
-    if (still_running > 0) {
-      curl_multi_wait(cm, nullptr, 0, 1000, nullptr);
-    }
-  }
-
-  double content_length = -1;
-  curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &content_length);
-  curl_multi_remove_handle(cm, curl);
-  curl_easy_cleanup(curl);
-  curl_multi_cleanup(cm);
-  return content_length > 0 ? (size_t)content_length : 0;
-}
 std::string getUrlWithoutQuery(const std::string &url) {
   size_t idx = url.find("?");
   return (idx == std::string::npos ? url : url.substr(0, idx));

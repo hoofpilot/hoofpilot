@@ -127,7 +127,7 @@ void ConsoleUI::initWindows() {
 
   // set the title bar
   wbkgd(w[Win::Title], A_REVERSE);
-  mvwprintw(w[Win::Title], 0, 3, "sunnypilot replay %s", SUNNYPILOT_VERSION);
+  mvwprintw(w[Win::Title], 0, 3, "hoofpilot replay %s", HOOFPILOT_VERSION);
 
   // show windows on the real screen
   refresh();

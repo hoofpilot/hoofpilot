@@ -55,7 +55,7 @@ void recv_log(int thread_cnt, int thread_msg_cnt) {
     REQUIRE(ctx["dongle_id"].string_value() == dongle_id);
     REQUIRE(ctx["dirty"].bool_value() == true);
 
-    REQUIRE(ctx["version"].string_value() == SUNNYPILOT_VERSION);
+    REQUIRE(ctx["version"].string_value() == HOOFPILOT_VERSION);
 
     std::string device = Hardware::get_name();
     REQUIRE(ctx["device"].string_value() == device);

@@ -21,7 +21,7 @@ kj::Array<capnp::word> logger_build_init_data() {
   auto init = msg.initEvent().initInitData();
 
   init.setWallTimeNanos(wall_time);
-  init.setVersion(SUNNYPILOT_VERSION);
+  init.setVersion(HOOFPILOT_VERSION);
   init.setDirty(!getenv("CLEAN"));
   init.setDeviceType(Hardware::get_device_type());
 
