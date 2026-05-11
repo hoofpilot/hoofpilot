@@ -7,7 +7,7 @@ from tinygrad.engine.jit import TinyJit
 from tinygrad.device import Device
 
 from openpilot.system.camerad.cameras.nv12_info import get_nv12_info
-from openpilot.hoofpilot.modeld_v2.compile_warp import (
+from openpilot.selfdrive.modeld.compile_warp import (
   CAMERA_CONFIGS, MEDMODEL_INPUT_SIZE, make_frame_prepare, make_update_both_imgs,
   warp_pkl_path,
 )

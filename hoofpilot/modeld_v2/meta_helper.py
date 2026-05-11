@@ -1,7 +1,7 @@
-from hoofpilot.modeld_v2.constants import Meta
+from openpilot.hoofpilot.modeld_v2.constants import Meta
 from cereal import custom
-from hoofpilot.modeld_v2.meta_20hz import Meta20hz
-from hoofpilot.models.helpers import get_active_bundle
+from openpilot.hoofpilot.modeld_v2.meta_20hz import Meta20hz
+from openpilot.hoofpilot.models.helpers import get_active_bundle
 
 ModelBundle = custom.ModelManagerSP.ModelBundle
 

@@ -1,4 +1,4 @@
-from hoofpilot.modeld_v2.constants import Meta
+from openpilot.hoofpilot.modeld_v2.constants import Meta
 
 
 class Meta20hz(Meta):

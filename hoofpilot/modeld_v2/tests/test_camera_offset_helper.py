@@ -8,7 +8,7 @@ import numpy as np
 
 from openpilot.common.transformations.camera import DEVICE_CAMERAS
 from openpilot.common.transformations.model import get_warp_matrix
-from hoofpilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
+from openpilot.hoofpilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
 
 
 class MockStruct:
@@ -82,4 +82,3 @@ class TestCameraOffset:
     assert not np.array_equal(extra_out, extra_transform)
     assert main_out[0, 1] != 0.0
     assert main_out[0, 2] != 0.0
-
