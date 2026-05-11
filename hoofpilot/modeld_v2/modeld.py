@@ -24,16 +24,16 @@ from openpilot.system import sentry
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 from openpilot.selfdrive.controls.lib.drive_helpers import get_accel_from_plan, smooth_value
 
-from openpilot.hoofpilot.modeld_v2.fill_model_msg import fill_model_msg, fill_pose_msg, PublishState, get_curvature_from_output
-from openpilot.hoofpilot.modeld_v2.constants import Plan
-from openpilot.hoofpilot.modeld_v2.warp import Warp
-from openpilot.hoofpilot.modeld_v2.meta_helper import load_meta_constants
-from openpilot.hoofpilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
+from hoofpilot.modeld_v2.fill_model_msg import fill_model_msg, fill_pose_msg, PublishState, get_curvature_from_output
+from hoofpilot.modeld_v2.constants import Plan
+from hoofpilot.modeld_v2.warp import Warp
+from hoofpilot.modeld_v2.meta_helper import load_meta_constants
+from hoofpilot.modeld_v2.camera_offset_helper import CameraOffsetHelper
 
-from openpilot.hoofpilot.livedelay.helpers import get_lat_delay
-from openpilot.hoofpilot.modeld_v2.modeld_base import ModelStateBase
-from openpilot.hoofpilot.models.helpers import get_active_bundle
-from openpilot.hoofpilot.models.runners.helpers import get_model_runner
+from hoofpilot.livedelay.helpers import get_lat_delay
+from hoofpilot.modeld_v2.modeld_base import ModelStateBase
+from hoofpilot.models.helpers import get_active_bundle
+from hoofpilot.models.runners.helpers import get_model_runner
 
 PROCESS_NAME = "selfdrive.modeld.modeld_tinygrad"
 

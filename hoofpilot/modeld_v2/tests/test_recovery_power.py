@@ -2,9 +2,9 @@ import numpy as np
 
 from cereal import log
 
-from openpilot.hoofpilot.modeld_v2.constants import Plan
-from openpilot.hoofpilot.modeld_v2.modeld import ModelState
-import openpilot.hoofpilot.modeld_v2.modeld as modeld
+from hoofpilot.modeld_v2.constants import Plan
+from hoofpilot.modeld_v2.modeld import ModelState
+import hoofpilot.modeld_v2.modeld as modeld
 
 
 class MockStruct:

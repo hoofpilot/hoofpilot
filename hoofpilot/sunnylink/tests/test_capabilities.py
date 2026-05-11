@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import pytest
 
-from openpilot.hoofpilot.sunnylink.capabilities import (
+from hoofpilot.sunnylink.capabilities import (
   CAPABILITY_DEFAULTS,
   CAPABILITY_FIELDS,
   CAPABILITY_LABELS,

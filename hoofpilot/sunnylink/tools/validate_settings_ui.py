@@ -19,7 +19,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from openpilot.hoofpilot.sunnylink.capabilities import CAPABILITY_FIELDS
+from hoofpilot.sunnylink.capabilities import CAPABILITY_FIELDS
 
 VALID_WIDGETS = {"toggle", "option", "multiple_button", "button", "info"}
 VALID_COMPARE_OPS = {">", "<", ">=", "<="}

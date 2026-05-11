@@ -12,7 +12,7 @@ from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.hoofpilot.selfdrive.pandad.rivian_long_flasher import flash_rivian_long
+from hoofpilot.selfdrive.pandad.rivian_long_flasher import flash_rivian_long
 
 
 def get_expected_signature(panda: Panda) -> bytes:

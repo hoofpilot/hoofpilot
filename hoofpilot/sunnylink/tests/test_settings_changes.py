@@ -17,7 +17,7 @@ from typing import Any
 
 import pytest
 
-from openpilot.hoofpilot.sunnylink.tools.generate_settings_schema import (
+from hoofpilot.sunnylink.tools.generate_settings_schema import (
   DEFINITION_PATH,
   TORQUE_VERSIONS_PATH,
   _build_torque_options,
