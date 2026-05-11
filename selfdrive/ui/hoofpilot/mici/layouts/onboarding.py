@@ -5,61 +5,71 @@ This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import pyray as rl
-from openpilot.system.ui.lib.application import FontWeight, gui_app
-from openpilot.system.ui.widgets.label import UnifiedLabel
+from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.mici_setup import GreyBigButton
+from openpilot.system.ui.widgets.scroller import Scroller
 from openpilot.system.ui.widgets.slider import SmallSlider
-from openpilot.system.ui.mici_setup import TermsHeader, TermsPage as SetupTermsPage
 from openpilot.system.version import sunnylink_consent_version, sunnylink_consent_declined
 from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
 
 
-class SunnylinkConsentPage(SetupTermsPage):
+class SunnylinkConsentPage(Scroller):
   def __init__(self, on_accept=None, on_decline=None, left_text: str = "disable", right_text: str = "enable"):
-    super().__init__(on_accept, on_decline, left_text, continue_text=right_text)
+    super().__init__()
 
-    self._title_header = TermsHeader("sunnylink",
-                                     gui_app.texture("../../hoofpilot/selfdrive/assets/logo.png", 66, 60))
+    logo = gui_app.texture("../../hoofpilot/selfdrive/assets/logo.png", 66, 60)
+    self._header_card = GreyBigButton("sunnylink", "secured remote access", logo)
+    self._terms_card = GreyBigButton(
+      "",
+      "sunnylink enables secured remote access to your comma device from anywhere, "
+      "including settings management, remote monitoring, real-time dashboard, etc.",
+    )
+    self._accept_button = BigConfirmationCircleButton(
+      right_text,
+      gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
+      on_accept,
+    )
+    self._decline_button = BigConfirmationCircleButton(
+      left_text,
+      gui_app.texture("icons_mici/setup/cancel.png", 64, 64),
+      on_decline,
+      red=True, exit_on_confirm=False,
+    )
 
-    self._terms_label = UnifiedLabel("sunnylink enables secured remote access to your comma device from anywhere, " +
-                                     "including settings management, remote monitoring, real-time dashboard, etc.",
-                                     36, FontWeight.ROMAN)
-
-  @property
-  def _content_height(self):
-    return self._terms_label.rect.y + self._terms_label.rect.height - self._scroll_panel.get_offset()
+    self._scroller.add_widgets([
+      self._header_card,
+      self._terms_card,
+      self._accept_button,
+      self._decline_button,
+    ])
 
   def _render(self, _):
+    rl.draw_rectangle_rec(self._rect, rl.BLACK)
     super()._render(_)
-    return -1
-
-  def _render_content(self, scroll_offset):
-    self._title_header.set_position(self._rect.x + 16, self._rect.y + 12 + scroll_offset)
-    self._title_header.render()
-
-    self._terms_label.render(rl.Rectangle(
-      self._rect.x + 16,
-      self._title_header.rect.y + self._title_header.rect.height + self.ITEM_SPACING,
-      self._rect.width - 100,
-      self._terms_label.get_content_height(int(self._rect.width - 100)),
-    ))
 
 
 class SunnylinkConsentDisableConfirmPage(SunnylinkConsentPage):
   def __init__(self, on_accept=None, on_decline=None):
     super().__init__(on_accept=on_decline, on_decline=on_accept, left_text="enable", right_text="disable")
 
-    # we flip the continue & disable buttons to use slider for disable
-    self._continue_slider = True
+    self._accept_button.set_visible(False)
+
     self._continue_button = SmallSlider("disable", confirm_callback=on_decline)
     self._scroll_panel.set_enabled(lambda: not self._continue_button.is_pressed)
 
-    self._title_header = TermsHeader("disable sunnylink?",
-                                     gui_app.texture("icons_mici/setup/red_warning.png", 66, 60))
+    warning_icon = gui_app.texture("icons_mici/setup/red_warning.png", 66, 60)
+    self._header_card.set_icon(warning_icon)
+    self._header_card.set_text("disable sunnylink?")
+    self._header_card.set_value("")
 
-    self._terms_label = UnifiedLabel("sunnylink is designed to be enabled as part of hoofpilot's core functionality. " +
-                                     "If sunnylink is disabled, features such as settings management, " +
-                                     "remote monitoring, real-time dashboards will be unavailable.",
-                                     36, FontWeight.ROMAN)
+    self._terms_card.set_value(
+      "sunnylink is designed to be enabled as part of hoofpilot's core functionality. "
+      "If sunnylink is disabled, features such as settings management, "
+      "remote monitoring, real-time dashboards will be unavailable.",
+    )
+
+    self._scroller.add_widgets([self._continue_button])
 
 
 class SunnylinkOnboarding:
@@ -95,4 +105,3 @@ class SunnylinkOnboarding:
       self.confirm_page.render(rect)
     else:
       self.consent_page.render(rect)
-
