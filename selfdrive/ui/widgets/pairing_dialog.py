@@ -70,7 +70,6 @@ class PairingDialog(Widget):
 
   def _close(self):
     self._should_close = True
-    gui_app.pop_widget()  # no-op when used as modal overlay, works when on nav stack
 
   def _update_state(self):
     if ui_state.prime_state.is_paired():
