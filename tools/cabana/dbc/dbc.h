@@ -32,12 +32,6 @@ struct MessageId {
                      .address = uint32_t(std::stoul(str.substr(pos + 1), nullptr, 16))};
   }
 
-  inline static MessageId fromString(const QString &str) {
-    auto parts = str.split(':');
-    if (parts.size() != 2) return {};
-    return MessageId{.source = uint8_t(parts[0].toUInt()), .address = parts[1].toUInt(nullptr, 16)};
-  }
-
   bool operator==(const MessageId &other) const {
     return source == other.source && address == other.address;
   }
