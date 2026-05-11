@@ -1,33 +1,32 @@
 #!/usr/bin/env python3
 import os
-import pickle
-import time
-
-import numpy as np
-from cereal import messaging
-from cereal.messaging import PubMaster, SubMaster
-from msgq.visionipc import VisionBuf, VisionIpcClient, VisionStreamType
-from openpilot.common.file_chunker import read_file_chunked
-from openpilot.common.realtime import config_realtime_process
-from openpilot.common.swaglog import cloudlog
-from openpilot.common.transformations.camera import _ar_ox_fisheye, _os_fisheye
-from openpilot.common.transformations.model import dmonitoringmodel_intrinsics
-from openpilot.selfdrive.modeld.parse_model_outputs import safe_exp, sigmoid
 from openpilot.selfdrive.modeld.tinygrad_helpers import MODELS_DIR, set_tinygrad_backend_from_compiled_flags
-from openpilot.system.camerad.cameras.nv12_info import get_nv12_info
-from openpilot.system.hardware import TICI
-
 set_tinygrad_backend_from_compiled_flags()
 
+# FIXME-SP: remove once we bump tg
+from openpilot.system.hardware import TICI
 os.environ['DEV'] = 'QCOM' if TICI else 'CPU'
 
 from tinygrad.tensor import Tensor
+import time
+import pickle
+import numpy as np
+
+from cereal import messaging
+from cereal.messaging import PubMaster, SubMaster
+from msgq.visionipc import VisionIpcClient, VisionStreamType, VisionBuf
+from openpilot.common.swaglog import cloudlog
+from openpilot.common.realtime import config_realtime_process
+from openpilot.common.transformations.model import dmonitoringmodel_intrinsics
+from openpilot.common.transformations.camera import _ar_ox_fisheye, _os_fisheye
+from openpilot.system.camerad.cameras.nv12_info import get_nv12_info
+from openpilot.common.file_chunker import read_file_chunked
+from openpilot.selfdrive.modeld.parse_model_outputs import sigmoid, safe_exp
 
 PROCESS_NAME = "selfdrive.modeld.dmonitoringmodeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 MODEL_PKL_PATH = MODELS_DIR / 'dmonitoring_model_tinygrad.pkl'
 METADATA_PATH = MODELS_DIR / 'dmonitoring_model_metadata.pkl'
-
 
 class ModelState:
   inputs: dict[str, np.ndarray]
@@ -43,16 +42,16 @@ class ModelState:
       'calib': np.zeros(self.input_shapes['calib'], dtype=np.float32),
     }
 
-    self.warp_inputs_np = {'transform': np.zeros((3, 3), dtype=np.float32)}
-    self.warp_inputs = {k: Tensor(v, device='NPY') for k, v in self.warp_inputs_np.items()}
+    self.warp_inputs_np = {'transform': np.zeros((3,3), dtype=np.float32)}
+    self.warp_inputs = {k: Tensor(v, device='NPY') for k,v in self.warp_inputs_np.items()}
     self.frame_buf_params = None
-    self.tensor_inputs = {k: Tensor(v, device='NPY').realize() for k, v in self.numpy_inputs.items()}
-    self._blob_cache: dict[int, Tensor] = {}
+    self.tensor_inputs = {k: Tensor(v, device='NPY').realize() for k,v in self.numpy_inputs.items()}
+    self._blob_cache : dict[int, Tensor] = {}
     self.image_warp = None
     self.model_run = pickle.loads(read_file_chunked(str(MODEL_PKL_PATH)))
 
   def run(self, buf: VisionBuf, calib: np.ndarray, transform: np.ndarray) -> tuple[np.ndarray, float]:
-    self.numpy_inputs['calib'][0, :] = calib
+    self.numpy_inputs['calib'][0,:] = calib
 
     t1 = time.perf_counter()
 
@@ -62,6 +61,7 @@ class ModelState:
       with open(warp_path, "rb") as f:
         self.image_warp = pickle.load(f)
     ptr = buf.data.ctypes.data
+    # There is a ringbuffer of imgs, just cache tensors pointing to all of them
     if ptr not in self._blob_cache:
       self._blob_cache[ptr] = Tensor.from_blob(ptr, (self.frame_buf_params[3],), dtype='uint8')
 
@@ -73,10 +73,8 @@ class ModelState:
     t2 = time.perf_counter()
     return output, t2 - t1
 
-
 def slice_outputs(model_outputs, output_slices):
-  return {k: model_outputs[np.newaxis, v] for k, v in output_slices.items()}
-
+  return  {k: model_outputs[np.newaxis, v] for k,v in output_slices.items()}
 
 def parse_model_output(model_output):
   parsed = {}
@@ -89,7 +87,6 @@ def parse_model_output(model_output):
       parsed[f'{key}_{ds_suffix}'] = sigmoid(model_output[f'{key}_{ds_suffix}'])
   return parsed
 
-
 def fill_driver_data(msg, model_output, ds_suffix):
   msg.faceOrientation = model_output[f'face_descs_{ds_suffix}'][0, :3].tolist()
   msg.faceOrientationStd = model_output[f'face_descs_{ds_suffix}_std'][0, :3].tolist()
@@ -99,7 +96,6 @@ def fill_driver_data(msg, model_output, ds_suffix):
   msg.eyesVisibleProb = model_output[f'eyes_visible_prob_{ds_suffix}'][0, 0].item()
   msg.eyesClosedProb = model_output[f'eyes_closed_prob_{ds_suffix}'][0, 0].item()
   msg.phoneProb = model_output[f'using_phone_prob_{ds_suffix}'][0, 0].item()
-
 
 def get_driverstate_packet(model_output, frame_id: int, location_ts: int, exec_time: float, gpu_exec_time: float):
   msg = messaging.new_message('driverStateV2', valid=True)
