@@ -25,8 +25,9 @@ class PairingDialog(Widget):
     self.params = Params()
     self.qr_texture: rl.Texture | None = None
     self.last_qr_generation = float('-inf')
+    self._should_close = False
     self._close_btn = IconButton(gui_app.texture("icons/close.png", 80, 80))
-    self._close_btn.set_click_callback(gui_app.pop_widget)
+    self._close_btn.set_click_callback(self._close)
 
   def _get_pairing_url(self) -> str:
     try:
@@ -67,11 +68,18 @@ class PairingDialog(Widget):
       self._generate_qr_code()
       self.last_qr_generation = current_time
 
+  def _close(self):
+    self._should_close = True
+    gui_app.pop_widget()  # no-op when used as modal overlay, works when on nav stack
+
   def _update_state(self):
     if ui_state.prime_state.is_paired():
-      gui_app.pop_widget()
+      self._close()
 
   def _render(self, rect: rl.Rectangle) -> int:
+    if self._should_close:
+      return 0
+
     rl.clear_background(rl.Color(224, 224, 224, 255))
 
     self._check_qr_refresh()

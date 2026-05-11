@@ -87,7 +87,7 @@ class GuiApplicationExt:
         self._modal_overlay.overlay.show_event()
         self._modal_overlay_shown = True
 
-      if result >= 0:
+      if result is not None and result >= 0:
         original_modal = self._modal_overlay
         self._modal_overlay = ModalOverlay()
         if hasattr(original_modal.overlay, 'hide_event'):
