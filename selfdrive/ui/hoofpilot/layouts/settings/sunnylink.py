@@ -164,7 +164,7 @@ class SunnylinkLayout(Widget):
       title=tr("Sponsor Status"),
       button_text=tr("SPONSOR"),
       description=tr(
-        "Become a sponsor of sunnypilot to get early access to sunnylink features when they become available."),
+        "Become a sponsor of hoofpilot to get early access to sunnylink features when they become available."),
       callback=lambda: self._handle_pair_btn(False)
     )
     self._pair_btn = button_item_sp(
@@ -176,7 +176,7 @@ class SunnylinkLayout(Widget):
     )
     self._sunnylink_uploader_toggle = toggle_item_sp(
       title=tr("Enable sunnylink uploader (infrastructure test)"),
-      description=tr("Enable sunnylink uploader to allow sunnypilot to upload your driving data to sunnypilot servers. ") +
+      description=tr("Enable sunnylink uploader to allow hoofpilot to upload your driving data to hoofpilot servers.") +
                   tr("(Only for highest tiers, and does NOT bring ANY benefit to you yet. We are just testing data volume.)"),
       param="EnableSunnylinkUploader"
     )
@@ -223,12 +223,12 @@ class SunnylinkLayout(Widget):
       gui_app.set_modal_overlay(self._sunnylink_pairing_dialog, callback=lambda result: setattr(self, '_sunnylink_pairing_dialog', None))
 
   def _handle_backup_btn(self):
-    backup_dialog = ConfirmDialog(text=tr("Are you sure you want to backup your current sunnypilot settings?"), confirm_text="Backup")
+    backup_dialog = ConfirmDialog(text=tr("Are you sure you want to backup your current hoofpilot settings?"), confirm_text="Backup")
     gui_app.set_modal_overlay(backup_dialog, callback=self._backup_handler)
 
   def _handle_restore_btn(self):
     self._restore_btn.set_enabled(False)
-    restore_dialog = ConfirmDialog(text=tr("Are you sure you want to restore the last backed up sunnypilot settings?"), confirm_text="Restore")
+    restore_dialog = ConfirmDialog(text=tr("Are you sure you want to restore the last backed up hoofpilot settings?"), confirm_text="Restore")
     gui_app.set_modal_overlay(restore_dialog, callback=self._restore_handler)
 
   def _backup_handler(self, dialog_result: int):
