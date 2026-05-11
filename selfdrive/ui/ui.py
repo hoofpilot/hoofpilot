@@ -3,7 +3,8 @@ import os
 
 from openpilot.system.hardware import TICI
 from openpilot.common.realtime import config_realtime_process, set_core_affinity
-from openpilot.system.ui.lib.application import gui_app, OFFROAD_FPS, ONROAD_FPS
+from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.hoofpilot.lib.application import OFFROAD_FPS, ONROAD_FPS
 from openpilot.selfdrive.ui.layouts.main import MainLayout
 from openpilot.selfdrive.ui.mici.layouts.main import MiciMainLayout
 from openpilot.selfdrive.ui.ui_state import ui_state

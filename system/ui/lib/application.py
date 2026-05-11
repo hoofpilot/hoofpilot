@@ -626,7 +626,11 @@ class GuiApplication(GuiApplicationExt):
         for widget in self._nav_stack[-self._nav_stack_widgets_to_render:]:
           widget.render(rl.Rectangle(0, 0, self.width, self.height))
 
-        yield True
+        overlay_active = self._handle_modal_overlay()
+        if self._modal_overlay_tick is not None:
+          self._modal_overlay_tick()
+
+        yield not overlay_active
 
         if self._scale != 1.0:
           rl.rl_pop_matrix()
