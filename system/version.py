@@ -10,7 +10,7 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.git import get_commit, get_origin, get_branch, get_short_branch, get_commit_date
 
-RELEASE_SP_BRANCHES = ['release', 'release-c3', 'release-tizi', 'release-tici', 'release-tizi-staging', 'release-tici-staging']
+RELEASE_SP_BRANCHES = ['release-c3', 'release', 'release-tizi', 'release-tici', 'release-tizi-staging', 'release-tici-staging']
 TESTED_SP_BRANCHES = ['staging-c3', 'staging-c3-new', 'staging']
 MASTER_SP_BRANCHES = ['master']
 RELEASE_BRANCHES = ['release-tizi-staging', 'release-mici-staging', 'release-tizi', 'release-mici', 'nightly']
@@ -103,13 +103,6 @@ class OpenpilotMetadata:
 
   @property
   def sunnypilot_remote(self) -> bool:
-    return self.git_normalized_origin in ("github.com/sunnypilot/sunnypilot",
-                                          "github.com/sunnypilot/openpilot",
-                                          "github.com/sunnyhaibin/sunnypilot",
-                                          "github.com/sunnyhaibin/openpilot")
-
-  @property
-  def hoofpilot_remote(self) -> bool:
     return self.git_normalized_origin in ("github.com/hoofpilot/hoofpilot",
                                           "github.com/hoofpilot/openpilot")
 
@@ -157,7 +150,9 @@ class BuildMetadata:
 
   @property
   def channel_type(self) -> str:
-    if self.development_channel:
+    if self.channel.endswith("-tici"):
+      return "tici"
+    elif self.development_channel:
       return "development"
     elif self.tested_channel:
       return "staging"

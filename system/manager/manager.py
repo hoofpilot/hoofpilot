@@ -6,29 +6,27 @@ import sys
 import time
 import traceback
 
-from cereal import log
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
-from hoofpilot.common.boot_logo import ensure_boot_background
-from openpilot.common.params import Params, ParamKeyFlag
-from openpilot.common.swaglog import cloudlog, add_file_handler
-from openpilot.common.text_window import TextWindow
 from openpilot.common.utils import atomic_write
-from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_ID
-from openpilot.system.hardware import HARDWARE, PC
-from openpilot.system.hardware.hw import Paths
-from openpilot.system.hardware.ignition_state import ignition_state
+from openpilot.common.params import Params, ParamKeyFlag
+from openpilot.common.text_window import TextWindow
+from openpilot.system.hardware import HARDWARE
 from openpilot.system.manager.helpers import unblock_stdout, write_onroad_params, save_bootlog
 from openpilot.system.manager.process import ensure_running
 from openpilot.system.manager.process_config import managed_processes
+from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_ID
+from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata
+from openpilot.system.hardware.hw import Paths
+from openpilot.system.hardware.ignition_state import ignition_state
+from openpilot.system.hardware import PC
 
 from hoofpilot.system.params_migration import run_migration
 
 
 def manager_init() -> None:
   save_bootlog()
-  ensure_boot_background()
 
   build_metadata = get_build_metadata()
 
@@ -37,12 +35,14 @@ def manager_init() -> None:
   params.clear_all(ParamKeyFlag.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
   params.clear_all(ParamKeyFlag.CLEAR_ON_IGNITION_ON)
-  if build_metadata.release_channel:
-    params.clear_all(ParamKeyFlag.DEVELOPMENT_ONLY)
+  # if build_metadata.release_channel:
+  #   params.clear_all(ParamKeyFlag.DEVELOPMENT_ONLY)
 
-  if params.get("DeviceBootMode") == 1:
+  # device boot mode
+  if params.get("DeviceBootMode") == 1:  # start in Always Offroad mode
     params.put_bool("OffroadMode", True)
 
+  # quick boot
   if params.get_bool("QuickBootToggle") and not PC:
     prebuilt_path = "/data/openpilot/prebuilt"
     if not os.path.exists(prebuilt_path):
@@ -54,11 +54,13 @@ def manager_init() -> None:
   if not PC:
     run_migration(params)
 
+  # set unset params to their default value
   for k in params.all_keys():
     default_value = params.get_default_value(k)
     if default_value is not None and params.get(k) is None:
       params.put(k, default_value)
 
+  # Create folders needed for msgq
   try:
     os.mkdir(Paths.shm_path())
   except FileExistsError:
@@ -66,6 +68,7 @@ def manager_init() -> None:
   except PermissionError:
     print(f"WARNING: failed to make {Paths.shm_path()}")
 
+  # set params
   serial = HARDWARE.get_serial()
   params.put("Version", build_metadata.openpilot.version)
   params.put("GitCommit", build_metadata.openpilot.git_commit)
@@ -78,19 +81,21 @@ def manager_init() -> None:
   params.put_bool("IsReleaseSpBranch", build_metadata.release_sp_channel)
   params.put("HardwareSerial", serial)
 
+  # set dongle id
   reg_res = register(show_spinner=True)
   if reg_res:
     dongle_id = reg_res
   else:
     raise Exception(f"Registration failed for device {serial}")
-  os.environ['DONGLE_ID'] = dongle_id
-  os.environ['GIT_ORIGIN'] = build_metadata.openpilot.git_normalized_origin
-  os.environ['GIT_BRANCH'] = build_metadata.channel
-  os.environ['GIT_COMMIT'] = build_metadata.openpilot.git_commit
+  os.environ['DONGLE_ID'] = dongle_id  # Needed for swaglog
+  os.environ['GIT_ORIGIN'] = build_metadata.openpilot.git_normalized_origin # Needed for swaglog
+  os.environ['GIT_BRANCH'] = build_metadata.channel # Needed for swaglog
+  os.environ['GIT_COMMIT'] = build_metadata.openpilot.git_commit # Needed for swaglog
 
   if not build_metadata.openpilot.is_dirty:
     os.environ['CLEAN'] = '1'
 
+  # init logging
   sentry.init(sentry.SentryProject.SELFDRIVE)
   cloudlog.bind_global(dongle_id=dongle_id,
                        version=build_metadata.openpilot.version,
@@ -100,14 +105,17 @@ def manager_init() -> None:
                        dirty=build_metadata.openpilot.is_dirty,
                        device=HARDWARE.get_device_type())
 
+  # preimport all processes
   for p in managed_processes.values():
     p.prepare()
 
 
 def manager_cleanup() -> None:
+  # send signals to kill all procs
   for p in managed_processes.values():
     p.stop(block=False)
 
+  # ensure all are killed
   for p in managed_processes.values():
     p.stop(block=True)
 
@@ -151,6 +159,7 @@ def manager_thread() -> None:
     if ignition and not ignition_prev:
       params.clear_all(ParamKeyFlag.CLEAR_ON_IGNITION_ON)
 
+    # update onroad params, which drives pandad's safety setter thread
     if started != started_prev:
       write_onroad_params(started, params)
 
@@ -164,10 +173,12 @@ def manager_thread() -> None:
     print(running)
     cloudlog.debug(running)
 
+    # send managerState
     msg = messaging.new_message('managerState', valid=True)
     msg.managerState.processes = [p.get_process_state_msg() for p in managed_processes.values()]
     pm.send('managerState', msg)
 
+    # kick AGNOS power monitoring watchdog
     try:
       if sm.all_checks(['deviceState']):
         with atomic_write("/var/tmp/power_watchdog", "w", overwrite=True) as f:
@@ -175,6 +186,7 @@ def manager_thread() -> None:
     except Exception:
       pass
 
+    # Exit main loop when uninstall/shutdown/reboot is needed
     shutdown = False
     for param in ("DoUninstall", "DoShutdown", "DoReboot"):
       if params.get_bool(param):
@@ -191,6 +203,7 @@ def main() -> None:
   if os.getenv("PREPAREONLY") is not None:
     return
 
+  # SystemExit on sigterm
   signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(1))
 
   try:
@@ -229,6 +242,7 @@ if __name__ == "__main__":
     except Exception:
       pass
 
+    # Show last 3 lines of traceback
     error = traceback.format_exc(-3)
     error = "Manager failed to start\n\n" + error
     with TextWindow(error) as t:
@@ -236,4 +250,5 @@ if __name__ == "__main__":
 
     raise
 
+  # manual exit because we are forked
   sys.exit(0)
