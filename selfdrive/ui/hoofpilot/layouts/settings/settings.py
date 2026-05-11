@@ -38,9 +38,10 @@ from openpilot.system.ui.widgets.scroller_tici import Scroller
 OP.PANEL_COLOR = rl.Color(10, 10, 10, 255)
 ICON_SIZE = 70
 
+_existing_panel_names = {es.name for es in OP.PanelType}
 OP.PanelType = IntEnum(
   "PanelType",
-  [es.name for es in OP.PanelType] + [
+  [es.name for es in OP.PanelType] + [n for n in [
     "STABLE",
     "MODELS",
     "STEERING",
@@ -51,7 +52,7 @@ OP.PanelType = IntEnum(
     "NAVIGATION",
     "TRIPS",
     "VEHICLE",
-  ],
+  ] if n not in _existing_panel_names],
   start=0,
 )
 
