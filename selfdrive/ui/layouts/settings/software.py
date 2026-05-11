@@ -12,7 +12,7 @@ from openpilot.system.ui.widgets.option_dialog import MultiOptionDialog
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
 if gui_app.sunnypilot_ui():
-  from openpilot.system.ui.sunnypilot.widgets.list_view import button_item_sp as button_item
+  from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp as button_item
 
 # TODO: remove this. updater fails to respond on startup if time is not correct
 UPDATED_TIMEOUT = 10  # seconds to wait for updated to respond

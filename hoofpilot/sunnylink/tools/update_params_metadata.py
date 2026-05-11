@@ -10,7 +10,7 @@ import os
 
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
-from openpilot.sunnypilot.system.params_migration import ONROAD_BRIGHTNESS_TIMER_VALUES
+from openpilot.hoofpilot.system.params_migration import ONROAD_BRIGHTNESS_TIMER_VALUES
 
 METADATA_PATH = os.path.join(os.path.dirname(__file__), "../params_metadata.json")
 TORQUE_VERSIONS_JSON = os.path.join(BASEDIR, "sunnypilot", "selfdrive", "controls", "lib", "latcontrol_torque_versions.json")

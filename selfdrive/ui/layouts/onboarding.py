@@ -13,7 +13,7 @@ from openpilot.system.ui.widgets.label import Label
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.version import terms_version, training_version, terms_version_sp
 
-from openpilot.selfdrive.ui.sunnypilot.layouts.onboarding import SunnylinkOnboarding
+from openpilot.selfdrive.ui.hoofpilot.layouts.onboarding import SunnylinkOnboarding
 
 DEBUG = False
 

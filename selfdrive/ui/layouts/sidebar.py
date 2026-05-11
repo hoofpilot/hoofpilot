@@ -9,7 +9,7 @@ from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 
-from openpilot.selfdrive.ui.sunnypilot.layouts.sidebar import SidebarSP
+from openpilot.selfdrive.ui.hoofpilot.layouts.sidebar import SidebarSP
 
 SIDEBAR_WIDTH = 300
 METRIC_HEIGHT = 126

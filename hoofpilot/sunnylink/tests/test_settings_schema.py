@@ -8,14 +8,14 @@ import json
 import pytest
 
 from openpilot.common.params import Params
-from openpilot.sunnypilot.sunnylink.tools.generate_settings_schema import (
+from openpilot.hoofpilot.sunnylink.tools.generate_settings_schema import (
   SCHEMA_VERSION,
   generate_schema,
   generate_schema_json,
   collect_all_keys,
   collect_capability_refs,
 )
-from openpilot.sunnypilot.sunnylink.capabilities import CAPABILITY_FIELDS
+from openpilot.hoofpilot.sunnylink.capabilities import CAPABILITY_FIELDS
 
 
 VALID_WIDGET_TYPES = {"toggle", "option", "multiple_button", "button", "info"}

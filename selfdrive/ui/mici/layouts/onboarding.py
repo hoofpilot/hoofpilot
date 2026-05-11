@@ -18,7 +18,7 @@ from openpilot.selfdrive.ui.ui_state import ui_state, device
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
 from openpilot.selfdrive.ui.mici.onroad.driver_state import DriverStateRenderer
 from openpilot.selfdrive.ui.mici.onroad.driver_camera_dialog import BaseDriverCameraDialog
-from openpilot.selfdrive.ui.sunnypilot.mici.layouts.onboarding import SunnylinkConsentPage
+from openpilot.selfdrive.ui.hoofpilot.mici.layouts.onboarding import SunnylinkConsentPage
 
 
 class DriverCameraSetupDialog(BaseDriverCameraDialog):

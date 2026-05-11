@@ -34,7 +34,7 @@ from openpilot.selfdrive.modeld.fill_model_msg import fill_model_msg, fill_pose_
 from openpilot.common.file_chunker import read_file_chunked
 from openpilot.selfdrive.modeld.constants import ModelConstants, Plan
 
-from openpilot.sunnypilot.livedelay.helpers import get_lat_delay
+from openpilot.hoofpilot.livedelay.helpers import get_lat_delay
 from openpilot.hoofpilot.modeld_v2.modeld_base import ModelStateBase
 
 

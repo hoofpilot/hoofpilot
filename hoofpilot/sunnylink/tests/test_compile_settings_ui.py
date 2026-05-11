@@ -22,7 +22,7 @@ import os
 import pytest
 import yaml
 
-from openpilot.sunnypilot.sunnylink.tools.compile_settings_ui import (
+from openpilot.hoofpilot.sunnylink.tools.compile_settings_ui import (
   CompileError,
   DEFAULT_OUT,
   DEFAULT_SRC,
