@@ -13,4 +13,3 @@ class NissanSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

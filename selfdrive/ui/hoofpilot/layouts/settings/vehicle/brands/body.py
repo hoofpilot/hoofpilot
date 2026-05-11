@@ -13,4 +13,3 @@ class BodySettings(BrandSettings):
 
   def update_settings(self):
     pass
-

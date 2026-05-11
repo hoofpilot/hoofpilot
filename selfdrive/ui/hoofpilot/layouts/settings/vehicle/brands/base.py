@@ -14,4 +14,3 @@ class BrandSettings(abc.ABC):
   @abc.abstractmethod
   def update_settings(self) -> None:
     """Update the settings based on the current vehicle brand."""
-

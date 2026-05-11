@@ -13,4 +13,3 @@ class HondaSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

@@ -13,4 +13,3 @@ class GMSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

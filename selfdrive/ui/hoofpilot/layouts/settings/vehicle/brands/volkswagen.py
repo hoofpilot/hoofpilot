@@ -13,4 +13,3 @@ class VolkswagenSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

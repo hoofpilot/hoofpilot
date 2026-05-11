@@ -13,4 +13,3 @@ class MazdaSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

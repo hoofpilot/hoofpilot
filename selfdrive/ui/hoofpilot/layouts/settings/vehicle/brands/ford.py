@@ -13,4 +13,3 @@ class FordSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

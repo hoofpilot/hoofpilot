@@ -13,4 +13,3 @@ class ChryslerSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

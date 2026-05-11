@@ -43,4 +43,3 @@ class BrandSettingsFactory:
   def create_brand_settings(brand: str) -> BrandSettings | None:
     cls = BrandSettingsFactory._BRAND_MAP.get(brand)
     return cls() if cls is not None else None
-

@@ -13,4 +13,3 @@ class RivianSettings(BrandSettings):
 
   def update_settings(self):
     pass
-

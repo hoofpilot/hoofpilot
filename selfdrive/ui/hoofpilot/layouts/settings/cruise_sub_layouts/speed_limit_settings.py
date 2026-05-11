@@ -1,7 +1,7 @@
 """
-Copyright (c) 2021-, Haibin Wen, hoofpilot, and a number of other contributors.
+Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 
-This file is part of hoofpilot and is licensed under the MIT License.
+This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 from collections.abc import Callable
@@ -10,8 +10,8 @@ from enum import IntEnum
 import pyray as rl
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.cruise_sub_layouts.speed_limit_policy import SpeedLimitPolicyLayout
 from openpilot.selfdrive.ui.ui_state import ui_state
-from hoofpilot.selfdrive.controls.lib.speed_limit.common import Mode as SpeedLimitMode
-from hoofpilot.selfdrive.controls.lib.speed_limit.common import OffsetType as SpeedLimitOffsetType
+from openpilot.hoofpilot.selfdrive.controls.lib.speed_limit.common import Mode as SpeedLimitMode
+from openpilot.hoofpilot.selfdrive.controls.lib.speed_limit.common import OffsetType as SpeedLimitOffsetType
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.hoofpilot.widgets import get_highlighted_description
 from openpilot.system.ui.hoofpilot.widgets.list_view import multiple_button_item_sp, option_item_sp, simple_button_item_sp, LineSeparatorSP
