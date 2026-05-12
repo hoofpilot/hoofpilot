@@ -10,7 +10,7 @@ from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.hoofpilot.widgets.list_view import option_item_sp
-from openpilot.hoofpilot.system.params_migration import ONROAD_BRIGHTNESS_TIMER_VALUES
+from hoofpilot.system.params_migration import ONROAD_BRIGHTNESS_TIMER_VALUES
 
 
 class OnroadBrightness(IntEnum):

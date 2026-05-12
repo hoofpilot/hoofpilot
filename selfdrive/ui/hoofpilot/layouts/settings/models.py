@@ -10,7 +10,7 @@ import time
 import pyray as rl
 
 from cereal import custom
-from openpilot.hoofpilot.models.default_model import DEFAULT_MODEL
+from hoofpilot.models.default_model import DEFAULT_MODEL
 from openpilot.common.constants import CV
 from openpilot.selfdrive.ui.ui_state import device, ui_state
 from openpilot.system.ui.lib.multilang import tr
