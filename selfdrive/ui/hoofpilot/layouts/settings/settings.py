@@ -80,13 +80,16 @@ class NavButton(Widget):
       rl.draw_rectangle_rounded(self.container_rect, 0.2, 5, OP.CLOSE_BTN_COLOR)
 
     if self.panel_info.icon:
-      icon_texture = gui_app.texture(self.panel_info.icon, ICON_SIZE, ICON_SIZE, keep_aspect_ratio=True)
-      tw, th = icon_texture.width, icon_texture.height
-      src = rl.Rectangle(0, 0, tw, th)
+      icon_texture = gui_app.texture(self.panel_info.icon)
+      nw, nh = icon_texture.width, icon_texture.height
+      fit_scale = min(ICON_SIZE / nw, ICON_SIZE / nh)
+      draw_w = nw * fit_scale
+      draw_h = nh * fit_scale
+      src = rl.Rectangle(0, 0, nw, nh)
       dst = rl.Rectangle(
-        content_x + (ICON_SIZE - tw) / 2,
-        rect.y + (OP.NAV_BTN_HEIGHT - th) / 2,
-        tw, th,
+        content_x + (ICON_SIZE - draw_w) / 2,
+        rect.y + (OP.NAV_BTN_HEIGHT - draw_h) / 2,
+        draw_w, draw_h,
       )
       rl.draw_texture_pro(icon_texture, src, dst, rl.Vector2(0, 0), 0.0, rl.WHITE)
       content_x += ICON_SIZE + 20

@@ -40,13 +40,11 @@ class SetupWidget(Widget):
     total_h = title_h + title_gap + desc_h + btn_gap + btn_h
     y = rect.y + (rect.height - total_h) / 2
 
-    title_size = rl.measure_text_ex(font, title, title_h, 0)
-    rl.draw_text_ex(font, title, rl.Vector2(rect.x + (rect.width - title_size.x) / 2, y), title_h, 0, rl.WHITE)
+    rl.draw_text_ex(font, title, rl.Vector2(x, y), title_h, 0, rl.WHITE)
     y += title_h + title_gap
 
     for line in wrapped:
-      line_size = rl.measure_text_ex(light_font, line, 50, 0)
-      rl.draw_text_ex(light_font, line, rl.Vector2(rect.x + (rect.width - line_size.x) / 2, y), 50, 0, rl.WHITE)
+      rl.draw_text_ex(light_font, line, rl.Vector2(x, y), 50, 0, rl.WHITE)
       y += int(50 * FONT_SCALE)
 
     button_rect = rl.Rectangle(x, y + btn_gap, w, btn_h)
