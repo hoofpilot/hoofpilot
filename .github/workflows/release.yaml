@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_nightly:
-    name: build nightly
+  build___nightly:
+    name: build __nightly
     runs-on: ubuntu-latest
     if: github.repository == 'hoofpilot/hoofpilot'
     permissions:
@@ -19,21 +19,13 @@ jobs:
       with:
         ref: master
         wait-interval: 30
-        running-workflow-name: 'build nightly'
+        running-workflow-name: 'build __nightly'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        check-regexp: ^((?!.*(build prebuilt).*).)*$
-    - uses: actions/checkout@v6
+        check-regexp: ^((?!.*(build prebuilt|create badges).*).)*$
+    - uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 0
-    - name: Pull LFS
-      run: |
-        git config --global --add safe.directory '*'
-        git lfs pull
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
-    - name: Push nightly
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: BRANCH=nightly release/build_stripped.sh
+    - run: ./tools/op.sh setup
+    - name: Push __nightly
+      run: BRANCH=__nightly release/build_stripped.sh

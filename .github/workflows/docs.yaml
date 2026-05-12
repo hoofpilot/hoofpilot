@@ -35,13 +35,13 @@ jobs:
 
     # Push to docs.comma.ai
     - uses: actions/checkout@v6
-      if: github.ref == 'refs/heads/master' && github.repository == 'sunnypilot/sunnypilot'
+      if: github.ref == 'refs/heads/master' && github.repository == 'hoofpilot/hoofpilot'
       with:
         path: openpilot-docs
         ssh-key: ${{ secrets.OPENPILOT_DOCS_KEY }}
-        repository: sunnypilot/sunnypilot-docs
+        repository: hoofpilot/docs
     - name: Push
-      if: github.ref == 'refs/heads/master' && github.repository == 'sunnypilot/sunnypilot'
+      if: github.ref == 'refs/heads/master' && github.repository == 'hoofpilot/hoofpilot'
       run: |
         set -x
 
@@ -56,7 +56,7 @@ jobs:
 
         # GitHub pages config
         touch docs/.nojekyll
-        echo -n docs.comma.ai > docs/CNAME
+        echo -n docs.hoofpilot.ai > docs/CNAME
 
         git add -f .
         git commit -m "build docs"

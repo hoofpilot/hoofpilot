@@ -109,7 +109,7 @@ setup_system_configs() {
 install_runner() {
     echo "Downloading and setting up runner..."
     cd "$RUNNER_DIR"
-    curl -o actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz
+    curl -o actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz
     sudo -u ${RUNNER_USER} tar -xzf ./actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz
     sudo rm ./actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz
     sudo chmod +x ./config.sh
@@ -156,7 +156,7 @@ install_service() {
     else
         service_name="actions.runner.hoofpilot.$(uname -n)"
     fi
-  
+
     create_service_template
     remount_rw
     local service_path="/etc/systemd/system/${service_name}"
@@ -165,7 +165,7 @@ install_service() {
         echo "Service ${service_path} found in systemd, we will delete it"
         sudo rm -f "${service_path}"
     fi
-    
+
     cd "$RUNNER_DIR"
     sudo ./svc.sh install $RUNNER_USER
 

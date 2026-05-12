@@ -9,30 +9,6 @@ env:
   PYTHONPATH: ${{ github.workspace }}
 
 jobs:
-  update_translations:
-    runs-on: ubuntu-latest
-    if: github.repository == 'hoofpilot/hoofpilot'
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: true
-      - run: |
-          sudo chmod +x tools/setup_dependencies.sh
-          ./tools/op.sh setup
-      - name: Update translations
-        run: python3 selfdrive/ui/update_translations.py --vanish
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0
-        with:
-          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          commit-message: "Update translations"
-          title: "[bot] Update translations"
-          body: "Automatic PR from repo-maintenance -> update_translations"
-          branch: "update-translations"
-          base: "master"
-          delete-branch: true
-          labels: bot
-
   package_updates:
     name: package_updates
     runs-on: ubuntu-latest
@@ -41,9 +17,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         submodules: true
-    - run: |
-        sudo chmod +x tools/setup_dependencies.sh
-        ./tools/op.sh setup
+    - run: ./tools/op.sh setup
     - name: uv lock
       run: uv lock --upgrade
     - name: uv pip tree
@@ -52,15 +26,30 @@ jobs:
         echo 'PIP_TREE<<EOF' >> $GITHUB_OUTPUT
         uv pip tree >> $GITHUB_OUTPUT
         echo 'EOF' >> $GITHUB_OUTPUT
+    - name: venv size
+      id: venv_size
+      run: |
+        echo 'VENV_SIZE<<EOF' >> $GITHUB_OUTPUT
+        echo "Total: $(du -sh .venv | cut -f1)" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "Top 10 by size:" >> $GITHUB_OUTPUT
+        du -sh .venv/lib/python*/site-packages/* 2>/dev/null \
+          | grep -v '\.dist-info' \
+          | grep -v '__pycache__' \
+          | sort -rh \
+          | head -10 \
+          | while IFS=$'\t' read size path; do echo "$size  ${path##*/}"; done >> $GITHUB_OUTPUT
+        echo 'EOF' >> $GITHUB_OUTPUT
     - name: bump submodules
       run: |
-        git config --global --add safe.directory '*'
+        git config submodule.msgq.update none
+        git config submodule.rednose_repo.update none
+        git config submodule.teleoprtc_repo.update none
         git config submodule.tinygrad.update none
         git submodule update --remote
         git add .
     - name: update car docs
       run: |
-        scons -j$(nproc) --minimal opendbc_repo
         python selfdrive/car/docs.py
         git add docs/CARS.md
     - name: Create Pull Request
@@ -75,6 +64,11 @@ jobs:
         delete-branch: true
         body: |
           Automatic PR from repo-maintenance -> package_updates
+
+          ```
+          $ du -sh .venv && du -sh .venv/lib/python*/site-packages/* | sort -rh | head -10
+          ${{ steps.venv_size.outputs.VENV_SIZE }}
+          ```
 
           ```
           $ uv pip tree
