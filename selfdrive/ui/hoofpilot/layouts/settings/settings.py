@@ -27,7 +27,7 @@ from openpilot.system.ui.lib.application import gui_app, MousePos
 from openpilot.system.ui.lib.multilang import tr_noop
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.lib.wifi_manager import WifiManager
-from openpilot.system.ui.sunnypilot.lib.styles import style
+from openpilot.system.ui.hoofpilot.lib.styles import style
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
