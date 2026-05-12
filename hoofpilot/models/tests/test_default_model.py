@@ -4,6 +4,7 @@ Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
+
 from hoofpilot import get_file_hash
 from hoofpilot.models.default_model import MODEL_HASH_PATH, VISION_ONNX_PATH, POLICY_ONNX_PATH
 import hashlib
@@ -20,4 +21,3 @@ class TestDefaultModel:
       current_hash = f.read().strip()
 
     assert combined_hash == current_hash, "Run hoofpilot/models/default_model.py to update the default model name and hash"
-

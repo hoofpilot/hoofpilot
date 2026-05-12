@@ -7,8 +7,6 @@ from cereal import custom
 NumpyDict = dict[str, np.ndarray]
 ShapeDict = dict[str, tuple[int, ...]]
 SliceDict = dict[str, slice]
-CLMemDict = dict
-FrameDict = dict
 
 ModelType = custom.ModelManagerSP.Model.Type
 Model = custom.ModelManagerSP.Model

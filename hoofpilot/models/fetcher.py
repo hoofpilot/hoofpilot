@@ -4,6 +4,7 @@ Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
+
 import time
 
 import requests
@@ -115,7 +116,7 @@ class ModelCache:
 
 class ModelFetcher:
   """Handles fetching and caching of model data from remote source"""
-  MODEL_URL = "https://raw.githubusercontent.com/hoofpilot/models/refs/heads/master/driving_models.json"
+  MODEL_URL = "https://raw.githubusercontent.com/hoofpilot/hoofpilot-models/refs/heads/gh-pages/docs/driving_models_v18.json"
 
   def __init__(self, params: Params):
     self.params = params
@@ -184,4 +185,3 @@ if __name__ == "__main__":
       print(f"Artifact: {model.artifact.fileName}, Download URI: {model.artifact.downloadUri.uri}")
       # Print metadata details
       print(f"Metadata: {model.metadata.fileName}, Download URI: {model.metadata.downloadUri.uri}")
-
