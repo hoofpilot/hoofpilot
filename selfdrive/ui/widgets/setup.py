@@ -28,14 +28,17 @@ class SetupWidget(Widget):
     w = content_w
 
     font = gui_app.font(FontWeight.BOLD)
-    rl.draw_text_ex(font, tr("Finish Setup"), rl.Vector2(x, y), 75, 0, rl.WHITE)
+    title = tr("Finish Setup")
+    title_size = rl.measure_text_ex(font, title, 75, 0)
+    rl.draw_text_ex(font, title, rl.Vector2(rect.x + (rect.width - title_size.x) / 2, y), 75, 0, rl.WHITE)
     y += 113
 
     desc = tr("Pair your device with Konik Stable.")
     light_font = gui_app.font(FontWeight.NORMAL)
     wrapped = wrap_text(light_font, desc, 50, int(w))
     for line in wrapped:
-      rl.draw_text_ex(light_font, line, rl.Vector2(x, y), 50, 0, rl.WHITE)
+      line_size = rl.measure_text_ex(light_font, line, 50, 0)
+      rl.draw_text_ex(light_font, line, rl.Vector2(rect.x + (rect.width - line_size.x) / 2, y), 50, 0, rl.WHITE)
       y += 50 * FONT_SCALE
 
     button_rect = rl.Rectangle(x, y + 30, w, 200)
