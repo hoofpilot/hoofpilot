@@ -81,7 +81,14 @@ class NavButton(Widget):
 
     if self.panel_info.icon:
       icon_texture = gui_app.texture(self.panel_info.icon, ICON_SIZE, ICON_SIZE, keep_aspect_ratio=True)
-      rl.draw_texture_ex(icon_texture, rl.Vector2(content_x, rect.y + (OP.NAV_BTN_HEIGHT - icon_texture.height) / 2), 0.0, 1.0, rl.WHITE)
+      tw, th = icon_texture.width, icon_texture.height
+      src = rl.Rectangle(0, 0, tw, th)
+      dst = rl.Rectangle(
+        content_x + (ICON_SIZE - tw) / 2,
+        rect.y + (OP.NAV_BTN_HEIGHT - th) / 2,
+        tw, th,
+      )
+      rl.draw_texture_pro(icon_texture, src, dst, rl.Vector2(0, 0), 0.0, rl.WHITE)
       content_x += ICON_SIZE + 20
 
     # Draw button text (right-aligned)
@@ -108,20 +115,20 @@ class SettingsLayoutSP(OP.SettingsLayout):
     wifi_manager.set_active(False)
 
     self._panels = {
-      OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_home.png"),
+      OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_home.png"),
       OP.PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUISP(wifi_manager), icon="icons/network.png"),
-      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_software.png"),
-      OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_toggle.png"),
-      OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_software.png"),
-      OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_models.png"),
-      OP.PanelType.STEERING: PanelInfo(tr_noop("Steering"), SteeringLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_lateral.png"),
+      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png"),
+      OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_toggle.png"),
+      OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),
+      OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_models.png"),
+      OP.PanelType.STEERING: PanelInfo(tr_noop("Steering"), SteeringLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_lateral.png"),
       OP.PanelType.CRUISE: PanelInfo(tr_noop("Cruise"), CruiseLayout(), icon="icons/speed_limit.png"),
-      OP.PanelType.VISUALS: PanelInfo(tr_noop("Visuals"), VisualsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_visuals.png"),
-      OP.PanelType.DISPLAY: PanelInfo(tr_noop("Display"), DisplayLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_display.png"),
-      OP.PanelType.OSM: PanelInfo(tr_noop("OSM"), OSMLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_map.png"),
-      # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_map.png"),
-      OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_trips.png"),
-      OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_vehicle.png"),
+      OP.PanelType.VISUALS: PanelInfo(tr_noop("Visuals"), VisualsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_visuals.png"),
+      OP.PanelType.DISPLAY: PanelInfo(tr_noop("Display"), DisplayLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_display.png"),
+      OP.PanelType.OSM: PanelInfo(tr_noop("OSM"), OSMLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
+      # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
+      OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_trips.png"),
+      OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_vehicle.png"),
       OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/shell.png"),
     }
 

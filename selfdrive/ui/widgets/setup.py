@@ -24,24 +24,32 @@ class SetupWidget(Widget):
 
     content_w = rect.width - 64
     x = rect.x + 32
-    y = rect.y + 36
     w = content_w
 
     font = gui_app.font(FontWeight.BOLD)
     title = tr("Finish Setup")
-    title_size = rl.measure_text_ex(font, title, 75, 0)
-    rl.draw_text_ex(font, title, rl.Vector2(rect.x + (rect.width - title_size.x) / 2, y), 75, 0, rl.WHITE)
-    y += 113
-
     desc = tr("Pair your device with Konik Stable.")
     light_font = gui_app.font(FontWeight.NORMAL)
     wrapped = wrap_text(light_font, desc, 50, int(w))
+
+    title_h = 75
+    title_gap = 38
+    desc_h = len(wrapped) * int(50 * FONT_SCALE)
+    btn_gap = 30
+    btn_h = 200
+    total_h = title_h + title_gap + desc_h + btn_gap + btn_h
+    y = rect.y + (rect.height - total_h) / 2
+
+    title_size = rl.measure_text_ex(font, title, title_h, 0)
+    rl.draw_text_ex(font, title, rl.Vector2(rect.x + (rect.width - title_size.x) / 2, y), title_h, 0, rl.WHITE)
+    y += title_h + title_gap
+
     for line in wrapped:
       line_size = rl.measure_text_ex(light_font, line, 50, 0)
       rl.draw_text_ex(light_font, line, rl.Vector2(rect.x + (rect.width - line_size.x) / 2, y), 50, 0, rl.WHITE)
-      y += 50 * FONT_SCALE
+      y += int(50 * FONT_SCALE)
 
-    button_rect = rl.Rectangle(x, y + 30, w, 200)
+    button_rect = rl.Rectangle(x, y + btn_gap, w, btn_h)
     self._pair_device_btn.render(button_rect)
 
   @staticmethod
