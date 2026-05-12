@@ -154,20 +154,20 @@ class DeviceLayoutSP(DeviceLayout):
 
     def _second_confirm(result: int):
       if result == DialogResult.CONFIRM:
-        gui_app.set_modal_overlay(ConfirmDialog(
+        gui_app.push_widget(ConfirmDialog(
           text=tr("The reset cannot be undone. You have been warned."),
-          confirm_text=tr("Confirm")
-        ), callback=_do_reset)
+          confirm_text=tr("Confirm"), callback=_do_reset
+        ))
 
-    gui_app.set_modal_overlay(ConfirmDialog(
+    gui_app.push_widget(ConfirmDialog(
       text=tr("Are you sure you want to reset all hoofpilot settings to default? Once the settings are reset, there is no going back."),
-      confirm_text=tr("Reset")
-    ), callback=_second_confirm)
+      confirm_text=tr("Reset"), callback=_second_confirm
+    ))
 
   @staticmethod
   def _handle_always_offroad():
     if ui_state.engaged:
-      gui_app.set_modal_overlay(alert_dialog(tr("Disengage to Enter Always Offroad Mode")))
+      gui_app.push_widget(alert_dialog(tr("Disengage to Enter Always Offroad Mode")))
       return
 
     _offroad_mode_state = ui_state.params.get_bool("OffroadMode")
@@ -178,7 +178,7 @@ class DeviceLayoutSP(DeviceLayout):
       if result == DialogResult.CONFIRM and not ui_state.engaged:
         ui_state.params.put_bool("OffroadMode", not _offroad_mode_state)
 
-    gui_app.set_modal_overlay(ConfirmDialog(_offroad_mode_str, tr("Confirm")), callback=lambda result: _set_always_offroad(result))
+    gui_app.push_widget(ConfirmDialog(_offroad_mode_str, tr("Confirm"), callback=lambda result: _set_always_offroad(result)))
 
   @staticmethod
   def _update_max_time_offroad_label(value: int) -> str:
@@ -219,4 +219,3 @@ class DeviceLayoutSP(DeviceLayout):
     self._reg_and_training.action_item.left_button.set_enabled(ui_state.is_offroad())
     self._reg_and_training.action_item.right_button.set_enabled(ui_state.is_offroad())
     self._onroad_uploads_and_reset_settings.action_item.right_button.set_enabled(ui_state.is_offroad())
-

@@ -6,26 +6,23 @@ See the LICENSE.md file in the root directory for more details.
 """
 from enum import IntEnum
 
-from openpilot.common.params import Params
-from openpilot.system.ui.hoofpilot.widgets.option_control import OptionControlSP
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets.scroller_tici import Scroller
-from openpilot.system.ui.hoofpilot.widgets.list_view import option_item_sp, ToggleActionSP
-
-ONROAD_BRIGHTNESS_TIMER_VALUES = {0: 15, 1: 30, **{i: (i - 1) * 60 for i in range(2, 12)}}
+from openpilot.system.ui.hoofpilot.widgets.list_view import option_item_sp
+from openpilot.hoofpilot.system.params_migration import ONROAD_BRIGHTNESS_TIMER_VALUES
 
 
 class OnroadBrightness(IntEnum):
   AUTO = 0
   AUTO_DARK = 1
+  SCREEN_OFF = 2
 
 
 class DisplayLayout(Widget):
   def __init__(self):
     super().__init__()
 
-    self._params = Params()
     items = self._initialize_items()
     self._scroller = Scroller(items, line_separator=True, spacing=0)
 
@@ -35,7 +32,7 @@ class DisplayLayout(Widget):
       title=lambda: tr("Onroad Brightness"),
       description="",
       min_value=0,
-      max_value=21,
+      max_value=22,
       value_change_step=1,
       label_callback=lambda value: self.update_onroad_brightness(value),
       inline=True
@@ -45,7 +42,7 @@ class DisplayLayout(Widget):
       title=lambda: tr("Onroad Brightness Delay"),
       description="",
       min_value=0,
-      max_value=11,
+      max_value=15,
       value_change_step=1,
       value_map=ONROAD_BRIGHTNESS_TIMER_VALUES,
       label_callback=lambda value: f"{value} s" if value < 60 else f"{int(value/60)} m",
@@ -79,18 +76,15 @@ class DisplayLayout(Widget):
     if val == OnroadBrightness.AUTO_DARK:
       return tr("Auto (Dark)")
 
-    return f"{(val - 1) * 5} %"
+    if val == OnroadBrightness.SCREEN_OFF:
+      return tr("Screen Off")
+
+    return f"{(val - 2) * 5} %"
 
   def _update_state(self):
     super()._update_state()
 
-    for _item in self._scroller._items:
-      if isinstance(_item.action_item, ToggleActionSP) and _item.action_item.toggle.param_key is not None:
-        _item.action_item.set_state(self._params.get_bool(_item.action_item.toggle.param_key))
-      elif isinstance(_item.action_item, OptionControlSP) and _item.action_item.param_key is not None:
-        _item.action_item.set_value(self._params.get(_item.action_item.param_key, return_default=True))
-
-    brightness_val = self._params.get("OnroadScreenOffBrightness", return_default=True)
+    brightness_val = self._onroad_brightness.action_item.current_value
     self._onroad_brightness_timer.action_item.set_enabled(brightness_val not in (OnroadBrightness.AUTO, OnroadBrightness.AUTO_DARK))
 
   def _render(self, rect):
@@ -98,4 +92,3 @@ class DisplayLayout(Widget):
 
   def show_event(self):
     self._scroller.show_event()
-

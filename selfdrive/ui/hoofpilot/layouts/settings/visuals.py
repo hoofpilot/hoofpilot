@@ -7,7 +7,7 @@ See the LICENSE.md file in the root directory for more details.
 from openpilot.common.params import Params
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.multilang import tr, tr_noop
-from openpilot.system.ui.hoofpilot.widgets.list_view import toggle_item_sp, multiple_button_item_sp
+from openpilot.system.ui.sunnypilot.widgets.list_view import toggle_item_sp, multiple_button_item_sp
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.widgets import Widget
 
@@ -40,7 +40,7 @@ class VisualsLayout(Widget):
         None,
       ),
       "RainbowMode": (
-        lambda: tr("Enable Tesla Rainbow Mode"),
+        lambda: tr("Enable Rainbow Mode"),
         tr("A beautiful rainbow effect on the path the model wants to take. " +
            "It does not affect driving in any way."),
         None,
@@ -152,4 +152,3 @@ class VisualsLayout(Widget):
     if not ui_state.has_longitudinal_control:
       self._chevron_info.set_description(tr(CHEVRON_INFO_DESCRIPTION["disabled"]))
       self._chevron_info.show_description(True)
-
