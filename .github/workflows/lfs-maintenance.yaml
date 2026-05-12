@@ -1,0 +1,63 @@
+name: Sync LFS to HuggingFace
+
+env:
+  HF_REPO: 'https://huggingface.co/datasets/hoofpilot/hoofpilot-lfs'
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs at 00:00 UTC every day
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - 'master'
+  workflow_dispatch:
+    inputs:
+      upstream_branch:
+        default: 'master'
+        type: string
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: (github.event_name != 'pull_request' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)) && !github.event.pull_request.head.repo.fork
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'commaai/openpilot'
+          ref: ${{ inputs.upstream_branch }}
+
+      - name: LFS Fetch
+        run: git lfs fetch
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+
+      - name: Configure HuggingFace credentials
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global credential.helper store
+          echo "https://user:${HF_TOKEN}@huggingface.co" >> ~/.git-credentials
+
+      - name: Add HuggingFace remote
+        run: |
+          git remote add huggingface ${{ env.HF_REPO }} || git remote set-url huggingface ${{ env.HF_REPO }}
+
+      - name: Ensure branch
+        run: |
+          if git symbolic-ref -q HEAD >/dev/null; then
+              echo "Already on a branch, proceeding with push"
+            else
+              echo "Detached HEAD state detected, creating temporary branch"
+            git checkout -b temp_branch
+          fi
+
+      - name: Push LFS to HuggingFace
+        run: |
+          git lfs ls-files -l
+          git lfs push --all huggingface

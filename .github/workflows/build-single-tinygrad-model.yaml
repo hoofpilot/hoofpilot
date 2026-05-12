@@ -11,6 +11,10 @@ on:
         description: 'Custom name for the model (no date, only name)'
         required: false
         type: string
+      recompiled_dir:
+        description: 'Existing recompiled directory number (e.g. 3 for recompiled3)'
+        required: true
+        type: string
       json_version:
         description: 'driving_models version number to update (e.g. 5 for driving_models_v5.json)'
         required: true
@@ -21,12 +25,7 @@ on:
         type: string
         default: ''
       bypass_push:
-        description: 'Bypass pushing to models repo (used by build-all)'
-        required: false
-        default: true
-        type: boolean
-      is_20hz:
-        description: 'Is this a 20Hz model'
+        description: 'Bypass pushing to HuggingFace for build-all'
         required: false
         default: true
         type: boolean
@@ -39,6 +38,10 @@ on:
       custom_name:
         description: 'Custom name for the model (no date, only name)'
         required: false
+        type: string
+      recompiled_dir:
+        description: 'Existing recompiled directory number (e.g. 3 for recompiled3)'
+        required: true
         type: string
       json_version:
         description: 'driving_models version number to update (e.g. 5 for driving_models_v5.json)'
@@ -69,13 +72,9 @@ on:
         description: 'Minimum selector version'
         required: false
         type: string
-      is_20hz:
-        description: 'Is this a 20Hz model'
-        required: false
-        type: boolean
-        default: true
 env:
-  JSON_FILE: driving_models_v${{ inputs.json_version }}.json
+  RECOMPILED_DIR: recompiled${{ inputs.recompiled_dir }}
+  JSON_FILE: docs/docs/driving_models_v${{ inputs.json_version }}.json
 
 jobs:
   build_model:
@@ -83,44 +82,57 @@ jobs:
     with:
       upstream_branch: ${{ inputs.upstream_branch }}
       custom_name: ${{ inputs.custom_name || inputs.upstream_branch }}
-      is_20hz: ${{ inputs.is_20hz }}
+      is_20hz: true
       artifact_suffix: ${{ inputs.artifact_suffix }}
     secrets: inherit
 
   publish_model:
     if: ${{ !inputs.bypass_push && !cancelled() }}
     concurrency:
-      group: models-repo-push
+      group: hf-push-${{ inputs.recompiled_dir }}
       cancel-in-progress: false
     needs: build_model
     runs-on: ubuntu-latest
     steps:
-      - name: Install git-lfs
-        run: sudo apt-get install -y git-lfs
+      - name: Configure HuggingFace credentials
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install huggingface_hub
+          git config --global credential.helper store
+          echo "https://user:${HF_TOKEN}@huggingface.co" >> ~/.git-credentials
 
-      - name: Checkout models repo
+      - name: Checkout docs repo
         uses: actions/checkout@v4
         with:
-          repository: hoofpilot/models
-          ref: master
-          path: models
-          ssh-key: ${{ secrets.CI_MODELS_REPO_PRIVATE_KEY }}
-          lfs: false
+          repository: hoofpilot/hoofpilot-models
+          ref: gh-pages
+          path: docs
+          ssh-key: ${{ secrets.CI_HOOFPILOT_DOCS_PRIVATE_KEY }}
 
-      - name: Configure LFS credentials for HuggingFace
-        working-directory: models
+      - name: Validate recompiled dir and JSON version
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git lfs install
-          git config credential.helper store
-          printf "https://user:%s@huggingface.co\n" "${{ secrets.HF_TOKEN }}" >> ~/.git-credentials
+          python3 - <<'EOF'
+          import os, sys
+          from huggingface_hub import HfApi
 
-      - name: Ensure models directory exists
-        run: |
-          mkdir -p models/models
-          if [ ! -f "models/$JSON_FILE" ]; then
-            echo "Creating initial JSON file models/$JSON_FILE"
-            echo '{"version": ${{ inputs.json_version }}, "bundles": []}' > "models/$JSON_FILE"
-          fi
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          repo_id = "hoofpilot/models-lfs"
+          recompiled_dir = os.environ["RECOMPILED_DIR"]
+
+          try:
+              api.get_paths_info(repo_id=repo_id, repo_type="dataset", paths=[f"models/{recompiled_dir}"])
+          except Exception:
+              print(f"Recompiled dir {recompiled_dir} does not exist in HuggingFace repo")
+              sys.exit(1)
+
+          json_file = os.environ["JSON_FILE"]
+          if not os.path.isfile(json_file):
+              print(f"JSON file {json_file} does not exist!")
+              sys.exit(1)
+          EOF
 
       - name: Download artifact name file
         uses: actions/download-artifact@v4
@@ -145,31 +157,43 @@ jobs:
           find output -type f -name 'dmonitoring_model_tinygrad.pkl' -delete
           find output -type f -name 'dmonitoring_model.onnx' -delete
 
-      - name: Copy model files into category/short_name subfolder
+      - name: Upload model artifacts to HuggingFace
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          ARTIFACT_NAME: ${{ steps.read-artifact-name.outputs.artifact_name }}
         run: |
-          SHORT_NAME=$(python3 -c "import json; print(json.load(open('output/metadata.json'))['short_name'].upper())")
-          FOLDER="${{ inputs.model_folder }}"
-          if [ "$FOLDER" = "Other" ]; then
-            FOLDER="${{ inputs.custom_model_folder }}"
-          fi
-          if [ "$FOLDER" = "None" ] || [ -z "$FOLDER" ]; then
-            FOLDER="${SHORT_NAME} Models"
-          fi
-          MODEL_DIR="models/models/${FOLDER}/${SHORT_NAME}"
-          mkdir -p "$MODEL_DIR"
-          find output -maxdepth 1 -type f \( -name '*.pkl' -o -name '*.onnx' -o -name '*.dlc' -o -name '*.thneed' \) | while IFS= read -r f; do
-            cp "$f" "$MODEL_DIR/"
-            echo "Copied $(basename "$f") -> models/${FOLDER}/${SHORT_NAME}/"
-          done
-          if [ -f output/metadata.json ]; then
-            cp output/metadata.json "$MODEL_DIR/metadata.json"
-            echo "Copied metadata.json -> models/${FOLDER}/${SHORT_NAME}/"
-          fi
+          python3 - <<'EOF'
+          import os
+          from pathlib import Path
+          from huggingface_hub import HfApi
 
-      - name: Pull latest changes from models repo
-        run: |
-          cd models
-          GIT_LFS_SKIP_SMUDGE=1 git pull origin master
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          repo_id = "hoofpilot/models-lfs"
+          recompiled_dir = os.environ["RECOMPILED_DIR"]
+          artifact_name = os.environ["ARTIFACT_NAME"]
+          output_dir = Path("output")
+
+          for path in output_dir.rglob("*"):
+              if not path.is_file():
+                  continue
+              if path.name == "artifact_name.txt":
+                  continue
+              relative = path.relative_to(output_dir)
+              hf_path = f"models/{recompiled_dir}/{artifact_name}/{relative}"
+              print(f"Uploading {path} -> {hf_path}")
+              api.upload_file(
+                  path_or_fileobj=str(path),
+                  path_in_repo=hf_path,
+                  repo_id=repo_id,
+                  repo_type="dataset",
+              )
+
+          print(f"Upload complete for {artifact_name}")
+          EOF
+
+      - run: |
+          cd docs
+          git pull origin gh-pages
 
       - name: Run json_parser.py to update JSON
         run: |
@@ -183,21 +207,18 @@ jobs:
           fi
           [ -n "${{ inputs.generation }}" ] && ARGS="$ARGS --generation \"${{ inputs.generation }}\""
           [ -n "${{ inputs.version }}" ] && ARGS="$ARGS --version \"${{ inputs.version }}\""
-          eval python3 models/json_parser.py \
-            --json-path "models/$JSON_FILE" \
-            --recompiled-dir "models/models" \
+          eval python3 docs/json_parser.py \
+            --json-path "$JSON_FILE" \
+            --recompiled-dir "hoofpilot/models-lfs/models/$RECOMPILED_DIR" \
             --sort-by-date \
             $ARGS
 
-      - name: Push updated models to GitHub and LFS objects to HuggingFace
+      - name: Push updated JSON to GitHub docs repo
         run: |
-          cd models
+          cd docs
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git checkout master
-          cp "$JSON_FILE" driving_models.json
-          git add models/
-          git add "$JSON_FILE"
-          git add driving_models.json
-          git commit -m "Update $JSON_FILE and models from single build" || echo "No changes to commit"
-          git push origin master
+          git checkout gh-pages
+          git add docs/"$(basename $JSON_FILE)"
+          git commit -m "Update $(basename $JSON_FILE) after recompiling model" || echo "No changes to commit"
+          git push origin gh-pages

@@ -46,10 +46,9 @@ class SubaruSettings(BrandSettings):
     descriptions = [
       tr("Experimental feature to enable auto-resume during stop-and-go for certain supported Subaru platforms."),
       tr("Experimental feature to enable stop and go for Subaru Global models with manual handbrake. " +
-         "Models with electric parking brake should keep this disabled. Thanks to martinl for this implementation!")
+         "Models with electric parking brake should keep this disabled.")
     ]
 
     for toggle, desc in zip([self.stop_and_go_toggle, self.stop_and_go_manual_parking_brake_toggle], descriptions, strict=True):
       toggle.action_item.set_enabled(self.has_stop_and_go and ui_state.is_offroad())
       toggle.set_description(f"<b>{disabled_msg}</b><br><br>{desc}" if disabled_msg else desc)
-

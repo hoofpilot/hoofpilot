@@ -18,7 +18,7 @@ from openpilot.common.prefix import OpenpilotPrefix
 from openpilot.selfdrive.test.helpers import with_processes
 from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.updated.updated import parse_release_notes
-from openpilot.system.version import terms_version, training_version, terms_version_sp, sunnylink_consent_version
+from openpilot.system.version import terms_version, training_version, terms_version_sp
 
 AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
@@ -153,10 +153,6 @@ def setup_openpilot_long_confirmation_dialog(click, pm: PubMaster, scroll=None):
   setup_settings_developer(click, pm, scroll=scroll)
   click(650, 960)  # toggle sunnypilot longitudinal control
 
-
-def setup_settings_sunnylink(click, pm: PubMaster, scroll=None):
-  setup_settings(click, pm)
-  click(278, 510)
 
 
 def setup_settings_models(click, pm: PubMaster, scroll=None):
@@ -298,7 +294,6 @@ CASES = {
 
 # sunnypilot cases
 CASES.update({
-  "settings_sunnylink": setup_settings_sunnylink,
   "settings_models": setup_settings_models,
   "settings_steering": setup_settings_steering,
   "settings_cruise": setup_settings_cruise,
@@ -379,7 +374,6 @@ def create_screenshots():
       params.put("HasAcceptedTerms", terms_version)
       params.put("CompletedTrainingVersion", training_version)
       params.put("HasAcceptedTermsSP", terms_version_sp)
-      params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_version)
 
       if name == "homescreen_paired":
         params.put("PrimeType", 0)  # NONE

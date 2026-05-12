@@ -38,10 +38,10 @@ class Colors:
   MUTCD_LINES = rl.Color(255, 255, 255, 100)
 
 
-class SpeedLimitRenderer(Widget):
-  def __init__(self):
-    super().__init__()
+class SpeedLimitAlertRenderer:
+  """Mixin providing speed limit state and alert-context helpers. No Widget inheritance."""
 
+  def __init__(self):
     self.speed_limit = 0.0
     self.speed_limit_last = 0.0
     self.speed_limit_offset = 0.0
@@ -60,11 +60,6 @@ class SpeedLimitRenderer(Widget):
     self.assist_frame = 0
     self.speed = 0.0
     self.set_speed = 0.0
-
-    self.font_bold = gui_app.font(FontWeight.BOLD)
-    self.font_demi = gui_app.font(FontWeight.SEMI_BOLD)
-    self.font_norm = gui_app.font(FontWeight.NORMAL)
-    self._sign_alpha_filter = FirstOrderFilter(1.0, 0.5, 1 / gui_app.target_fps)
 
     arrow_size = 90
     self._arrow_up = gui_app.texture("../../hoofpilot/selfdrive/assets/img_plus_arrow_up.png", arrow_size, arrow_size)
@@ -110,6 +105,30 @@ class SpeedLimitRenderer(Widget):
     self.set_speed = cs.cruiseState.speed * self.speed_conv
     v_ego = cs.vEgoCluster if cs.vEgoCluster != 0.0 else cs.vEgo
     self.speed = max(0.0, v_ego * self.speed_conv)
+
+  def speed_limit_pre_active_icon_helper(self):
+    set_speed_rounded = round(self.set_speed)
+    limit_rounded = round(self.speed_limit_final_last)
+
+    if set_speed_rounded < limit_rounded:
+      txt_icon = self._arrow_up
+    elif set_speed_rounded > limit_rounded:
+      txt_icon = self._arrow_down
+    else:
+      return None, None, 255.0, 20, 18
+
+    return 'right', txt_icon, 255.0, 20, 18
+
+
+class SpeedLimitRenderer(Widget, SpeedLimitAlertRenderer):
+  def __init__(self):
+    Widget.__init__(self)
+    SpeedLimitAlertRenderer.__init__(self)
+
+    self.font_bold = gui_app.font(FontWeight.BOLD)
+    self.font_demi = gui_app.font(FontWeight.SEMI_BOLD)
+    self.font_norm = gui_app.font(FontWeight.NORMAL)
+    self._sign_alpha_filter = FirstOrderFilter(1.0, 0.5, 1 / gui_app.target_fps)
 
   @staticmethod
   def _draw_text_centered(font, text, size, pos_center, color):
@@ -173,10 +192,10 @@ class SpeedLimitRenderer(Widget):
 
     if set_speed_rounded < limit_rounded:
       arrow_y = sign_rect.y + (sign_rect.height - self._arrow_up.height) / 2 + bounce_offset
-      rl.draw_texture(self._arrow_up, int(arrow_x), int(arrow_y), rl.WHITE)
+      rl.draw_texture_ex(self._arrow_up, rl.Vector2(arrow_x, arrow_y), 0.0, 1.0, rl.WHITE)
     elif set_speed_rounded > limit_rounded:
       arrow_y = sign_rect.y + (sign_rect.height - self._arrow_down.height) / 2 - bounce_offset
-      rl.draw_texture(self._arrow_down, int(arrow_x), int(arrow_y), rl.WHITE)
+      rl.draw_texture_ex(self._arrow_down, rl.Vector2(arrow_x, arrow_y), 0.0, 1.0, rl.WHITE)
 
   def _render_vienna(self, rect, val, sub, color, has_limit, alpha=1.0):
     center = rl.Vector2(rect.x + rect.width / 2, rect.y + rect.height / 2)
@@ -256,7 +275,6 @@ class SpeedLimitRenderer(Widget):
 
   @staticmethod
   def _format_dist(d):
-    # metric
     if ui_state.is_metric:
       if d < 50:
         return tr("Near")
@@ -267,7 +285,6 @@ class SpeedLimitRenderer(Widget):
       d_rounded = round(d, -1) if d < 200 else round(d, -2)
       return f"{int(d_rounded)} m"
 
-    # imperial
     d_ft = d * METER_TO_FOOT
     if d_ft < 100:
       return tr("Near")
@@ -279,4 +296,3 @@ class SpeedLimitRenderer(Widget):
       return f"{int(round(d_ft / 50) * 50)} ft"
 
     return f"{int(round(d_ft / 100) * 100)} ft"
-

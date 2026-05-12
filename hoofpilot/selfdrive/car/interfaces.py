@@ -15,7 +15,6 @@ from hoofpilot.selfdrive.controls.lib.speed_limit.helpers import set_speed_limit
 
 import openpilot.system.sentry as sentry
 
-from hoofpilot.sunnylink.statsd import STATSLOGSP
 
 
 def log_fingerprint(CP: structs.CarParams) -> None:
@@ -102,11 +101,6 @@ def setup_interfaces(CI: CarInterfaceBase, params: Params = None) -> None:
   _initialize_torque_lateral_control(CI, CP, enforce_torque, nnlc_enabled)
   _cleanup_unsupported_params(CP, CP_SP)
 
-  try:
-    STATSLOGSP.raw('hoofpilot.car_params', CP.to_dict())
-  except RuntimeError:
-    pass  # to_dict fails on macOS due to library issues.
-  # STATSLOGSP.raw('hoofpilot_params.car_params_sp', CP_SP.to_dict()) # https://github.com/hoofpilot/opendbc/pull/361
 
 
 def initialize_params(params) -> list[dict[str, Any]]:

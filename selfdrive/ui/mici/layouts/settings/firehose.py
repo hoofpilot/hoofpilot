@@ -13,13 +13,14 @@ from openpilot.system.ui.lib.application import gui_app, FontWeight, FONT_SCALE
 from openpilot.system.ui.lib.wrap_text import wrap_text
 from openpilot.system.ui.lib.scroll_panel2 import GuiScrollPanel2
 from openpilot.system.ui.lib.multilang import tr, trn, tr_noop
-from openpilot.system.ui.widgets import Widget, NavWidget
+from openpilot.system.ui.widgets import Widget
+from openpilot.system.ui.widgets.scroller import NavRawScrollPanel
 
 TITLE = tr_noop("Firehose Mode")
 DESCRIPTION = tr_noop(
   "hoofpilot learns to drive by watching humans, like you, drive.\n\n"
   + "Firehose Mode allows you to maximize your training data uploads to improve "
-  + "hoofpilot's driving models. More data means bigger models, which means better Experimental Mode."
+  + "openpilot's driving models. More data means bigger models, which means better Experimental Mode."
 )
 INSTRUCTIONS_INTRO = tr_noop(
   "For maximum effectiveness, bring your device inside and connect to a good USB-C adapter and Wi-Fi weekly.\n\n"
@@ -30,7 +31,7 @@ FAQ_ITEMS = [
   (tr_noop("Does it matter how or where I drive?"), tr_noop("Nope, just drive as you normally would.")),
   (tr_noop("Do all of my segments get pulled in Firehose Mode?"), tr_noop("No, we selectively pull a subset of your segments.")),
   (tr_noop("What's a good USB-C adapter?"), tr_noop("Any fast phone or laptop charger should be fine.")),
-  (tr_noop("Does it matter which software I run?"), tr_noop("Yes, only upstream hoofpilot (and particular forks) are able to be used for training.")),
+  (tr_noop("Does it matter which software I run?"), tr_noop("Yes, only upstream openpilot (and particular forks) are able to be used for training.")),
 ]
 
 
@@ -80,12 +81,12 @@ class FirehoseLayoutBase(Widget):
   def _render(self, rect: rl.Rectangle):
     # compute total content height for scrolling
     content_height = self._measure_content_height(rect)
-    scroll_offset = round(self._scroll_panel.update(rect, content_height))
+    scroll_offset = self._scroll_panel.update(rect, content_height)
 
     # start drawing with offset
-    x = int(rect.x + 40)
-    y = int(rect.y + 40 + scroll_offset)
-    w = int(rect.width - 80)
+    x = rect.x + 40
+    y = rect.y + 40 + scroll_offset
+    w = rect.width - 80
 
     # Title
     title_text = tr(TITLE)
@@ -99,7 +100,7 @@ class FirehoseLayoutBase(Widget):
     y += 20
 
     # Separator
-    rl.draw_rectangle(x, y, w, 2, self.GRAY)
+    rl.draw_rectangle_rec(rl.Rectangle(x, y, w, 2), self.GRAY)
     y += 20
 
     # Status
@@ -115,7 +116,7 @@ class FirehoseLayoutBase(Widget):
       y += 20
 
     # Separator
-    rl.draw_rectangle(x, y, w, 2, self.GRAY)
+    rl.draw_rectangle_rec(rl.Rectangle(x, y, w, 2), self.GRAY)
     y += 20
 
     # Instructions intro
@@ -131,9 +132,6 @@ class FirehoseLayoutBase(Widget):
       y = self._draw_wrapped_text(x, y, w, tr(question), gui_app.font(FontWeight.BOLD), 32, self.LIGHT_GRAY)
       y = self._draw_wrapped_text(x, y, w, tr(answer), gui_app.font(FontWeight.ROMAN), 32, self.LIGHT_GRAY)
       y += 20
-
-    # return value not used by NavWidget
-    return -1
 
   def _draw_wrapped_text(self, x, y, width, text, font, font_size, color):
     wrapped = wrap_text(font, text, font_size, width)
@@ -220,9 +218,5 @@ class FirehoseLayoutBase(Widget):
       time.sleep(self.UPDATE_INTERVAL)
 
 
-class FirehoseLayout(FirehoseLayoutBase, NavWidget):
-  BACK_TOUCH_AREA_PERCENTAGE = 0.1
-
-  def __init__(self, back_callback):
-    super().__init__()
-    self.set_back_callback(back_callback)
+class FirehoseLayout(NavRawScrollPanel, FirehoseLayoutBase):
+  pass

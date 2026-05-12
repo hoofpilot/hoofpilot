@@ -12,7 +12,7 @@ from cereal import custom, log
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.car.cruise import V_CRUISE_UNSET
-from openpilot.selfdrive.modeld.constants import ModelConstants
+from hoofpilot.modeld_v2.constants import ModelConstants
 from hoofpilot.selfdrive.controls.lib.smart_cruise_control import MIN_V
 from hoofpilot.selfdrive.controls.lib.smart_cruise_control.vision_controller import SmartCruiseControlVision, _ENTERING_PRED_LAT_ACC_TH
 

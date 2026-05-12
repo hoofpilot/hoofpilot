@@ -37,4 +37,3 @@ class CameraOffsetHelper:
     intrinsics_extra = dc.ecam.intrinsics
     model_transform_extra = self.apply_camera_offset(model_transform_extra, intrinsics_extra, height, self.actual_camera_offset)
     return model_transform_main, model_transform_extra
-

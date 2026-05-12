@@ -23,7 +23,6 @@ from openpilot.selfdrive.ui.hoofpilot.layouts.settings.steering import SteeringL
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.trips import TripsLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.vehicle import VehicleLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.visuals import VisualsLayout
-from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.application import gui_app, MousePos
 from openpilot.system.ui.lib.multilang import tr_noop
 from openpilot.system.ui.lib.text_measure import measure_text_cached
@@ -40,7 +39,6 @@ ICON_SIZE = 70
 OP.PanelType = IntEnum(
   "PanelType",
   [es.name for es in OP.PanelType] + [
-    "SUNNYLINK",
     "STABLE",
     "MODELS",
     "STEERING",
@@ -82,9 +80,18 @@ class NavButton(Widget):
       rl.draw_rectangle_rounded(self.container_rect, 0.2, 5, OP.CLOSE_BTN_COLOR)
 
     if self.panel_info.icon:
-      icon_texture = gui_app.texture(self.panel_info.icon, ICON_SIZE, ICON_SIZE, keep_aspect_ratio=True)
-      rl.draw_texture(icon_texture, int(content_x), int(rect.y + (OP.NAV_BTN_HEIGHT - icon_texture.height) / 2),
-                      rl.WHITE)
+      icon_texture = gui_app.texture(self.panel_info.icon)
+      nw, nh = icon_texture.width, icon_texture.height
+      fit_scale = min(ICON_SIZE / nw, ICON_SIZE / nh)
+      draw_w = nw * fit_scale
+      draw_h = nh * fit_scale
+      src = rl.Rectangle(0, 0, nw, nh)
+      dst = rl.Rectangle(
+        content_x + (ICON_SIZE - draw_w) / 2,
+        rect.y + (OP.NAV_BTN_HEIGHT - draw_h) / 2,
+        draw_w, draw_h,
+      )
+      rl.draw_texture_pro(icon_texture, src, dst, rl.Vector2(0, 0), 0.0, rl.WHITE)
       content_x += ICON_SIZE + 20
 
     # Draw button text (right-aligned)
@@ -102,7 +109,6 @@ class SettingsLayoutSP(OP.SettingsLayout):
   def __init__(self):
     OP.SettingsLayout.__init__(self)
     self._nav_items: list[Widget] = []
-    self._nav_buttons: dict[IntEnum, NavButton] = {}
 
     # Create sidebar scroller
     self._sidebar_scroller = Scroller([], spacing=0, line_separator=False, pad_end=False)
@@ -113,10 +119,9 @@ class SettingsLayoutSP(OP.SettingsLayout):
 
     self._panels = {
       OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_home.png"),
-      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png"),
       OP.PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUISP(wifi_manager), icon="icons/network.png"),
+      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png"),
       OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_toggle.png"),
-      OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),
       OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),
       OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_models.png"),
       OP.PanelType.STEERING: PanelInfo(tr_noop("Steering"), SteeringLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_lateral.png"),
@@ -169,9 +174,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
         nav_button.rect.width = rect.width - 100  # Full width minus padding
         nav_button.rect.height = OP.NAV_BTN_HEIGHT
         self._nav_items.append(nav_button)
-        self._nav_buttons[panel_type] = nav_button
         self._sidebar_scroller.add_widget(nav_button)
-      self._sync_stable_visibility()
 
     # Draw navigation section with scroller
     nav_rect = rl.Rectangle(
@@ -184,18 +187,6 @@ class SettingsLayoutSP(OP.SettingsLayout):
     if self._nav_items:
       self._sidebar_scroller.render(nav_rect)
       return
-
-  def _sync_stable_visibility(self):
-    paired = ui_state.prime_state.is_paired()
-    stable_btn = self._nav_buttons.get(OP.PanelType.STABLE)
-    if stable_btn is not None:
-      stable_btn.set_visible(paired)
-    if not paired and self._current_panel == OP.PanelType.STABLE:
-      self.set_current_panel(OP.PanelType.DEVICE)
-
-  def _update_state(self):
-    super()._update_state()
-    self._sync_stable_visibility()
 
   def _handle_mouse_release(self, mouse_pos: MousePos) -> bool:
     # Check close button
@@ -216,4 +207,3 @@ class SettingsLayoutSP(OP.SettingsLayout):
     super().show_event()
     self._panels[self._current_panel].instance.show_event()
     self._sidebar_scroller.show_event()
-

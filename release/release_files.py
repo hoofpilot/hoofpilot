@@ -12,14 +12,6 @@ blacklist = [
 
   "matlab.*.md",
 
-  # build/runtime caches
-  "__pycache__/",
-  "\\.pyc$",
-  "\\.pyo$",
-  "\\.pytest_cache/",
-  "\\.mypy_cache/",
-  "\\.ruff_cache/",
-
   # no LFS or submodules in release
   ".lfsconfig",
   ".gitattributes",

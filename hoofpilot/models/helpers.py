@@ -8,81 +8,23 @@ See the LICENSE.md file in the root directory for more details.
 import hashlib
 import os
 import pickle
-import json
-import urllib.request
-import shutil
 import numpy as np
+
 from openpilot.common.params import Params
 from cereal import custom
-from hoofpilot.modeld.constants import Meta, MetaTombRaider, MetaSimPose
-from hoofpilot.modeld.runners import ModelRunner
-from openpilot.system.hardware import PC
+from hoofpilot.models.constants import Meta, MetaTombRaider, MetaSimPose
 from openpilot.system.hardware.hw import Paths
 from pathlib import Path
 
-
 # see the README.md for more details on the model selector versioning
-CURRENT_SELECTOR_VERSION = 1
-REQUIRED_MIN_SELECTOR_VERSION = 1
+CURRENT_SELECTOR_VERSION = 15
+REQUIRED_MIN_SELECTOR_VERSION = 14
 
-USE_ONNX = os.getenv('USE_ONNX', PC)
 
 CUSTOM_MODEL_PATH = Paths.model_root()
-MODELS_JSON_PATH = os.path.join(os.path.dirname(__file__), '../../../models/driving_models.json')
-MODELS_CACHE_PATH = os.path.join(CUSTOM_MODEL_PATH, 'cache')
 METADATA_PATH = Path(__file__).parent / '../models/supercombo_metadata.pkl'
-os.makedirs(MODELS_CACHE_PATH, exist_ok=True)
 
 ModelManager = custom.ModelManagerSP
-
-def fetch_and_cache_file(url, sha256, out_path):
-  """Download file from url to out_path and verify sha256."""
-  if os.path.exists(out_path):
-    if verify_file_sync(out_path, sha256):
-      return out_path
-    else:
-      os.remove(out_path)
-  with urllib.request.urlopen(url) as response, open(out_path, 'wb') as out_file:
-    shutil.copyfileobj(response, out_file)
-  if not verify_file_sync(out_path, sha256):
-    os.remove(out_path)
-    raise RuntimeError(f"Hash mismatch for {out_path}")
-  return out_path
-
-def verify_file_sync(file_path: str, expected_hash: str) -> bool:
-  if not os.path.exists(file_path):
-    return False
-  sha256_hash = hashlib.sha256()
-  with open(file_path, "rb") as file:
-    for chunk in iter(lambda: file.read(4096), b""):
-      sha256_hash.update(chunk)
-  return sha256_hash.hexdigest().lower() == expected_hash.lower()
-
-def get_model_bundle_from_json():
-  """Return the selected model bundle from the models JSON, or None."""
-  if not os.path.exists(MODELS_JSON_PATH):
-    return None
-  with open(MODELS_JSON_PATH, encoding='utf-8') as f:
-    models_json = json.load(f)
-  # Pick the first compatible bundle (could be improved to select by params)
-  for bundle in models_json.get('bundles', []):
-    min_ver = bundle.get('minimum_selector_version')
-    if min_ver is None:
-      min_ver = bundle.get('minimumSelectorVersion')
-    if min_ver is not None and int(min_ver) <= CURRENT_SELECTOR_VERSION:
-      return bundle
-  return None
-
-def fetch_and_cache_model_files(bundle):
-  """Download and cache model and metadata files for the bundle, return their paths."""
-  model = bundle['models'][0]  # Assume supercombo is first
-  art = model['artifact']
-  meta = model['metadata']
-  art_path = os.path.join(MODELS_CACHE_PATH, art['file_name'])
-  meta_path = os.path.join(MODELS_CACHE_PATH, meta['file_name'])
-  fetch_and_cache_file(art['download_uri']['url'], art['download_uri']['sha256'], art_path)
-  fetch_and_cache_file(meta['download_uri']['url'], meta['download_uri']['sha256'], meta_path)
-  return art_path, meta_path
 
 
 async def verify_file(file_path: str, expected_hash: str) -> bool:
@@ -116,27 +58,20 @@ def is_bundle_version_compatible(bundle: dict) -> bool:
   :return: True if the selector version is within the accepted range for the bundle; otherwise False.
   :rtype: Bool
   """
-  min_ver = bundle.get("minimumSelectorVersion") or bundle.get("minimum_selector_version", 0)
-  return bool(REQUIRED_MIN_SELECTOR_VERSION <= int(min_ver or 0) <= CURRENT_SELECTOR_VERSION)
+  return bool(REQUIRED_MIN_SELECTOR_VERSION <= bundle.get("minimumSelectorVersion", 0) <= CURRENT_SELECTOR_VERSION)
 
 
-
-from typing import Optional
-
-def get_active_bundle(params: Params = None) -> Optional[dict]:
-  """Gets the active model bundle from params cache, or selects from JSON and caches it."""
+def get_active_bundle(params: Params = None) -> custom.ModelManagerSP.ModelBundle:
+  """Gets the active model bundle from cache"""
   if params is None:
     params = Params()
+
   try:
     if (active_bundle := params.get("ModelManager_ActiveBundle") or {}) and is_bundle_version_compatible(active_bundle):
-      return active_bundle
+      return custom.ModelManagerSP.ModelBundle(**active_bundle)
   except Exception:
     pass
-  # Fallback: select from JSON and cache
-  bundle = get_model_bundle_from_json()
-  if bundle:
-    params.put("ModelManager_ActiveBundle", bundle)
-    return bundle
+
   return None
 
 
@@ -170,33 +105,27 @@ def get_active_model_runner(params: Params = None, force_check=False) -> custom.
   runner_type = custom.ModelManagerSP.Runner.stock
 
   if active_bundle := get_active_bundle(params):
-    runner_str = active_bundle.get('runner', 'stock') if isinstance(active_bundle, dict) else active_bundle.runner.raw
-    runner_type = getattr(custom.ModelManagerSP.Runner, runner_str, custom.ModelManagerSP.Runner.stock)
+    runner_type = active_bundle.runner.raw
 
   if cached_runner_type != runner_type:
     params.put("ModelRunnerTypeCache", int(runner_type))
 
   return runner_type
 
+def _get_model():
+  if bundle := get_active_bundle():
+    drive_model = next(model for model in bundle.models if model.type == ModelManager.Model.Type.supercombo)
+    return drive_model
 
-# New model fetcher logic for new repo structure
-def get_model_path():
-  if USE_ONNX:
-    return {ModelRunner.ONNX: Path(__file__).parent / '../models/supercombo.onnx'}
-  bundle = get_active_bundle()
-  if bundle:
-    art_path, _ = fetch_and_cache_model_files(bundle)
-    return {ModelRunner.THNEED: art_path}
-  return {ModelRunner.THNEED: Path(__file__).parent / '../models/supercombo.thneed'}
+  return None
 
 def load_metadata():
-  bundle = get_active_bundle()
-  if bundle:
-    _, meta_path = fetch_and_cache_model_files(bundle)
-    with open(meta_path, 'rb') as f:
-      return pickle.load(f)
-  # fallback
-  with open(METADATA_PATH, 'rb') as f:
+  metadata_path = METADATA_PATH
+
+  if model := _get_model():
+    metadata_path = f"{CUSTOM_MODEL_PATH}/{model.metadata.fileName}"
+
+  with open(metadata_path, 'rb') as f:
     return pickle.load(f)
 
 
@@ -267,4 +196,3 @@ def plan_x_idxs_helper(constants, plan, model_output) -> list[float]:
       next_x_val - current_x_val) > 1e-9 else float('nan')
     LINE_T_IDXS[xidx] = p * constants.T_IDXS[tidx + 1] + (1 - p) * constants.T_IDXS[tidx]
   return LINE_T_IDXS
-

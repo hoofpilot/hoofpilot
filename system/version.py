@@ -10,20 +10,31 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.git import get_commit, get_origin, get_branch, get_short_branch, get_commit_date
 
-RELEASE_SP_BRANCHES = ['release']
-TESTED_SP_BRANCHES = ['release', 'staging']
+RELEASE_SP_BRANCHES = ['release-c3', 'release', 'release-tizi', 'release-tici', 'release-tizi-staging', 'release-tici-staging']
+TESTED_SP_BRANCHES = ['staging-c3', 'staging-c3-new', 'staging']
 MASTER_SP_BRANCHES = ['master']
-RELEASE_BRANCHES = ['release']
-TESTED_BRANCHES = RELEASE_SP_BRANCHES + TESTED_SP_BRANCHES + RELEASE_BRANCHES
+RELEASE_BRANCHES = ['release-tizi-staging', 'release-mici-staging', 'release-tizi', 'release-mici', 'nightly']
+TESTED_BRANCHES = RELEASE_BRANCHES + ['devel-staging', 'nightly-dev'] + RELEASE_SP_BRANCHES + TESTED_SP_BRANCHES
+
+SP_BRANCH_MIGRATIONS = {
+  ("tici", "staging-c3-new"): "staging-tici",
+  ("tici", "dev-c3-new"): "staging-tici",
+  ("tici", "master"): "master-tici",
+  ("tici", "master-dev-c3-new"): "master-tici",
+  ("tizi", "staging-c3-new"): "staging",
+  ("tizi", "dev-c3-new"): "dev",
+  ("tizi", "master-dev-c3-new"): "master-dev",
+  ("tizi", "release3"): "release-tizi",
+  ("tizi", "release3-staging"): "release-tizi-staging",
+  ("mici", "release3"): "release-mici",
+  ("mici", "release3-staging"): "release-mici-staging",
+}
 
 BUILD_METADATA_FILENAME = "build.json"
 
 training_version: str = "0.2.0"
 terms_version: str = "2"
 terms_version_sp: str = "1.0"
-sunnylink_consent_version: str = "1.0"
-sunnylink_consent_declined: str = "-1"
-
 
 def get_version(path: str = BASEDIR) -> str:
   with open(os.path.join(path, "hoofpilot", "common", "version.h")) as _versionf:
@@ -89,13 +100,6 @@ class OpenpilotMetadata:
 
   @property
   def sunnypilot_remote(self) -> bool:
-    return self.git_normalized_origin in ("github.com/sunnypilot/sunnypilot",
-                                          "github.com/sunnypilot/openpilot",
-                                          "github.com/sunnyhaibin/sunnypilot",
-                                          "github.com/sunnyhaibin/openpilot")
-
-  @property
-  def hoofpilot_remote(self) -> bool:
     return self.git_normalized_origin in ("github.com/hoofpilot/hoofpilot",
                                           "github.com/hoofpilot/openpilot")
 
@@ -143,7 +147,9 @@ class BuildMetadata:
 
   @property
   def channel_type(self) -> str:
-    if self.development_channel:
+    if self.channel.endswith("-tici"):
+      return "tici"
+    elif self.development_channel:
       return "development"
     elif self.tested_channel:
       return "staging"

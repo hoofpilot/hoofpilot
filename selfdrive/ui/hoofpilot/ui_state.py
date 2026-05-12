@@ -9,7 +9,6 @@ from enum import Enum
 from cereal import messaging, log, custom
 from openpilot.common.params import Params
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.display import OnroadBrightness
-from hoofpilot.sunnylink.sunnylink_state import SunnylinkState
 from openpilot.system.ui.lib.application import gui_app
 
 OpenpilotState = log.SelfdriveState.OpenpilotState
@@ -33,7 +32,6 @@ class UIStateSP:
       "gpsLocation", "liveTorqueParameters", "carStateSP", "liveMapDataSP", "carParamsSP", "liveDelay"
     ]
 
-    self.sunnylink_state = SunnylinkState()
     self.update_params()
 
     self.onroad_brightness_timer: int = 0
@@ -42,12 +40,6 @@ class UIStateSP:
     self.CP_SP: custom.CarParamsSP | None = None
     self.has_icbm: bool = False
     self.is_sp_release: bool = self.params.get_bool("IsReleaseSpBranch")
-
-  def update(self) -> None:
-    if self.sunnylink_enabled:
-      self.sunnylink_state.start()
-    else:
-      self.sunnylink_state.stop()
 
   def onroad_brightness_handle_alerts(self, started: bool, alert):
     has_alert = started and self.onroad_brightness != OnroadBrightness.AUTO and alert is not None
@@ -138,7 +130,6 @@ class UIStateSP:
     self.rocket_fuel = self.params.get_bool("RocketFuel")
     self.speed_limit_mode = self.params.get("SpeedLimitMode", return_default=True)
     self.standstill_timer = self.params.get_bool("StandstillTimer")
-    self.sunnylink_enabled = self.params.get_bool("SunnylinkEnabled")
     self.torque_bar = self.params.get_bool("TorqueBar")
     self.true_v_ego_ui = self.params.get_bool("TrueVEgoUI")
     self.turn_signals = self.params.get_bool("ShowTurnSignals")

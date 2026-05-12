@@ -7,6 +7,7 @@ source "$DIR/launch_env.sh"
 function agnos_init {
   # TODO: move this to agnos
   sudo rm -f /data/etc/NetworkManager/system-connections/*.nmmeta
+  rm -f /data/scons_cache/config.lock
 
   # set success flag for current boot slot
   sudo abctl --set_success
@@ -19,14 +20,7 @@ function agnos_init {
   # Check if AGNOS update is required
   if [ $(< /VERSION) != "$AGNOS_VERSION" ]; then
     AGNOS_PY="$DIR/system/hardware/tici/agnos.py"
-    
-    RAW_MODEL=$(tr -d '\0' < /sys/firmware/devicetree/base/model 2>/dev/null || true)
-    if echo "$RAW_MODEL" | grep -qi "tici"; then
-      MANIFEST="$DIR/hoofpilot/system/hardware/c3/agnos.json"
-    else
-      MANIFEST="$DIR/system/hardware/tici/agnos.json"
-    fi
-
+    MANIFEST="$DIR/system/hardware/tici/agnos.json"
     if $AGNOS_PY --verify $MANIFEST; then
       sudo reboot
     fi
@@ -35,9 +29,6 @@ function agnos_init {
 }
 
 function launch {
-  # Ensure we always run from repo root even if invoked from elsewhere.
-  cd "$DIR"
-
   # Remove orphaned git lock if it exists on boot
   [ -f "$DIR/.git/index.lock" ] && rm -f $DIR/.git/index.lock
 
@@ -77,8 +68,7 @@ function launch {
 
   # handle pythonpath
   ln -sfn $(pwd) /data/pythonpath
-  # Include vendored python deps (e.g., hoofpilot/third_party/jeepney) while keeping repo root imports working.
-  export PYTHONPATH="$PWD:$PWD/hoofpilot/third_party${PYTHONPATH:+:$PYTHONPATH}"
+  export PYTHONPATH="$PWD"
 
   # hardware specific init
   if [ -f /AGNOS ]; then
@@ -89,7 +79,7 @@ function launch {
   tmux capture-pane -pq -S-1000 > /tmp/launch_log
 
   # start manager
-  cd "$DIR/system/manager"
+  cd system/manager
   if [ ! -f $DIR/prebuilt ]; then
     ./build.py
   fi

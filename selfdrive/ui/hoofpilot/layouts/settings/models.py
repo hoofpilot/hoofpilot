@@ -4,12 +4,13 @@ Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
-
 import os
 import re
 import time
 import pyray as rl
+
 from cereal import custom
+from hoofpilot.models.default_model import DEFAULT_MODEL
 from openpilot.common.constants import CV
 from openpilot.selfdrive.ui.ui_state import device, ui_state
 from openpilot.system.ui.lib.multilang import tr
@@ -41,7 +42,7 @@ class ModelsLayout(Widget):
 
     self._initialize_items()
 
-    self.clear_cache_item.action_item.set_value(f"{self._calculate_cache_size():.2f} MB")
+    self.clear_cache_item.action_item.set_value(f"{self.calculate_cache_size():.2f} MB")
     for ctrl, key in [(self.lane_turn_value_control, "LaneTurnValue"), (self.delay_control, "LagdToggleDelay")]:
       ctrl.action_item.set_value(int(float(ui_state.params.get(key, return_default=True)) * 100))
 
@@ -58,10 +59,12 @@ class ModelsLayout(Widget):
     self.supercombo_label = progress_item(tr("Driving Model"))
     self.vision_label = progress_item(tr("Vision Model"))
     self.policy_label = progress_item(tr("Policy Model"))
+    self.off_policy_label = progress_item(tr("Off-Policy Model"))
+    self.on_policy_label = progress_item(tr("On-Policy Model"))
 
     self.refresh_item = button_item(tr("Refresh Model List"), tr("REFRESH"), "",
                                     lambda: (ui_state.params.put("ModelManager_LastSyncTime", 0),
-                                             gui_app.set_modal_overlay(alert_dialog(tr("Fetching Latest Models")))))
+                                             gui_app.push_widget(alert_dialog(tr("Fetching Latest Models")))))
 
     self.clear_cache_item = ListItemSP(
       title=tr("Clear Model Cache"),
@@ -91,12 +94,12 @@ class ModelsLayout(Widget):
     self.lagd_toggle = toggle_item_sp(tr("Live Learning Steer Delay"), "", param="LagdToggle")
 
     self.items = [self.current_model_item, self.cancel_download_item, self.supercombo_label, self.vision_label,
-                  self.policy_label, self.refresh_item, self.clear_cache_item, self.lane_turn_desire_toggle,
+                  self.policy_label, self.off_policy_label, self.on_policy_label, self.refresh_item, self.clear_cache_item, self.lane_turn_desire_toggle,
                   self.lane_turn_value_control, self.lagd_toggle, self.delay_control]
 
   def _update_lagd_description(self, lagd_toggle: bool):
     desc = tr("Enable this for the car to learn and adapt its steering response time. Disable to use a fixed steering response time. " +
-              "Keeping this on provides the stock hoofpilot experience.")
+              "Keeping this on provides the stock openpilot experience.")
     if lagd_toggle:
       desc += f"<br>{tr('Live Steer Delay:')} {ui_state.sm['liveDelay'].lateralDelay:.3f} s"
     elif ui_state.CP is not None:
@@ -110,7 +113,7 @@ class ModelsLayout(Widget):
             self.model_manager.selectedBundle.status == custom.ModelManagerSP.DownloadStatus.downloading)
 
   @staticmethod
-  def _calculate_cache_size():
+  def calculate_cache_size():
     cache_size = 0.0
     if os.path.exists(CUSTOM_MODEL_PATH):
       cache_size = sum(os.path.getsize(os.path.join(CUSTOM_MODEL_PATH, file)) for file in os.listdir(CUSTOM_MODEL_PATH)) / (1024**2)
@@ -120,15 +123,18 @@ class ModelsLayout(Widget):
     def _callback(response):
       if response == DialogResult.CONFIRM:
         ui_state.params.put_bool("ModelManager_ClearCache", True)
-        self.clear_cache_item.action_item.set_value(f"{self._calculate_cache_size():.2f} MB")
+        self.clear_cache_item.action_item.set_value(f"{self.calculate_cache_size():.2f} MB")
 
-    gui_app.set_modal_overlay(ConfirmDialog(tr("This will delete ALL downloaded models from the cache except the currently active model. Are you sure?"),
-                                            tr("Clear Cache")), callback=_callback)
+    dialog = ConfirmDialog(tr("This will delete ALL downloaded models from the cache except the currently active model. Are you sure?"),
+                           tr("Clear Cache"), callback=_callback)
+    gui_app.push_widget(dialog)
 
   def _handle_bundle_download_progress(self):
     labels = {custom.ModelManagerSP.Model.Type.supercombo: self.supercombo_label,
               custom.ModelManagerSP.Model.Type.vision: self.vision_label,
-              custom.ModelManagerSP.Model.Type.policy: self.policy_label}
+              custom.ModelManagerSP.Model.Type.policy: self.policy_label,
+              custom.ModelManagerSP.Model.Type.offPolicy: self.off_policy_label,
+              custom.ModelManagerSP.Model.Type.onPolicy: self.on_policy_label}
     for label in labels.values():
       label.set_visible(False)
     self.cancel_download_item.set_visible(False)
@@ -150,7 +156,7 @@ class ModelsLayout(Widget):
 
     if (current_time := time.monotonic()) - self.last_cache_calc_time > 0.5:
       self.last_cache_calc_time = current_time
-      self.clear_cache_item.action_item.set_value(f"{self._calculate_cache_size():.2f} MB")
+      self.clear_cache_item.action_item.set_value(f"{self.calculate_cache_size():.2f} MB")
 
     if self.download_status == custom.ModelManagerSP.DownloadStatus.downloading:
       device._reset_interactive_timeout()
@@ -176,7 +182,8 @@ class ModelsLayout(Widget):
         ui_state.params.remove("CalibrationParams")
         ui_state.params.remove("LiveTorqueParameters")
     msg = tr("Model download has started in the background. We suggest resetting calibration. Would you like to do that now?")
-    gui_app.set_modal_overlay(ConfirmDialog(msg, tr("Reset Calibration")), callback=_callback)
+    dialog = ConfirmDialog(msg, tr("Reset Calibration"), callback=_callback)
+    gui_app.push_widget(dialog)
 
   def _on_model_selected(self, result):
     if result != DialogResult.CONFIRM:
@@ -201,7 +208,7 @@ class ModelsLayout(Widget):
     for bundle in bundles:
       folders.setdefault(next((ov_ride.value for ov_ride in bundle.overrides if ov_ride.key == "folder"), ""), []).append(bundle)
 
-    folders_list = [TreeFolder("", [TreeNode("Default", {'display_name': tr("Default Model"), 'short_name': "Default"})])]
+    folders_list = [TreeFolder("", [TreeNode("Default", {'display_name': f"{DEFAULT_MODEL} (Default)", 'short_name': "Default"})])]
     for folder, folder_bundles in sorted(folders.items(), key=lambda x: max((bundle.index for bundle in x[1]), default=-1), reverse=True):
       folder_bundles.sort(key=lambda bundle: bundle.index, reverse=True)
       name = folder + (f" - (Updated: {m.group(1)})" if folder_bundles and (m := re.search(r'\(([^)]*)\)[^(]*$', folder_bundles[0].displayName)) else "")
@@ -219,7 +226,7 @@ class ModelsLayout(Widget):
     active_ref = self.model_manager.activeBundle.ref if self.model_manager.activeBundle else "Default"
     self.model_dialog = TreeOptionDialog(tr("Select a Model"), folders_list, active_ref, "ModelManager_Favs",
                                          get_folders_fn=self._get_folders, on_exit=self._on_model_selected)
-    gui_app.set_modal_overlay(self.model_dialog, callback=self._on_model_selected)
+    gui_app.push_widget(self.model_dialog)
 
   def _update_state(self):
     advanced_controls: bool = ui_state.params.get_bool("ShowAdvancedControls")
@@ -237,7 +244,7 @@ class ModelsLayout(Widget):
     self._update_lagd_description(live_delay)
     self.model_manager = ui_state.sm["modelManagerSP"]
     self._handle_bundle_download_progress()
-    active_name = self.model_manager.activeBundle.internalName if self.model_manager and self.model_manager.activeBundle.ref else tr("Default Model")
+    active_name = self.model_manager.activeBundle.internalName if self.model_manager and self.model_manager.activeBundle.ref else f"{DEFAULT_MODEL} (Default)"
     self.current_model_item.action_item.set_value(active_name)
 
     if not ui_state.is_offroad():
@@ -252,4 +259,3 @@ class ModelsLayout(Widget):
 
   def show_event(self):
     self._scroller.show_event()
-

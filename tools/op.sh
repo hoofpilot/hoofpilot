@@ -28,11 +28,24 @@ function op_install() {
 
 function loge() {
   if [[ -f "$LOG_FILE" ]]; then
-    # error type
     echo "$1" >> $LOG_FILE
-    # error log
     echo "$2" >> $LOG_FILE
   fi
+}
+
+function retry() {
+  local attempts=$1
+  shift
+  for i in $(seq 1 "$attempts"); do
+    if "$@"; then
+      return 0
+    fi
+    if [ "$i" -lt "$attempts" ]; then
+      echo "  Attempt $i/$attempts failed, retrying in 5s..."
+      sleep 5
+    fi
+  done
+  return 1
 }
 
 function op_run_command() {
@@ -62,7 +75,8 @@ function op_get_openpilot_dir() {
   done
 
   # Fallback to hardcoded directories if not found
-  for dir in "$HOME/openpilot" "/data/openpilot"; do
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+  for dir in "${SCRIPT_DIR%/tools}" "$HOME/openpilot" "/data/openpilot"; do
     if [[ -f "$dir/launch_openpilot.sh" ]]; then
       OPENPILOT_ROOT="$dir"
       return 0
@@ -197,7 +211,6 @@ function op_before_cmd() {
   result="${result}\n$(( op_check_venv ) 2>&1)" || (echo -e "$result" && return 1)
 
   op_activate_venv
-
   result="${result}\n$(( op_check_python ) 2>&1)" || (echo -e "$result" && return 1)
 
   if [[ -z $VERBOSE ]]; then
@@ -219,7 +232,6 @@ function op_setup() {
   SETUP_SCRIPT="tools/setup_dependencies.sh"
   if ! $OPENPILOT_ROOT/$SETUP_SCRIPT; then
     echo -e " ↳ [${RED}✗${NC}] Dependencies installation failed!"
-    loge "ERROR_DEPENDENCIES_INSTALLATION"
     return 1
   fi
   et="$(date +%s)"
@@ -229,7 +241,7 @@ function op_setup() {
 
   echo "Getting git submodules..."
   st="$(date +%s)"
-  if ! git submodule update --jobs 4 --init --recursive; then
+  if ! retry 3 git submodule update --jobs 4 --init --recursive; then
     echo -e " ↳ [${RED}✗${NC}] Getting git submodules failed!"
     loge "ERROR_GIT_SUBMODULES"
     return 1
@@ -239,7 +251,7 @@ function op_setup() {
 
   echo "Pulling git lfs files..."
   st="$(date +%s)"
-  if ! git lfs pull; then
+  if ! retry 3 git lfs pull; then
     echo -e " ↳ [${RED}✗${NC}] Pulling git lfs files failed!"
     loge "ERROR_GIT_LFS"
     return 1
@@ -293,6 +305,19 @@ function op_adb() {
 function op_ssh() {
   op_before_cmd
   op_run_command tools/scripts/ssh.py "$@"
+}
+
+function op_script() {
+  op_before_cmd
+
+  case $1 in
+    som-debug )  op_run_command panda/scripts/som_debug.sh "${@:2}" ;;
+    * )
+      echo -e "Unknown script '$1'. Available scripts:"
+      echo -e "  ${BOLD}som-debug${NC}    SOM serial debug console via panda"
+      return 1
+      ;;
+  esac
 }
 
 function op_check() {
@@ -379,6 +404,9 @@ function op_switch() {
   git submodule update --init --recursive
   git submodule foreach git reset --hard
   git submodule foreach git clean -df
+
+  # remove openpilot update flag if present
+  rm -f .overlay_init
 }
 
 function op_start() {
@@ -407,7 +435,7 @@ function op_default() {
   echo ""
   echo -e "${BOLD}${UNDERLINE}Commands [System]:${NC}"
   echo -e "  ${BOLD}auth${NC}         Authenticate yourself for API use"
-  echo -e "  ${BOLD}check${NC}        Check the development environment (git, os, python) to start using openpilot"
+  echo -e "  ${BOLD}check${NC}        Check the development environment (git, os) to start using openpilot"
   echo -e "  ${BOLD}esim${NC}         Manage eSIM profiles on your comma device"
   echo -e "  ${BOLD}venv${NC}         Activate the python virtual environment"
   echo -e "  ${BOLD}setup${NC}        Install openpilot dependencies"
@@ -424,6 +452,9 @@ function op_default() {
   echo -e "  ${BOLD}clip${NC}         Run clip (linux only)"
   echo -e "  ${BOLD}adb${NC}          Run adb shell"
   echo -e "  ${BOLD}ssh${NC}          comma prime SSH helper"
+  echo ""
+  echo -e "${BOLD}${UNDERLINE}Commands [Scripts]:${NC}"
+  echo -e "  ${BOLD}script${NC}       Run a script (e.g. op script som-debug)"
   echo ""
   echo -e "${BOLD}${UNDERLINE}Commands [Testing]:${NC}"
   echo -e "  ${BOLD}sim${NC}          Run openpilot in a simulator"
@@ -484,6 +515,7 @@ function _op() {
     post-commit )   shift 1; op_install_post_commit "$@" ;;
     adb )           shift 1; op_adb "$@" ;;
     ssh )           shift 1; op_ssh "$@" ;;
+    script )        shift 1; op_script "$@" ;;
     * ) op_default "$@" ;;
   esac
 }

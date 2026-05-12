@@ -143,7 +143,7 @@ std::string httpGet(const std::string &url, long *response_code) {
 
   // Handle headers
   struct curl_slist *headers = nullptr;
-  headers = curl_slist_append(headers, "User-Agent: openpilot-" SUNNYPILOT_VERSION);
+  headers = curl_slist_append(headers, "User-Agent: openpilot-" HOOFPILOT_VERSION);
   if (!token.empty()) {
     headers = curl_slist_append(headers, ("Authorization: JWT " + token).c_str());
   }

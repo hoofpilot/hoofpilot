@@ -8,7 +8,7 @@ from json import load
 import numpy as np
 import unicodedata
 
-from openpilot.selfdrive.modeld.parse_model_outputs import safe_exp
+from hoofpilot.modeld_v2.parse_model_outputs import safe_exp
 
 
 ACTIVATION_ALIASES = {

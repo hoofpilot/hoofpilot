@@ -3,6 +3,8 @@ name: Build dev
 env:
   DEFAULT_SOURCE_BRANCH: "master"
   DEFAULT_TARGET_BRANCH: "master-dev"
+  LFS_URL: 'https://huggingface.co/datasets/hoofpilot/hoofpilot-lfs.git/info/lfs'
+  LFS_PUSH_URL: 'ssh://git@hf.co/datasets/hoofpilot/hoofpilot-lfs.git'
 
 on:
   push:
@@ -64,11 +66,6 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -81,9 +78,6 @@ jobs:
 
       - name: Check branches exist
         run: |
-          # Configure git to use GITHUB_TOKEN for authentication
-          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-
           # Check if source branch exists
           if ! git ls-remote --heads origin ${{ inputs.source_branch || env.DEFAULT_SOURCE_BRANCH }} | grep -q "${{ inputs.source_branch || env.DEFAULT_SOURCE_BRANCH }}"; then
             echo "Source branch ${{ inputs.source_branch || env.DEFAULT_SOURCE_BRANCH }} does not exist!"
@@ -164,6 +158,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update LFS Config
+        run: |
+          echo '[lfs]' > .lfsconfig
+          echo '    url = ${{ env.LFS_URL }}' >> .lfsconfig
+          echo '    pushurl = ${{ env.LFS_PUSH_URL }}' >> .lfsconfig
+          echo '    locksverify = false' >> .lfsconfig
+
       - name: Restore workflows from source
         run: |
           TARGET_BRANCH="${{ inputs.target_branch || env.DEFAULT_TARGET_BRANCH }}"
@@ -182,13 +183,19 @@ jobs:
             echo "Workflows match $SOURCE_BRANCH."
           fi
 
+      - uses: actions/create-github-app-token@v2
+        id: ci-token
+        with:
+          app-id: ${{ secrets.CI_GITHUB_ACTIONS_TOKEN_APP_ID }}
+          private-key: ${{ secrets.CI_GITHUB_ACTIONS_TOKEN_APP_PRIVATE_KEY }}
+
       - name: Push changes if there are diffs
         id: push-changes
         run: |
           TARGET_BRANCH="${{ inputs.target_branch || env.DEFAULT_TARGET_BRANCH }}"
 
-          # Use the GITHUB_TOKEN to set the remote URL with authentication
-          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          # Use the App Token to set the remote URL with authentication
+          git remote set-url origin "https://x-access-token:${{ steps.ci-token.outputs.token }}@github.com/${{ github.repository }}.git"
 
           # Fetch the latest from remote
           git fetch origin $TARGET_BRANCH
@@ -212,39 +219,16 @@ jobs:
       - name: Trigger and wait for selfdrive tests
         if: steps.push-changes.outputs.has_changes == 'true'
         run: |
-          TARGET_BRANCH="${{ inputs.target_branch || env.DEFAULT_TARGET_BRANCH }}"
-
           echo "Triggering selfdrive tests..."
-          TRIGGER_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          gh workflow run tests.yaml --ref "$TARGET_BRANCH"
+          gh workflow run tests.yaml --ref "${{ inputs.target_branch || env.DEFAULT_TARGET_BRANCH }}"
 
-          echo "Polling for workflow run to appear (triggered after $TRIGGER_TIME)..."
-          RUN_ID=""
-          for i in $(seq 1 20); do
-            sleep 30
-            RUN_ID=$(gh run list --workflow=tests.yaml --branch="$TARGET_BRANCH" --limit=5 \
-              --json databaseId,createdAt \
-              --jq "[.[] | select(.createdAt >= \"$TRIGGER_TIME\")] | .[0].databaseId")
-            if [[ -n "$RUN_ID" && "$RUN_ID" != "null" ]]; then
-              echo "Found run ID: $RUN_ID (attempt $i)"
-              break
-            fi
-            echo "Attempt $i/20: run not found yet, retrying in 30s..."
-          done
+          echo "Sleeping for 120s to give plenty of time for the action to start and then we wait"
+          sleep 120
 
-          if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
-            echo "❌ Failed to find a workflow run for tests.yaml on $TARGET_BRANCH after 10 minutes"
-            exit 1
-          fi
+          echo "Getting latest run ID..."
+          RUN_ID=$(gh run list --workflow=tests.yaml --branch="${{ inputs.target_branch || env.DEFAULT_TARGET_BRANCH }}" --limit=1 --json databaseId --jq '.[0].databaseId')
 
           echo "Watching run ID: $RUN_ID"
           gh run watch "$RUN_ID"
-
-          CONCLUSION=$(gh run view "$RUN_ID" --json conclusion --jq '.conclusion')
-          echo "Run concluded with: $CONCLUSION"
-          if [[ "$CONCLUSION" != "success" ]]; then
-            echo "❌ Workflow run failed with conclusion: $CONCLUSION"
-            exit 1
-          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

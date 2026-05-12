@@ -1,1 +1,1 @@
-#define SUNNYPILOT_VERSION "Falabella"
+#define HOOFPILOT_VERSION "Falabella"

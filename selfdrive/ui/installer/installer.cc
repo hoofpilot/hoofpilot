@@ -30,7 +30,7 @@ const std::string VALID_CACHE_PATH = "/data/.openpilot_cache";
 
 #define TMP_INSTALL_PATH "/data/tmppilot"
 
-const int FONT_SIZE = 120;
+const int FONT_SIZE = 160;
 
 extern const uint8_t str_continue[] asm("_binary_selfdrive_ui_installer_continue_openpilot_sh_start");
 extern const uint8_t str_continue_end[] asm("_binary_selfdrive_ui_installer_continue_openpilot_sh_end");
@@ -48,12 +48,19 @@ Font font_display;
 const bool tici_device = Hardware::get_device_type() == cereal::InitData::DeviceType::TICI ||
                          Hardware::get_device_type() == cereal::InitData::DeviceType::TIZI;
 
+std::vector<std::string> tici_prebuilt_branches = {"release3", "release-tici", "release3-staging", "nightly", "nightly-dev"};
 std::string migrated_branch;
 
 void branchMigration() {
   migrated_branch = BRANCH_STR;
   cereal::InitData::DeviceType device_type = Hardware::get_device_type();
-  if (device_type == cereal::InitData::DeviceType::TIZI) {
+  if (device_type == cereal::InitData::DeviceType::TICI) {
+    if (std::find(tici_prebuilt_branches.begin(), tici_prebuilt_branches.end(), BRANCH_STR) != tici_prebuilt_branches.end()) {
+      migrated_branch = "release-tici";
+    } else if (BRANCH_STR == "master") {
+      migrated_branch = "master-tici";
+    }
+  } else if (device_type == cereal::InitData::DeviceType::TIZI) {
     if (BRANCH_STR == "release3") {
       migrated_branch = "release-tizi";
     } else if (BRANCH_STR == "release3-staging") {
@@ -73,54 +80,6 @@ void run(const char* cmd) {
   assert(err == 0);
 }
 
-static bool maybeRunAgnosUpdater() {
-  // The installer shows "Finishing install..." and then waits for openpilot UI to take over.
-  // If an OS (AGNOS) update is required for the newly installed software, run the updater UI
-  // here so we update before attempting to boot into an incompatible OS/software combo.
-  if (!util::file_exists("/AGNOS")) {
-    return false;
-  }
-
-  const std::string cur = util::strip(util::read_file("/VERSION"));
-  if (cur.empty()) {
-    return false;
-  }
-
-  // Use the normal launch_env.sh, which already handles device-specific AGNOS selection.
-  const std::string env_path = INSTALL_PATH + "/launch_env.sh";
-
-  const bool is_tici = Hardware::get_device_type() == cereal::InitData::DeviceType::TICI;
-  const std::string manifest_path = is_tici ? (INSTALL_PATH + "/hoofpilot/system/hardware/c3/agnos.json")
-                                            : (INSTALL_PATH + "/system/hardware/tici/agnos.json");
-
-  if (!util::file_exists(env_path) || !util::file_exists(manifest_path)) {
-    return false;
-  }
-
-  std::string req;
-  try {
-    req = util::strip(util::check_output(util::string_format(
-      "bash -lc 'unset AGNOS_VERSION; source \"%s\"; echo -n \"$AGNOS_VERSION\"'",
-      env_path.c_str()
-    )));
-  } catch (...) {
-    req = "";
-  }
-  if (req.empty() || req == cur) {
-    return false;
-  }
-
-  const std::string agnos_py = INSTALL_PATH + "/system/hardware/tici/agnos.py";
-  const std::string updater = INSTALL_PATH + "/system/hardware/tici/updater";
-  if (!util::file_exists(agnos_py) || !util::file_exists(updater)) {
-    return false;
-  }
-
-  // This takes over the display and reboots on success.
-  std::system(util::string_format("%s %s %s", updater.c_str(), agnos_py.c_str(), manifest_path.c_str()).c_str());
-  return true;
-}
-
 void finishInstall() {
   BeginDrawing();
     ClearBackground(BLACK);
@@ -129,7 +88,7 @@ void finishInstall() {
       int text_width = MeasureText(m, FONT_SIZE);
       DrawTextEx(font_display, m, (Vector2){(float)(GetScreenWidth() - text_width)/2 + FONT_SIZE, (float)(GetScreenHeight() - FONT_SIZE)/2}, FONT_SIZE, 0, WHITE);
     } else {
-      DrawTextEx(font_display, "finishing setup", (Vector2){8, 10}, 82, 0, WHITE);
+      DrawTextEx(font_display, "finishing setup", (Vector2){12, 0}, 77, 0, (Color){255, 255, 255, (unsigned char)(255 * 0.9)});
     }
   EndDrawing();
   util::sleep_for(60 * 1000);
@@ -147,10 +106,10 @@ void renderProgress(int progress) {
       DrawRectangleRec(bar, (Color){70, 91, 234, 255});
       DrawTextEx(font_inter, (std::to_string(progress) + "%").c_str(), (Vector2){150, 670}, 85, 0, WHITE);
     } else {
-      DrawTextEx(font_display, "installing", (Vector2){8, 10}, 82, 0, WHITE);
+      DrawTextEx(font_display, "installing...", (Vector2){12, 0}, 77, 0, (Color){255, 255, 255, (unsigned char)(255 * 0.9)});
       const std::string percent_str = std::to_string(progress) + "%";
-      DrawTextEx(font_roman, percent_str.c_str(), (Vector2){6, (float)(GetScreenHeight() - 128 + 18)}, 128, 0,
-                 (Color){255, 255, 255, (unsigned char)(255 * 0.9 * 0.35)});
+      DrawTextEx(font_inter, percent_str.c_str(), (Vector2){12, (float)(GetScreenHeight() - 154 + 20)}, 154, 0,
+                 (Color){255, 255, 255, (unsigned char)(255 * 0.9 * 0.65)});
     }
 
   EndDrawing();
@@ -185,6 +144,7 @@ int cachedFetch(const std::string &cache) {
   LOGD("Fetching with cache: %s", cache.c_str());
 
   run(util::string_format("cp -rp %s %s", cache.c_str(), TMP_INSTALL_PATH).c_str());
+  run(util::string_format("cd %s && git remote set-url origin %s", TMP_INSTALL_PATH, GIT_URL.c_str()).c_str());
   run(util::string_format("cd %s && git remote set-branches --add origin %s", TMP_INSTALL_PATH, migrated_branch.c_str()).c_str());
 
   renderProgress(10);
@@ -273,10 +233,6 @@ void cloneFinished(int exitCode) {
 
   run("chmod +x /data/continue.sh.new");
   run("mv /data/continue.sh.new " CONTINUE_PATH);
-
-  // If required, run AGNOS updater UI before we show the finishing screen.
-  // This matches the desired "update between download completion and finishing install" behavior.
-  maybeRunAgnosUpdater();
 
   // wait for the installed software's UI to take over
   finishInstall();

@@ -93,4 +93,3 @@ class DefaultStyleSP(Base):
 
 
 style = DefaultStyleSP
-

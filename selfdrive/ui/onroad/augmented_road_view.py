@@ -15,6 +15,7 @@ from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCamera
 from openpilot.common.transformations.orientation import rot_from_euler
 
 if gui_app.sunnypilot_ui():
+  from openpilot.selfdrive.ui.hoofpilot.onroad.alert_renderer import AlertRendererSP as AlertRenderer
   from openpilot.selfdrive.ui.hoofpilot.onroad.augmented_road_view import BORDER_COLORS_SP, AugmentedRoadViewSP
   from openpilot.selfdrive.ui.hoofpilot.onroad.driver_state import DriverStateRendererSP as DriverStateRenderer
   from openpilot.selfdrive.ui.hoofpilot.onroad.hud_renderer import HudRendererSP as HudRenderer
@@ -59,7 +60,6 @@ class AugmentedRoadView(CameraView, AugmentedRoadViewSP):
 
     # debug
     self._pm = messaging.PubMaster(['uiDebug'])
-    self._ui_debug_publish_enabled = True
 
   def _render(self, rect):
     # Only render when system is started to avoid invalid data access
@@ -108,15 +108,10 @@ class AugmentedRoadView(CameraView, AugmentedRoadViewSP):
     # Draw colored border based on driving state
     self._draw_border(rect)
 
-    # publish uiDebug (best effort; never crash rendering)
-    if self._ui_debug_publish_enabled:
-      try:
-        msg = messaging.new_message('uiDebug')
-        msg.uiDebug.drawTimeMillis = (time.monotonic() - start_draw) * 1000
-        self._pm.send('uiDebug', msg)
-      except Exception:
-        # Another publisher may already own uiDebug. Disable future sends and keep UI alive.
-        self._ui_debug_publish_enabled = False
+    # publish uiDebug
+    msg = messaging.new_message('uiDebug')
+    msg.uiDebug.drawTimeMillis = (time.monotonic() - start_draw) * 1000
+    self._pm.send('uiDebug', msg)
 
   def _handle_mouse_press(self, _):
     if not self._hud_renderer.user_interacting() and self._click_callback is not None:
@@ -244,6 +239,7 @@ class AugmentedRoadView(CameraView, AugmentedRoadViewSP):
 if __name__ == "__main__":
   gui_app.init_window("OnRoad Camera View")
   road_camera_view = AugmentedRoadView(ROAD_CAM)
+  gui_app.push_widget(road_camera_view)
   print("***press space to switch camera view***")
   try:
     for _ in gui_app.render():
@@ -252,6 +248,5 @@ if __name__ == "__main__":
         if WIDE_CAM in road_camera_view.available_streams:
           stream = ROAD_CAM if road_camera_view.stream_type == WIDE_CAM else WIDE_CAM
           road_camera_view.switch_stream(stream)
-      road_camera_view.render(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
   finally:
     road_camera_view.close()

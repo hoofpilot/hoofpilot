@@ -8,7 +8,6 @@ import traceback
 
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
-from hoofpilot.common.boot_logo import ensure_boot_background
 from openpilot.common.utils import atomic_write
 from openpilot.common.params import Params, ParamKeyFlag
 from openpilot.common.text_window import TextWindow
@@ -23,11 +22,11 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.system.hardware.ignition_state import ignition_state
 from openpilot.system.hardware import PC
 
+from hoofpilot.system.params_migration import run_migration
+
 
 def manager_init() -> None:
   save_bootlog()
-
-  ensure_boot_background()
 
   build_metadata = get_build_metadata()
 
@@ -36,8 +35,8 @@ def manager_init() -> None:
   params.clear_all(ParamKeyFlag.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
   params.clear_all(ParamKeyFlag.CLEAR_ON_IGNITION_ON)
-  if build_metadata.release_channel:
-    params.clear_all(ParamKeyFlag.DEVELOPMENT_ONLY)
+  # if build_metadata.release_channel:
+  #   params.clear_all(ParamKeyFlag.DEVELOPMENT_ONLY)
 
   # device boot mode
   if params.get("DeviceBootMode") == 1:  # start in Always Offroad mode
@@ -51,6 +50,9 @@ def manager_init() -> None:
 
   if params.get_bool("RecordFrontLock"):
     params.put_bool("RecordFront", True)
+
+  if not PC:
+    run_migration(params)
 
   # set unset params to their default value
   for k in params.all_keys():

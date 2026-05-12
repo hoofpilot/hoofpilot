@@ -1,5 +1,4 @@
 import numpy as np
-from parameterized import parameterized
 
 from cereal import car, log, messaging
 from opendbc.car.car_helpers import interfaces
@@ -8,6 +7,7 @@ from opendbc.car.honda.values import CAR as HONDA
 from opendbc.car.hyundai.values import CAR as HYUNDAI
 from opendbc.car.toyota.values import CAR as TOYOTA
 from opendbc.car.vehicle_model import VehicleModel
+from openpilot.common.parameterized import parameterized
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car.helpers import convert_to_capnp
@@ -15,7 +15,7 @@ from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from openpilot.selfdrive.locationd.helpers import Pose
 from openpilot.common.mock.generators import generate_livePose
 from hoofpilot.selfdrive.car import interfaces as sunnypilot_interfaces
-from openpilot.selfdrive.modeld.constants import ModelConstants
+from hoofpilot.modeld_v2.constants import ModelConstants
 
 
 def generate_modelV2():

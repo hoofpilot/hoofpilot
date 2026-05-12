@@ -58,3 +58,6 @@ class ToggleSP(Toggle):
 
     rl.draw_circle(int(knob_x), int(knob_y), KNOB_RADIUS, knob_color)
 
+    clicked = self._clicked
+    self._clicked = False
+    return clicked

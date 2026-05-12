@@ -38,4 +38,3 @@ class GuiApplicationExt:
 
   def set_show_mouse_coords(self, show: bool):
     self._show_mouse_coords = show
-

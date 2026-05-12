@@ -1,1568 +1,873 @@
-# English translations for PACKAGE package.
-# Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# Automatically generated, 2025.
-#
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-16 15:00+0000\n"
-"PO-Revision-Date: 2025-10-21 18:18-0700\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: en\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:163
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid " Steering torque response calibration is complete."
 msgstr " Steering torque response calibration is complete."
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:161
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid " Steering torque response calibration is {}% complete."
 msgstr " Steering torque response calibration is {}% complete."
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:136
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid " Your device is pointed {:.1f}° {} and {:.1f}° {}."
 msgstr " Your device is pointed {:.1f}° {} and {:.1f}° {}."
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:43
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "--"
 msgstr "--"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:46
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "1 year of drive storage"
+msgstr "1 year of drive storage"
+
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "24/7 LTE connectivity"
+msgstr "24/7 LTE connectivity"
+
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "2G"
 msgstr "2G"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:47
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "3G"
 msgstr "3G"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:49
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "5G"
 msgstr "5G"
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:26
-msgid ""
-"<b>WARNING: hoofpilot longitudinal control is in alpha for this car and will "
-"disable Automatic Emergency Braking (AEB).</b><br><br>On this car, hoofpilot "
-"defaults to the car's built-in ACC instead of hoofpilot's longitudinal "
-"control. Enable this to switch to hoofpilot longitudinal control. Enabling "
-"Experimental mode is recommended when enabling hoofpilot longitudinal "
-"control alpha. Changing this setting will restart hoofpilot if the car is "
-"powered on."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:151
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "<br><br>Steering lag calibration is complete."
 msgstr "<br><br>Steering lag calibration is complete."
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:149
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "<br><br>Steering lag calibration is {}% complete."
 msgstr "<br><br>Steering lag calibration is {}% complete."
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:18
-msgid ""
-"ADB (Android Debug Bridge) allows connecting to your device over USB or over "
-"the network. See https://docs.comma.ai/how-to/connect-to-comma for more info."
-msgstr ""
-"ADB (Android Debug Bridge) allows connecting to your device over USB or over "
-"the network. See https://docs.comma.ai/how-to/connect-to-comma for more info."
-
-#: openpilot/selfdrive/ui/widgets/ssh_key.py:30
+#: openpilot/selfdrive/ui/widgets/ssh_key.py
 msgid "ADD"
 msgstr "ADD"
 
-#: openpilot/selfdrive/ui/widgets/trips.py:148
-#, python-format
-msgid "ALL TIME"
-msgstr ""
-
-#: system/ui/widgets/network.py:145
-#, python-format
+#: system/ui/widgets/network.py
 msgid "APN Setting"
 msgstr "APN Setting"
 
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py:109
-#, python-format
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
 msgid "Acknowledge Excessive Actuation"
 msgstr "Acknowledge Excessive Actuation"
 
-#: openpilot/selfdrive/ui/widgets/pairing_dialog.py:119
-#, python-format
-msgid "Add Konik Stable to your home screen to use it like an app"
-msgstr ""
-
-#: system/ui/widgets/network.py:80 system/ui/widgets/network.py:101
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Advanced"
 msgstr "Advanced"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:102
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Aggressive"
 msgstr "Aggressive"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:130
-#, python-format
+#: openpilot/selfdrive/ui/layouts/onboarding.py
 msgid "Agree"
 msgstr "Agree"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:236
-#, python-format
-msgid "All provinces"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py:224
-#, python-format
-msgid "All states (~6.0 GB)"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:74
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Always-On Driver Monitoring"
 msgstr "Always-On Driver Monitoring"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:190
-#, python-format
-msgid ""
-"An alpha version of hoofpilot longitudinal control can be tested, along with "
-"Experimental mode, on non-release branches."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:190
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Are you sure you want to power off?"
 msgstr "Are you sure you want to power off?"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:178
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Are you sure you want to reboot?"
 msgstr "Are you sure you want to reboot?"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:122
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Are you sure you want to reset calibration?"
 msgstr "Are you sure you want to reset calibration?"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:175
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Are you sure you want to uninstall?"
 msgstr "Are you sure you want to uninstall?"
 
-#: system/ui/widgets/network.py:105
-#: openpilot/selfdrive/ui/layouts/onboarding.py:162
-#, python-format
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+#: system/ui/widgets/network.py
 msgid "Back"
 msgstr "Back"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:71
-#, python-format
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "Become a comma prime member at connect.comma.ai"
+msgstr "Become a comma prime member at connect.comma.ai"
+
+#: openpilot/selfdrive/ui/widgets/pairing_dialog.py
+msgid "Bookmark connect.comma.ai to your home screen to use it like an app"
+msgstr "Bookmark connect.comma.ai to your home screen to use it like an app"
+
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "CHANGE"
 msgstr "CHANGE"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:60
-#: openpilot/selfdrive/ui/layouts/settings/software.py:119
-#: openpilot/selfdrive/ui/layouts/settings/software.py:130
-#: openpilot/selfdrive/ui/layouts/settings/software.py:159
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "CHECK"
 msgstr "CHECK"
 
-#: system/ui/widgets/network.py:161
-#, python-format
+#: openpilot/selfdrive/ui/widgets/exp_mode_button.py
+msgid "CHILL MODE ON"
+msgstr "CHILL MODE ON"
+
+#: openpilot/selfdrive/ui/layouts/sidebar.py
+#: system/ui/widgets/network.py
 msgid "CONNECT"
 msgstr "CONNECT"
 
-#: system/ui/widgets/network.py:375
-#, python-format
+#: system/ui/widgets/network.py
 msgid "CONNECTING..."
 msgstr "CONNECTING..."
 
-#: system/ui/widgets/network.py:324 system/ui/widgets/confirm_dialog.py:23
-#: system/ui/widgets/option_dialog.py:35 system/ui/widgets/keyboard.py:81
-#: openpilot/selfdrive/ui/layouts/onboarding.py:347
-#, python-format
+#: system/ui/widgets/confirm_dialog.py
+#: system/ui/widgets/keyboard.py
+#: system/ui/widgets/network.py
+#: system/ui/widgets/option_dialog.py
 msgid "Cancel"
 msgstr "Cancel"
 
-#: system/ui/widgets/network.py:140
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Cellular Metered"
 msgstr "Cellular Metered"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:71
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Change Language"
 msgstr "Change Language"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:129
-#, python-format
-msgid "Changing this setting will restart hoofpilot if the car is powered on."
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Changing this setting will restart sunnypilot if the car is powered on."
 msgstr ""
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:102
-#, python-format
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
 msgid "Choose your sponsorship tier and confirm your support"
 msgstr ""
 
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py:104
-#, python-format
+#: openpilot/selfdrive/ui/widgets/pairing_dialog.py
+msgid "Click \"add new device\" and scan the QR code on the right"
+msgstr "Click \"add new device\" and scan the QR code on the right"
+
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
 msgid "Close"
 msgstr "Close"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:204
-#, python-format
-msgid "Continue"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py:59
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Current Version"
 msgstr "Current Version"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:122
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "DOWNLOAD"
 msgstr "DOWNLOAD"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:129
-#, python-format
+#: openpilot/selfdrive/ui/layouts/onboarding.py
 msgid "Decline"
 msgstr "Decline"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:163
-#, python-format
-msgid "Decline, uninstall hoofpilot"
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "Decline, uninstall sunnypilot"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/settings.py:61
+#: openpilot/selfdrive/ui/layouts/settings/settings.py
 msgid "Developer"
 msgstr "Developer"
 
-#: openpilot/selfdrive/ui/layouts/settings/settings.py:57
+#: openpilot/selfdrive/ui/layouts/settings/settings.py
 msgid "Device"
 msgstr "Device"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:62
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Disengage on Accelerator Pedal"
 msgstr "Disengage on Accelerator Pedal"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:187
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Disengage to Power Off"
 msgstr "Disengage to Power Off"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:175
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Disengage to Reboot"
 msgstr "Disengage to Reboot"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:106
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Disengage to Reset Calibration"
 msgstr "Disengage to Reset Calibration"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:36
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Display speed in km/h instead of mph."
 msgstr "Display speed in km/h instead of mph."
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:393
-#, python-format
-msgid ""
-"Do you want to download offline maps for your selected region now? The "
-"download will run in the background."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:62
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Dongle ID"
 msgstr "Dongle ID"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:397
-#: openpilot/selfdrive/ui/layouts/settings/software.py:60
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Download"
 msgstr "Download"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:391
-#, python-format
-msgid "Download Offline Maps?"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:65
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Driver Camera"
 msgstr "Driver Camera"
 
-#: openpilot/selfdrive/ui/widgets/trips.py:126
-#, python-format
-msgid "Drives"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:100
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Driving Personality"
 msgstr "Driving Personality"
 
-#: system/ui/widgets/network.py:129 system/ui/widgets/network.py:145
-#, python-format
+#: system/ui/widgets/network.py
 msgid "EDIT"
 msgstr "EDIT"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:138
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "ERROR"
 msgstr "ERROR"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:45
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "ETH"
 msgstr "ETH"
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:68
-#, python-format
+#: openpilot/selfdrive/ui/widgets/exp_mode_button.py
+msgid "EXPERIMENTAL MODE ON"
+msgstr "EXPERIMENTAL MODE ON"
+
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
 msgid "Early Access: Become a sunnypilot Sponsor"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:232
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:184
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Enable"
 msgstr "Enable"
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:43
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
 msgid "Enable ADB"
 msgstr "Enable ADB"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:68
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Enable Lane Departure Warnings"
 msgstr "Enable Lane Departure Warnings"
 
-#: system/ui/widgets/network.py:135
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Enable Roaming"
 msgstr "Enable Roaming"
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:52
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
 msgid "Enable SSH"
 msgstr "Enable SSH"
 
-#: system/ui/widgets/network.py:126
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Enable Tethering"
 msgstr "Enable Tethering"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:34
-msgid "Enable driver monitoring even when hoofpilot is not engaged."
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Enable driver monitoring even when sunnypilot is not engaged."
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:50
-#, python-format
-msgid "Enable hoofpilot"
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Enable sunnypilot"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:193
-#, python-format
-msgid ""
-"Enable the hoofpilot longitudinal control (alpha) toggle to allow "
-"Experimental mode."
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Enable the sunnypilot longitudinal control (alpha) toggle to allow Experimental mode."
 msgstr ""
 
-#: system/ui/widgets/network.py:210
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Enter APN"
 msgstr "Enter APN"
 
-#: system/ui/widgets/network.py:247
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Enter SSID"
 msgstr "Enter SSID"
 
-#: system/ui/widgets/network.py:260
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Enter new tethering password"
 msgstr "Enter new tethering password"
 
-#: system/ui/widgets/network.py:243 system/ui/widgets/network.py:320
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Enter password"
 msgstr "Enter password"
 
-#: system/ui/hoofpilot/widgets/tree_dialog.py:99
-#, python-format
+#: system/ui/sunnypilot/widgets/tree_dialog.py
 msgid "Enter search query"
 msgstr ""
 
-#: openpilot/selfdrive/ui/widgets/ssh_key.py:89
-#, python-format
+#: openpilot/selfdrive/ui/widgets/ssh_key.py
 msgid "Enter your GitHub username"
 msgstr "Enter your GitHub username"
 
-#: system/ui/widgets/list_view.py:123 system/ui/widgets/list_view.py:160
-#, python-format
+#: system/ui/widgets/list_view.py
 msgid "Error"
 msgstr "Error"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:56
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Experimental Mode"
 msgstr "Experimental Mode"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:185
-#, python-format
-msgid ""
-"Experimental mode is currently unavailable on this car since the car's stock "
-"ACC is used for longitudinal control."
-msgstr ""
-"Experimental mode is currently unavailable on this car since the car's stock "
-"ACC is used for longitudinal control."
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control."
+msgstr "Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control."
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:275
-#: openpilot/selfdrive/ui/layouts/onboarding.py:305
-#, python-format
-msgid "FETCHING..."
-msgstr ""
-
-#: system/ui/widgets/network.py:379
-#, python-format
+#: system/ui/widgets/network.py
 msgid "FORGETTING..."
 msgstr "FORGETTING..."
 
-#: openpilot/selfdrive/ui/widgets/setup.py:24
-#, python-format
+#: openpilot/selfdrive/ui/widgets/setup.py
 msgid "Finish Setup"
 msgstr "Finish Setup"
 
-#: openpilot/selfdrive/ui/layouts/settings/firehose.py:10
+#: openpilot/selfdrive/ui/layouts/settings/settings.py
+msgid "Firehose"
+msgstr "Firehose"
+
+#: openpilot/selfdrive/ui/layouts/settings/firehose.py
 msgid "Firehose Mode"
 msgstr "Firehose Mode"
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:95
-#, python-format
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
 msgid "Follow the prompts to complete the pairing process"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/firehose.py:17
-msgid ""
-"For maximum effectiveness, bring your device inside and connect to a good "
-"USB-C adapter and Wi-Fi weekly.\n"
-"\n"
-"Firehose Mode can also work while you're driving if connected to a hotspot "
-"or unlimited SIM card.\n"
-"\n"
-"\n"
-"Frequently Asked Questions\n"
-"\n"
-"Does it matter how or where I drive? Nope, just drive as you normally "
-"would.\n"
-"\n"
-"Do all of my segments get pulled in Firehose Mode? No, we selectively pull a "
-"subset of your segments.\n"
-"\n"
-"What's a good USB-C adapter? Any fast phone or laptop charger should be "
-"fine.\n"
-"\n"
-"Does it matter which software I run? Yes, only upstream hoofpilot (and "
-"particular forks) are able to be used for training."
-msgstr ""
-
-#: system/ui/widgets/network.py:324 system/ui/widgets/network.py:457
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Forget"
 msgstr "Forget"
 
-#: system/ui/widgets/network.py:325
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Forget Wi-Fi Network \"{}\"?"
 msgstr "Forget Wi-Fi Network \"{}\"?"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:71
-#: openpilot/selfdrive/ui/layouts/sidebar.py:125
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "GOOD"
 msgstr "GOOD"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:129
+#: openpilot/selfdrive/ui/widgets/pairing_dialog.py
+msgid "Go to https://connect.comma.ai on your phone"
+msgstr "Go to https://connect.comma.ai on your phone"
+
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "HIGH"
 msgstr "HIGH"
 
-#: system/ui/widgets/network.py:161
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Hidden Network"
 msgstr "Hidden Network"
 
-#: openpilot/selfdrive/ui/widgets/trips.py:128
-#, python-format
-msgid "Hours"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py:63
-#: openpilot/selfdrive/ui/layouts/settings/software.py:148
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "INSTALL"
 msgstr "INSTALL"
 
-#: system/ui/widgets/network.py:156
-#, python-format
+#: system/ui/widgets/network.py
 msgid "IP Address"
 msgstr "IP Address"
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:97
-#, python-format
-msgid ""
-"If sponsorship status was not updated, please contact a moderator on the "
-"community forum at https://community.sunnypilot.ai"
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
+msgid "If sponsorship status was not updated, please contact a moderator on the community forum at https://community.sunnypilot.ai"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:63
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Install Update"
 msgstr "Install Update"
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:103
-#, python-format
-msgid ""
-"Join our Community Forum at https://community.sunnypilot.ai and reach out to "
-"a moderator if you have issues"
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
+msgid "Join our Community Forum at https://community.sunnypilot.ai and reach out to a moderator if you have issues"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:60
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
 msgid "Joystick Debug Mode"
 msgstr "Joystick Debug Mode"
 
-#: openpilot/selfdrive/ui/widgets/trips.py:110
-#, python-format
-msgid "KM"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/ssh_key.py:29
+#: openpilot/selfdrive/ui/widgets/ssh_key.py
 msgid "LOADING"
 msgstr "LOADING"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:48
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "LTE"
 msgstr "LTE"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:196
-#, python-format
-msgid "Location Setup"
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "Lateral Maneuver Mode"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:68
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
 msgid "Longitudinal Maneuver Mode"
 msgstr "Longitudinal Maneuver Mode"
 
-#: openpilot/selfdrive/ui/onroad/hud_renderer.py:148
-#, python-format
+#: openpilot/selfdrive/ui/onroad/hud_renderer.py
 msgid "MAX"
 msgstr "MAX"
 
-#: openpilot/selfdrive/ui/widgets/trips.py:110
-#, python-format
-msgid "Miles"
-msgstr ""
+#: openpilot/selfdrive/ui/widgets/setup.py
+msgid "Maximize your training data uploads to improve openpilot's driving models."
+msgstr "Maximize your training data uploads to improve openpilot's driving models."
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:62
-#: openpilot/selfdrive/ui/layouts/settings/device.py:63
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "N/A"
 msgstr "N/A"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:142
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "NO"
 msgstr "NO"
 
-#: openpilot/selfdrive/ui/layouts/settings/settings.py:58
+#: openpilot/selfdrive/ui/layouts/settings/settings.py
 msgid "Network"
 msgstr "Network"
 
-#: openpilot/selfdrive/ui/widgets/ssh_key.py:114
-#, python-format
-msgid "No SSH keys found"
-msgstr "No SSH keys found"
-
-#: openpilot/selfdrive/ui/widgets/ssh_key.py:126
-#, python-format
+#: openpilot/selfdrive/ui/widgets/ssh_key.py
 msgid "No SSH keys found for user '{}'"
 msgstr "No SSH keys found for user '{}'"
 
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py:320
-#, python-format
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
 msgid "No release notes available."
 msgstr "No release notes available."
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:396
-#, python-format
-msgid "Not Now"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/sidebar.py:73
-#: openpilot/selfdrive/ui/layouts/sidebar.py:134
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "OFFLINE"
 msgstr "OFFLINE"
 
-#: system/ui/widgets/confirm_dialog.py:93 system/ui/widgets/html_render.py:263
-#: openpilot/selfdrive/ui/layouts/sidebar.py:127
-#, python-format
+#: openpilot/selfdrive/ui/layouts/sidebar.py
+#: system/ui/widgets/confirm_dialog.py
+#: system/ui/widgets/html_render.py
 msgid "OK"
 msgstr "OK"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:72
-#: openpilot/selfdrive/ui/layouts/sidebar.py:136
-#: openpilot/selfdrive/ui/layouts/sidebar.py:144
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "ONLINE"
 msgstr "ONLINE"
 
-#: openpilot/selfdrive/ui/widgets/pairing_dialog.py:117
-#, python-format
-msgid "Open the camera app on your phone"
-msgstr ""
+#: openpilot/selfdrive/ui/widgets/setup.py
+msgid "Open"
+msgstr "Open"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:51
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "PAIR"
 msgstr "PAIR"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:142
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "PANDA"
 msgstr "PANDA"
 
-#: openpilot/selfdrive/ui/widgets/trips.py:150
-#, python-format
-msgid "PAST WEEK"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:65
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "PREVIEW"
 msgstr "PREVIEW"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:51
-#, python-format
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "PRIME FEATURES:"
+msgstr "PRIME FEATURES:"
+
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Pair Device"
 msgstr "Pair Device"
 
-#: openpilot/selfdrive/ui/widgets/setup.py:18
-#, python-format
+#: openpilot/selfdrive/ui/widgets/setup.py
 msgid "Pair device"
 msgstr "Pair device"
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:68
-#, python-format
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
 msgid "Pair your GitHub account"
 msgstr ""
 
-#: openpilot/selfdrive/ui/widgets/pairing_dialog.py:92
-#, python-format
-msgid "Pair your device to Konik Stable"
-msgstr ""
+#: openpilot/selfdrive/ui/widgets/pairing_dialog.py
+msgid "Pair your device to your comma account"
+msgstr "Pair your device to your comma account"
 
-#: openpilot/selfdrive/ui/widgets/setup.py:24
-#, python-format
-msgid "Pair your device with Konik Stable."
-msgstr ""
+#: openpilot/selfdrive/ui/layouts/settings/device.py
+#: openpilot/selfdrive/ui/widgets/setup.py
+msgid "Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer."
+msgstr "Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer."
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:27
-msgid ""
-"Pair your device with comma connect (connect.comma.ai) and claim your comma "
-"prime offer."
-msgstr ""
-"Pair your device with comma connect (connect.comma.ai) and claim your comma "
-"prime offer."
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py:259
-#, python-format
-msgid "Perform a search"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/setup.py:51
-#, python-format
+#: openpilot/selfdrive/ui/widgets/setup.py
 msgid "Please connect to Wi-Fi to complete initial pairing"
 msgstr "Please connect to Wi-Fi to complete initial pairing"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:58
-#: openpilot/selfdrive/ui/layouts/settings/device.py:190
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Power Off"
 msgstr "Power Off"
 
-#: system/ui/widgets/network.py:150
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Prevent large data uploads when on a metered Wi-Fi connection"
 msgstr "Prevent large data uploads when on a metered Wi-Fi connection"
 
-#: system/ui/widgets/network.py:141
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Prevent large data uploads when on a metered cellular connection"
 msgstr "Prevent large data uploads when on a metered cellular connection"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:28
-msgid ""
-"Preview the driver facing camera to ensure that driver monitoring has good "
-"visibility. (vehicle must be off)"
-msgstr ""
-"Preview the driver facing camera to ensure that driver monitoring has good "
-"visibility. (vehicle must be off)"
+#: openpilot/selfdrive/ui/layouts/settings/device.py
+msgid "Preview the driver facing camera to ensure that driver monitoring has good visibility. (vehicle must be off)"
+msgstr "Preview the driver facing camera to ensure that driver monitoring has good visibility. (vehicle must be off)"
 
-#: openpilot/selfdrive/ui/widgets/pairing_dialog.py:150
-#, python-format
+#: openpilot/selfdrive/ui/widgets/pairing_dialog.py
 msgid "QR Code Error"
 msgstr "QR Code Error"
 
-#: openpilot/selfdrive/ui/widgets/ssh_key.py:31
+#: openpilot/selfdrive/ui/widgets/ssh_key.py
 msgid "REMOVE"
 msgstr "REMOVE"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:54
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "RESET"
 msgstr "RESET"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:68
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "REVIEW"
 msgstr "REVIEW"
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:96
-#, python-format
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
 msgid "Re-enter the \"sunnylink\" panel to verify sponsorship status"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:58
-#: openpilot/selfdrive/ui/layouts/settings/device.py:178
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Reboot"
 msgstr "Reboot"
 
-#: openpilot/selfdrive/ui/onroad/alert_renderer.py:66
-#, python-format
+#: openpilot/selfdrive/ui/onroad/alert_renderer.py
 msgid "Reboot Device"
 msgstr "Reboot Device"
 
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py:112
-#, python-format
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
 msgid "Reboot and Update"
 msgstr "Reboot and Update"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:31
-msgid ""
-"Receive alerts to steer back into the lane when your vehicle drifts over a "
-"detected lane line without a turn signal activated while driving over 31 mph "
-"(50 km/h)."
-msgstr ""
-"Receive alerts to steer back into the lane when your vehicle drifts over a "
-"detected lane line without a turn signal activated while driving over 31 mph "
-"(50 km/h)."
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:80
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Record and Upload Driver Camera"
 msgstr "Record and Upload Driver Camera"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:86
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Record and Upload Microphone Audio"
 msgstr "Record and Upload Microphone Audio"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:37
-msgid ""
-"Record and store microphone audio while driving. The audio will be included "
-"in the dashcam video in comma connect."
-msgstr ""
-"Record and store microphone audio while driving. The audio will be included "
-"in the dashcam video in comma connect."
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect."
+msgstr "Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect."
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:70
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Regulatory"
 msgstr "Regulatory"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:102
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Relaxed"
 msgstr "Relaxed"
 
-#: openpilot/selfdrive/ui/widgets/ssh_key.py:123
-#, python-format
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "Remote access"
+msgstr "Remote access"
+
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "Remote snapshots"
+msgstr "Remote snapshots"
+
+#: openpilot/selfdrive/ui/widgets/ssh_key.py
 msgid "Request timed out"
 msgstr "Request timed out"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:122
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Reset"
 msgstr "Reset"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:54
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Reset Calibration"
 msgstr "Reset Calibration"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:68
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Review Training Guide"
 msgstr "Review Training Guide"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:30
-msgid "Review the rules, features, and limitations of hoofpilot"
+#: openpilot/selfdrive/ui/layouts/settings/device.py
+msgid "Review the rules, features, and limitations of sunnypilot"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:71
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "SELECT"
-msgstr ""
+msgstr "SELECT"
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:57
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
 msgid "SSH Keys"
 msgstr "SSH Keys"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:73
-#: openpilot/selfdrive/ui/layouts/sidebar.py:134
-#: openpilot/selfdrive/ui/layouts/sidebar.py:136
-#: openpilot/selfdrive/ui/layouts/sidebar.py:138
-msgid "STABLE"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/pairing_dialog.py:118
-#, python-format
-msgid "Scan the QR code on the right"
-msgstr ""
-
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:94
-#, python-format
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
 msgid "Scan the QR code to login to your GitHub account"
 msgstr ""
 
-#: system/ui/hoofpilot/widgets/sunnylink_pairing_dialog.py:101
-#, python-format
+#: system/ui/sunnypilot/widgets/sunnylink_pairing_dialog.py
 msgid "Scan the QR code to visit sunnyhaibin's GitHub Sponsors page"
 msgstr ""
 
-#: system/ui/widgets/network.py:316
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Scanning Wi-Fi networks..."
 msgstr "Scanning Wi-Fi networks..."
 
-#: system/ui/hoofpilot/widgets/tree_dialog.py:90
-#, python-format
+#: system/ui/sunnypilot/widgets/tree_dialog.py
 msgid "Search"
 msgstr ""
 
-#: system/ui/widgets/option_dialog.py:36
-#, python-format
+#: system/ui/widgets/option_dialog.py
 msgid "Select"
 msgstr "Select"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:201
-#: openpilot/selfdrive/ui/layouts/onboarding.py:279
-#: openpilot/selfdrive/ui/layouts/onboarding.py:361
-#, python-format
-msgid "Select Country"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py:195
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Select a branch"
-msgstr ""
+msgstr "Select a branch"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:94
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Select a language"
 msgstr "Select a language"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:198
-#, python-format
-msgid ""
-"Select your country and state/province. This helps set units and optionally "
-"download local maps."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:63
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "Serial"
 msgstr "Serial"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:205
-#: openpilot/selfdrive/ui/layouts/onboarding.py:346
-#, python-format
-msgid "Skip"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py:345
-#, python-format
-msgid ""
-"Skip location setup? You can configure maps and units later in Settings."
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py:106
-#, python-format
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
 msgid "Snooze Update"
 msgstr "Snooze Update"
 
-#: openpilot/selfdrive/ui/layouts/settings/settings.py:60
+#: openpilot/selfdrive/ui/layouts/settings/settings.py
 msgid "Software"
 msgstr "Software"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:102
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Standard"
 msgstr "Standard"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:26
-msgid ""
-"Standard is recommended. In aggressive mode, hoofpilot will follow lead cars "
-"closer and be more aggressive with the gas and brake. In relaxed mode "
-"hoofpilot will stay further away from lead cars. On supported cars, you can "
-"cycle through these personalities with your steering wheel distance button."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py:370
-#, python-format
-msgid "State/Province (Not required)"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py:203
-#: openpilot/selfdrive/ui/layouts/onboarding.py:309
-#: openpilot/selfdrive/ui/layouts/onboarding.py:372
-#, python-format
-msgid "State/Province (Optional)"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py:368
-#, python-format
-msgid "State/Province (Select country first)"
-msgstr ""
-
-#: openpilot/selfdrive/ui/onroad/alert_renderer.py:59
-#: openpilot/selfdrive/ui/onroad/alert_renderer.py:65
-#, python-format
+#: openpilot/selfdrive/ui/onroad/alert_renderer.py
 msgid "System Unresponsive"
 msgstr "System Unresponsive"
 
-#: openpilot/selfdrive/ui/onroad/alert_renderer.py:58
-#, python-format
+#: openpilot/selfdrive/ui/onroad/alert_renderer.py
 msgid "TAKE CONTROL IMMEDIATELY"
 msgstr "TAKE CONTROL IMMEDIATELY"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:71
-#: openpilot/selfdrive/ui/layouts/sidebar.py:125
-#: openpilot/selfdrive/ui/layouts/sidebar.py:127
-#: openpilot/selfdrive/ui/layouts/sidebar.py:129
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "TEMP"
 msgstr "TEMP"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:71
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Target Branch"
-msgstr ""
+msgstr "Target Branch"
 
-#: system/ui/widgets/network.py:130
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Tethering Password"
 msgstr "Tethering Password"
 
-#: openpilot/selfdrive/ui/layouts/settings/settings.py:59
+#: openpilot/selfdrive/ui/layouts/settings/settings.py
 msgid "Toggles"
 msgstr "Toggles"
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:83
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
 msgid "UI Debug Mode"
-msgstr ""
+msgstr "UI Debug Mode"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:82
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "UNINSTALL"
 msgstr "UNINSTALL"
 
-#: openpilot/selfdrive/ui/layouts/home.py:157
-#, python-format
+#: openpilot/selfdrive/ui/layouts/home.py
 msgid "UPDATE"
 msgstr "UPDATE"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:82
-#: openpilot/selfdrive/ui/layouts/settings/software.py:175
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Uninstall"
 msgstr "Uninstall"
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:117
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "Unknown"
 msgstr "Unknown"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:58
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "Updates are only downloaded while the car is off."
 msgstr "Updates are only downloaded while the car is off."
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:35
-msgid ""
-"Upload data from the driver facing camera and help improve the driver "
-"monitoring algorithm."
-msgstr ""
-"Upload data from the driver facing camera and help improve the driver "
-"monitoring algorithm."
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "Upgrade Now"
+msgstr "Upgrade Now"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:92
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Upload data from the driver facing camera and help improve the driver monitoring algorithm."
+msgstr "Upload data from the driver facing camera and help improve the driver monitoring algorithm."
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Use Metric System"
 msgstr "Use Metric System"
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:21
-msgid ""
-"Use the hoofpilot system for adaptive cruise control and lane keep driver "
-"assistance. Your attention is required at all times to use this feature."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/sidebar.py:72
-#: openpilot/selfdrive/ui/layouts/sidebar.py:144
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "VEHICLE"
 msgstr "VEHICLE"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:70
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "VIEW"
 msgstr "VIEW"
 
-#: openpilot/selfdrive/ui/onroad/alert_renderer.py:52
-#, python-format
+#: openpilot/selfdrive/ui/onroad/alert_renderer.py
 msgid "Waiting to start"
 msgstr "Waiting to start"
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:22
-msgid ""
-"Warning: This grants SSH access to all public keys in your GitHub settings. "
-"Never enter a GitHub username other than your own. A comma employee will "
-"NEVER ask you to add their GitHub username."
-msgstr ""
-"Warning: This grants SSH access to all public keys in your GitHub settings. "
-"Never enter a GitHub username other than your own. A comma employee will "
-"NEVER ask you to add their GitHub username."
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py:119
-#, python-format
-msgid "Welcome to hoofpilot!"
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "Welcome to sunnypilot"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:24
-msgid "When enabled, pressing the accelerator pedal will disengage hoofpilot."
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "When enabled, pressing the accelerator pedal will disengage sunnypilot."
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/sidebar.py:44
+#: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "Wi-Fi"
 msgstr "Wi-Fi"
 
-#: system/ui/widgets/network.py:150
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Wi-Fi Network Metered"
 msgstr "Wi-Fi Network Metered"
 
-#: system/ui/widgets/network.py:320
-#, python-format
+#: system/ui/widgets/network.py
 msgid "Wrong password"
 msgstr "Wrong password"
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:122
-#, python-format
-msgid ""
-"You must accept the Terms and Conditions in order to use hoofpilot. Read the "
-"latest terms at https://comma.ai/terms before continuing."
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "You must accept the Terms of Service in order to use sunnypilot."
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/onboarding.py:160
-#, python-format
-msgid "You must accept the Terms of Service in order to use hoofpilot."
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "You must accept the Terms of Service to use sunnypilot. Read the latest terms at https://sunnypilot.ai/terms before continuing."
 msgstr ""
 
-#: openpilot/selfdrive/ui/onroad/driver_camera_dialog.py:38
-#, python-format
+#: openpilot/selfdrive/ui/onroad/driver_camera_dialog.py
 msgid "camera starting"
 msgstr "camera starting"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:22
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "checking..."
-msgstr ""
+msgstr "checking..."
 
-#: system/ui/widgets/network.py:148
-#, python-format
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "comma prime"
+msgstr "comma prime"
+
+#: system/ui/widgets/network.py
 msgid "default"
 msgstr "default"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:136
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "down"
 msgstr "down"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:23
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "downloading..."
-msgstr ""
+msgstr "downloading..."
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:118
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "failed to check for update"
 msgstr "failed to check for update"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:24
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "finalizing update..."
-msgstr ""
+msgstr "finalizing update..."
 
-#: system/ui/widgets/network.py:243 system/ui/widgets/network.py:320
-#, python-format
+#: system/ui/widgets/network.py
 msgid "for \"{}\""
 msgstr "for \"{}\""
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py:75
-#, python-format
-msgid "hoofpilot Longitudinal Control (Alpha)"
-msgstr ""
-
-#: openpilot/selfdrive/ui/onroad/alert_renderer.py:51
-#, python-format
-msgid "hoofpilot Unavailable"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:162
-#, python-format
-msgid ""
-"hoofpilot defaults to driving in chill mode. Experimental mode enables alpha-"
-"level features that aren't ready for chill mode. Experimental features are "
-"listed below:<br><h4>End-to-End Longitudinal Control</h4><br>Let the driving "
-"model control the gas and brakes. hoofpilot will drive as it thinks a human "
-"would, including stopping for red lights and stop signs. Since the driving "
-"model decides the speed to drive, the set speed will only act as an upper "
-"bound. This is an alpha quality feature; mistakes should be expected."
-"<br><h4>New Driving Visualization</h4><br>The driving visualization will "
-"transition to the road-facing wide-angle camera at low speeds to better show "
-"some turns. The Experimental mode logo will also be shown in the top right "
-"corner."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:168
-#, python-format
-msgid ""
-"hoofpilot is continuously calibrating, resetting is rarely required. "
-"Resetting calibration will restart hoofpilot if the car is powered on."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/firehose.py:12
-msgid ""
-"hoofpilot learns to drive by watching humans, like you, drive.\n"
-"\n"
-"Firehose Mode allows you to maximize your training data uploads to improve "
-"hoofpilot's driving models. More data means bigger models, which means "
-"better Experimental Mode."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py:187
-#, python-format
-msgid "hoofpilot longitudinal control may come in a future update."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/device.py:29
-msgid ""
-"hoofpilot requires the device to be mounted within 4° left or right and "
-"within 5° up or 9° down."
-msgstr ""
-
-#: openpilot/selfdrive/ui/onroad/hud_renderer.py:177
-#, python-format
+#: openpilot/selfdrive/ui/onroad/hud_renderer.py
 msgid "km/h"
 msgstr "km/h"
 
-#: system/ui/widgets/network.py:210
-#, python-format
+#: system/ui/widgets/network.py
 msgid "leave blank for automatic configuration"
 msgstr "leave blank for automatic configuration"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:137
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "left"
 msgstr "left"
 
-#: system/ui/widgets/network.py:148
-#, python-format
+#: system/ui/widgets/network.py
 msgid "metered"
 msgstr "metered"
 
-#: openpilot/selfdrive/ui/onroad/hud_renderer.py:177
-#, python-format
+#: openpilot/selfdrive/ui/onroad/hud_renderer.py
 msgid "mph"
 msgstr "mph"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:30
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "never"
 msgstr "never"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:41
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "now"
 msgstr "now"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:137
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "right"
 msgstr "right"
 
-#: system/ui/widgets/network.py:148
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "sunnypilot Longitudinal Control (Alpha)"
+msgstr ""
+
+#: openpilot/selfdrive/ui/onroad/alert_renderer.py
+msgid "sunnypilot Unavailable"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "sunnypilot longitudinal control may come in a future update."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/device.py
+msgid "sunnypilot requires the device to be mounted within 4° left or right and within 5° up or 9° down."
+msgstr ""
+
+#: system/ui/widgets/network.py
 msgid "unmetered"
 msgstr "unmetered"
 
-#: openpilot/selfdrive/ui/layouts/settings/device.py:136
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/device.py
 msgid "up"
 msgstr "up"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:129
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "up to date, last checked never"
 msgstr "up to date, last checked never"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:127
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "up to date, last checked {}"
 msgstr "up to date, last checked {}"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:121
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "update available"
 msgstr "update available"
 
-#: openpilot/selfdrive/ui/layouts/home.py:171
-#, python-format
+#: openpilot/selfdrive/ui/layouts/home.py
 msgid "{} ALERT"
 msgid_plural "{} ALERTS"
 msgstr[0] "{} ALERT"
 msgstr[1] "{} ALERTS"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:50
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "{} day ago"
 msgid_plural "{} days ago"
 msgstr[0] "{} day ago"
 msgstr[1] "{} days ago"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:47
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "{} hour ago"
 msgid_plural "{} hours ago"
 msgstr[0] "{} hour ago"
 msgstr[1] "{} hours ago"
 
-#: openpilot/selfdrive/ui/layouts/settings/software.py:44
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "{} minute ago"
 msgid_plural "{} minutes ago"
 msgstr[0] "{} minute ago"
 msgstr[1] "{} minutes ago"
 
-#: openpilot/selfdrive/ui/layouts/settings/firehose.py:70
-#, python-format
+#: openpilot/selfdrive/ui/layouts/settings/firehose.py
 msgid "{} segment of your driving is in the training dataset so far."
 msgid_plural "{} segments of your driving is in the training dataset so far."
 msgstr[0] "{} segment of your driving is in the training dataset so far."
 msgstr[1] "{} segments of your driving is in the training dataset so far."
 
-#, python-format
-#~ msgid "1 year of drive storage"
-#~ msgstr "1 year of drive storage"
+#: openpilot/selfdrive/ui/widgets/prime.py
+msgid "✓ SUBSCRIBED"
+msgstr "✓ SUBSCRIBED"
 
-#, python-format
-#~ msgid "24/7 LTE connectivity"
-#~ msgstr "24/7 LTE connectivity"
+#: openpilot/selfdrive/ui/widgets/setup.py
+msgid "🔥 Firehose Mode 🔥"
+msgstr "🔥 Firehose Mode 🔥"
 
-#~ msgid ""
-#~ "<b>WARNING: openpilot longitudinal control is in alpha for this car and "
-#~ "will disable Automatic Emergency Braking (AEB).</b><br><br>On this car, "
-#~ "openpilot defaults to the car's built-in ACC instead of openpilot's "
-#~ "longitudinal control. Enable this to switch to openpilot longitudinal "
-#~ "control. Enabling Experimental mode is recommended when enabling "
-#~ "openpilot longitudinal control alpha. Changing this setting will restart "
-#~ "openpilot if the car is powered on."
-#~ msgstr ""
-#~ "<b>WARNING: openpilot longitudinal control is in alpha for this car and "
-#~ "will disable Automatic Emergency Braking (AEB).</b><br><br>On this car, "
-#~ "openpilot defaults to the car's built-in ACC instead of openpilot's "
-#~ "longitudinal control. Enable this to switch to openpilot longitudinal "
-#~ "control. Enabling Experimental mode is recommended when enabling "
-#~ "openpilot longitudinal control alpha. Changing this setting will restart "
-#~ "openpilot if the car is powered on."
-
-#, python-format
-#~ msgid "ACTIVE"
-#~ msgstr "ACTIVE"
-
-#, python-format
-#~ msgid ""
-#~ "An alpha version of openpilot longitudinal control can be tested, along "
-#~ "with Experimental mode, on non-release branches."
-#~ msgstr ""
-#~ "An alpha version of openpilot longitudinal control can be tested, along "
-#~ "with Experimental mode, on non-release branches."
-
-#, python-format
-#~ msgid "Become a comma prime member at connect.comma.ai"
-#~ msgstr "Become a comma prime member at connect.comma.ai"
-
-#, python-format
-#~ msgid "Bookmark connect.comma.ai to your home screen to use it like an app"
-#~ msgstr "Bookmark connect.comma.ai to your home screen to use it like an app"
-
-#, python-format
-#~ msgid "CHILL MODE ON"
-#~ msgstr "CHILL MODE ON"
-
-#, python-format
-#~ msgid ""
-#~ "Changing this setting will restart openpilot if the car is powered on."
-#~ msgstr ""
-#~ "Changing this setting will restart openpilot if the car is powered on."
-
-#, python-format
-#~ msgid "Click \"add new device\" and scan the QR code on the right"
-#~ msgstr "Click \"add new device\" and scan the QR code on the right"
-
-#, python-format
-#~ msgid "Decline, uninstall openpilot"
-#~ msgstr "Decline, uninstall openpilot"
-
-#, python-format
-#~ msgid "EXPERIMENTAL MODE ON"
-#~ msgstr "EXPERIMENTAL MODE ON"
-
-#~ msgid "Enable driver monitoring even when openpilot is not engaged."
-#~ msgstr "Enable driver monitoring even when openpilot is not engaged."
-
-#, python-format
-#~ msgid "Enable openpilot"
-#~ msgstr "Enable openpilot"
-
-#, python-format
-#~ msgid ""
-#~ "Enable the openpilot longitudinal control (alpha) toggle to allow "
-#~ "Experimental mode."
-#~ msgstr ""
-#~ "Enable the openpilot longitudinal control (alpha) toggle to allow "
-#~ "Experimental mode."
-
-#~ msgid "Firehose"
-#~ msgstr "Firehose"
-
-#~ msgid ""
-#~ "For maximum effectiveness, bring your device inside and connect to a good "
-#~ "USB-C adapter and Wi-Fi weekly.\n"
-#~ "\n"
-#~ "Firehose Mode can also work while you're driving if connected to a "
-#~ "hotspot or unlimited SIM card.\n"
-#~ "\n"
-#~ "\n"
-#~ "Frequently Asked Questions\n"
-#~ "\n"
-#~ "Does it matter how or where I drive? Nope, just drive as you normally "
-#~ "would.\n"
-#~ "\n"
-#~ "Do all of my segments get pulled in Firehose Mode? No, we selectively "
-#~ "pull a subset of your segments.\n"
-#~ "\n"
-#~ "What's a good USB-C adapter? Any fast phone or laptop charger should be "
-#~ "fine.\n"
-#~ "\n"
-#~ "Does it matter which software I run? Yes, only upstream openpilot (and "
-#~ "particular forks) are able to be used for training."
-#~ msgstr ""
-#~ "For maximum effectiveness, bring your device inside and connect to a good "
-#~ "USB-C adapter and Wi-Fi weekly.\n"
-#~ "\n"
-#~ "Firehose Mode can also work while you're driving if connected to a "
-#~ "hotspot or unlimited SIM card.\n"
-#~ "\n"
-#~ "\n"
-#~ "Frequently Asked Questions\n"
-#~ "\n"
-#~ "Does it matter how or where I drive? Nope, just drive as you normally "
-#~ "would.\n"
-#~ "\n"
-#~ "Do all of my segments get pulled in Firehose Mode? No, we selectively "
-#~ "pull a subset of your segments.\n"
-#~ "\n"
-#~ "What's a good USB-C adapter? Any fast phone or laptop charger should be "
-#~ "fine.\n"
-#~ "\n"
-#~ "Does it matter which software I run? Yes, only upstream openpilot (and "
-#~ "particular forks) are able to be used for training."
-
-#, python-format
-#~ msgid "Go to https://connect.comma.ai on your phone"
-#~ msgstr "Go to https://connect.comma.ai on your phone"
-
-#, python-format
-#~ msgid "INACTIVE: connect to an unmetered network"
-#~ msgstr "INACTIVE: connect to an unmetered network"
-
-#, python-format
-#~ msgid ""
-#~ "Maximize your training data uploads to improve openpilot's driving models."
-#~ msgstr ""
-#~ "Maximize your training data uploads to improve openpilot's driving models."
-
-#, python-format
-#~ msgid "Open"
-#~ msgstr "Open"
-
-#, python-format
-#~ msgid "PRIME FEATURES:"
-#~ msgstr "PRIME FEATURES:"
-
-#, python-format
-#~ msgid "Pair your device to your comma account"
-#~ msgstr "Pair your device to your comma account"
-
-#, python-format
-#~ msgid "Remote access"
-#~ msgstr "Remote access"
-
-#, python-format
-#~ msgid "Remote snapshots"
-#~ msgstr "Remote snapshots"
-
-#~ msgid "Review the rules, features, and limitations of openpilot"
-#~ msgstr "Review the rules, features, and limitations of openpilot"
-
-#~ msgid ""
-#~ "Standard is recommended. In aggressive mode, openpilot will follow lead "
-#~ "cars closer and be more aggressive with the gas and brake. In relaxed "
-#~ "mode openpilot will stay further away from lead cars. On supported cars, "
-#~ "you can cycle through these personalities with your steering wheel "
-#~ "distance button."
-#~ msgstr ""
-#~ "Standard is recommended. In aggressive mode, openpilot will follow lead "
-#~ "cars closer and be more aggressive with the gas and brake. In relaxed "
-#~ "mode openpilot will stay further away from lead cars. On supported cars, "
-#~ "you can cycle through these personalities with your steering wheel "
-#~ "distance button."
-
-#, python-format
-#~ msgid "Upgrade Now"
-#~ msgstr "Upgrade Now"
-
-#~ msgid ""
-#~ "Use the openpilot system for adaptive cruise control and lane keep driver "
-#~ "assistance. Your attention is required at all times to use this feature."
-#~ msgstr ""
-#~ "Use the openpilot system for adaptive cruise control and lane keep driver "
-#~ "assistance. Your attention is required at all times to use this feature."
-
-#, python-format
-#~ msgid "Welcome to openpilot"
-#~ msgstr "Welcome to openpilot"
-
-#~ msgid ""
-#~ "When enabled, pressing the accelerator pedal will disengage openpilot."
-#~ msgstr ""
-#~ "When enabled, pressing the accelerator pedal will disengage openpilot."
-
-#, python-format
-#~ msgid "You must accept the Terms and Conditions in order to use openpilot."
-#~ msgstr "You must accept the Terms and Conditions in order to use openpilot."
-
-#, python-format
-#~ msgid ""
-#~ "You must accept the Terms and Conditions to use openpilot. Read the "
-#~ "latest terms at https://comma.ai/terms before continuing."
-#~ msgstr ""
-#~ "You must accept the Terms and Conditions to use openpilot. Read the "
-#~ "latest terms at https://comma.ai/terms before continuing."
-
-#, python-format
-#~ msgid "comma prime"
-#~ msgstr "comma prime"
-
-#, python-format
-#~ msgid "openpilot Longitudinal Control (Alpha)"
-#~ msgstr "openpilot Longitudinal Control (Alpha)"
-
-#, python-format
-#~ msgid "openpilot Unavailable"
-#~ msgstr "openpilot Unavailable"
-
-#, python-format
-#~ msgid ""
-#~ "openpilot defaults to driving in chill mode. Experimental mode enables "
-#~ "alpha-level features that aren't ready for chill mode. Experimental "
-#~ "features are listed below:<br><h4>End-to-End Longitudinal Control</"
-#~ "h4><br>Let the driving model control the gas and brakes. openpilot will "
-#~ "drive as it thinks a human would, including stopping for red lights and "
-#~ "stop signs. Since the driving model decides the speed to drive, the set "
-#~ "speed will only act as an upper bound. This is an alpha quality feature; "
-#~ "mistakes should be expected.<br><h4>New Driving Visualization</h4><br>The "
-#~ "driving visualization will transition to the road-facing wide-angle "
-#~ "camera at low speeds to better show some turns. The Experimental mode "
-#~ "logo will also be shown in the top right corner."
-#~ msgstr ""
-#~ "openpilot defaults to driving in chill mode. Experimental mode enables "
-#~ "alpha-level features that aren't ready for chill mode. Experimental "
-#~ "features are listed below:<br><h4>End-to-End Longitudinal Control</"
-#~ "h4><br>Let the driving model control the gas and brakes. openpilot will "
-#~ "drive as it thinks a human would, including stopping for red lights and "
-#~ "stop signs. Since the driving model decides the speed to drive, the set "
-#~ "speed will only act as an upper bound. This is an alpha quality feature; "
-#~ "mistakes should be expected.<br><h4>New Driving Visualization</h4><br>The "
-#~ "driving visualization will transition to the road-facing wide-angle "
-#~ "camera at low speeds to better show some turns. The Experimental mode "
-#~ "logo will also be shown in the top right corner."
-
-#, python-format
-#~ msgid ""
-#~ "openpilot is continuously calibrating, resetting is rarely required. "
-#~ "Resetting calibration will restart openpilot if the car is powered on."
-#~ msgstr ""
-#~ "openpilot is continuously calibrating, resetting is rarely required. "
-#~ "Resetting calibration will restart openpilot if the car is powered on."
-
-#~ msgid ""
-#~ "openpilot learns to drive by watching humans, like you, drive.\n"
-#~ "\n"
-#~ "Firehose Mode allows you to maximize your training data uploads to "
-#~ "improve openpilot's driving models. More data means bigger models, which "
-#~ "means better Experimental Mode."
-#~ msgstr ""
-#~ "openpilot learns to drive by watching humans, like you, drive.\n"
-#~ "\n"
-#~ "Firehose Mode allows you to maximize your training data uploads to "
-#~ "improve openpilot's driving models. More data means bigger models, which "
-#~ "means better Experimental Mode."
-
-#, python-format
-#~ msgid "openpilot longitudinal control may come in a future update."
-#~ msgstr "openpilot longitudinal control may come in a future update."
-
-#~ msgid ""
-#~ "openpilot requires the device to be mounted within 4° left or right and "
-#~ "within 5° up or 9° down."
-#~ msgstr ""
-#~ "openpilot requires the device to be mounted within 4° left or right and "
-#~ "within 5° up or 9° down."
-
-#, python-format
-#~ msgid "✓ SUBSCRIBED"
-#~ msgstr "✓ SUBSCRIBED"
-
-#, python-format
-#~ msgid "🔥 Firehose Mode 🔥"
-#~ msgstr "🔥 Firehose Mode 🔥"

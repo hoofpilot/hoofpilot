@@ -26,7 +26,7 @@ class PairingDialog(Widget):
     self.qr_texture: rl.Texture | None = None
     self.last_qr_generation = float('-inf')
     self._close_btn = IconButton(gui_app.texture("icons/close.png", 80, 80))
-    self._close_btn.set_click_callback(lambda: gui_app.set_modal_overlay(None))
+    self._close_btn.set_click_callback(gui_app.pop_widget)
 
   def _get_pairing_url(self) -> str:
     try:
@@ -69,7 +69,7 @@ class PairingDialog(Widget):
 
   def _update_state(self):
     if ui_state.prime_state.is_paired():
-      gui_app.set_modal_overlay(None)
+      gui_app.pop_widget()
 
   def _render(self, rect: rl.Rectangle) -> int:
     rl.clear_background(rl.Color(224, 224, 224, 255))
@@ -89,7 +89,7 @@ class PairingDialog(Widget):
     y += close_size + 40
 
     # Title
-    title = tr("Pair your device to Konik Stable")
+    title = tr("Pair your device to your Konik account")
     title_font = gui_app.font(FontWeight.NORMAL)
     left_width = int(content_rect.width * 0.5 - 15)
 
@@ -114,9 +114,9 @@ class PairingDialog(Widget):
 
   def _render_instructions(self, rect: rl.Rectangle) -> None:
     instructions = [
-      tr("Open the camera app on your phone"),
-      tr("Scan the QR code on the right"),
-      tr("Add Konik Stable to your home screen to use it like an app"),
+      tr("Go to https://stable.konik.ai on your phone"),
+      tr("Click \"add new device\" and scan the QR code on the right"),
+      tr("Bookmark stable.konik.ai to your home screen to use it like an app"),
     ]
 
     font = gui_app.font(FontWeight.BOLD)
@@ -162,10 +162,9 @@ class PairingDialog(Widget):
 if __name__ == "__main__":
   gui_app.init_window("pairing device")
   pairing = PairingDialog()
+  gui_app.push_widget(pairing)
   try:
     for _ in gui_app.render():
-      result = pairing.render(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
-      if result != -1:
-        break
+      pass
   finally:
     del pairing

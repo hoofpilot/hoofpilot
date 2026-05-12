@@ -14,10 +14,10 @@ import pyray as rl
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.multilang import tr
-from openpilot.system.ui.widgets import NavWidget
+from openpilot.system.ui.widgets.nav_widget import NavWidget
 from openpilot.system.ui.widgets.scroller import Scroller
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigParamControl
-from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigInputDialog, BigConfirmationDialogV2
+from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigInputDialog, BigConfirmationDialog
 
 
 class DangerBigButton(BigButton):
@@ -214,11 +214,11 @@ class StableLayoutMici(NavWidget):
       self._remote_pin_clear()
       self._show_message(tr("PIN reset."), "")
 
-    dlg = BigConfirmationDialogV2(
+    dlg = BigConfirmationDialog(
       tr("slide to reset PIN"),
-      "icons_mici/settings/network/new/trash.png",
+      gui_app.texture("icons_mici/settings/network/new/trash.png", 64, 64),
+      do_reset,
       red=True,
-      confirm_callback=do_reset,
     )
     gui_app.set_modal_overlay(dlg)
 

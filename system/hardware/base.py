@@ -52,7 +52,8 @@ class ThermalConfig:
   memory: ThermalZone | None = None
   intake: ThermalZone | None = None
   exhaust: ThermalZone | None = None
-  case: ThermalZone | None = None
+  gnss: ThermalZone | None = None
+  bottomSoc: ThermalZone | None = None
 
   def get_msg(self):
     ret = {}
@@ -88,6 +89,9 @@ class LPABase(ABC):
 
   @abstractmethod
   def switch_profile(self, iccid: str) -> None:
+    pass
+
+  def process_notifications(self) -> None:
     pass
 
   def is_comma_profile(self, iccid: str) -> bool:

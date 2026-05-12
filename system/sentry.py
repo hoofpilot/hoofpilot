@@ -13,7 +13,6 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
-from hoofpilot.sunnylink.api import UNREGISTERED_SUNNYLINK_DONGLE_ID
 
 CRASHES_DIR = Paths.crash_log_root()
 
@@ -100,25 +99,24 @@ def set_tag(key: str, value: str) -> None:
 
 
 def set_user() -> None:
-  dongle_id, git_username, _ = get_properties()
+  dongle_id, git_username = get_properties()
   sentry_sdk.set_user({"id": dongle_id, "name": git_username})
 
 
-def get_properties() -> tuple[str, str, str]:
+def get_properties() -> tuple[str, str]:
   params = Params()
   hardware_serial: str = params.get("HardwareSerial") or ""
   git_username: str = params.get("GithubUsername") or ""
   dongle_id: str = params.get("DongleId") or f"{UNREGISTERED_DONGLE_ID}-{hardware_serial}"
-  sunnylink_dongle_id: str = params.get("SunnylinkDongleId") or UNREGISTERED_SUNNYLINK_DONGLE_ID
 
-  return dongle_id, git_username, sunnylink_dongle_id
+  return dongle_id, git_username
 
 
 def init(project: SentryProject) -> bool:
   build_metadata = get_build_metadata()
 
   env = build_metadata.channel_type
-  dongle_id, git_username, sunnylink_dongle_id = get_properties()
+  dongle_id, git_username = get_properties()
 
   integrations = []
   if project == SentryProject.SELFDRIVE:
@@ -138,6 +136,5 @@ def init(project: SentryProject) -> bool:
   sentry_sdk.set_tag("branch", build_metadata.channel)
   sentry_sdk.set_tag("commit", build_metadata.openpilot.git_commit)
   sentry_sdk.set_tag("device", HARDWARE.get_device_type())
-  sentry_sdk.set_tag("sunnylink_dongle_id", sunnylink_dongle_id)
 
   return True
