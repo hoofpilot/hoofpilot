@@ -23,12 +23,11 @@ from openpilot.selfdrive.ui.hoofpilot.layouts.settings.steering import SteeringL
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.trips import TripsLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.vehicle import VehicleLayout
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.visuals import VisualsLayout
-from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.application import gui_app, MousePos
 from openpilot.system.ui.lib.multilang import tr_noop
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.lib.wifi_manager import WifiManager
-from openpilot.system.ui.hoofpilot.lib.styles import style
+from openpilot.system.ui.sunnypilot.lib.styles import style
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
@@ -37,10 +36,9 @@ from openpilot.system.ui.widgets.scroller_tici import Scroller
 OP.PANEL_COLOR = rl.Color(10, 10, 10, 255)
 ICON_SIZE = 70
 
-_existing_panel_names = {es.name for es in OP.PanelType}
 OP.PanelType = IntEnum(
   "PanelType",
-  [es.name for es in OP.PanelType] + [n for n in [
+  [es.name for es in OP.PanelType] + [
     "STABLE",
     "MODELS",
     "STEERING",
@@ -51,7 +49,7 @@ OP.PanelType = IntEnum(
     "NAVIGATION",
     "TRIPS",
     "VEHICLE",
-  ] if n not in _existing_panel_names],
+  ],
   start=0,
 )
 
@@ -101,7 +99,6 @@ class SettingsLayoutSP(OP.SettingsLayout):
   def __init__(self):
     OP.SettingsLayout.__init__(self)
     self._nav_items: list[Widget] = []
-    self._nav_buttons: dict[IntEnum, NavButton] = {}
 
     # Create sidebar scroller
     self._sidebar_scroller = Scroller([], spacing=0, line_separator=False, pad_end=False)
@@ -111,20 +108,20 @@ class SettingsLayoutSP(OP.SettingsLayout):
     wifi_manager.set_active(False)
 
     self._panels = {
-      OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_home.png"),
-      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png"),
+      OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_home.png"),
       OP.PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUISP(wifi_manager), icon="icons/network.png"),
-      OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_toggle.png"),
-      OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),
-      OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_models.png"),
-      OP.PanelType.STEERING: PanelInfo(tr_noop("Steering"), SteeringLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_lateral.png"),
+      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_software.png"),
+      OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_toggle.png"),
+      OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_software.png"),
+      OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_models.png"),
+      OP.PanelType.STEERING: PanelInfo(tr_noop("Steering"), SteeringLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_lateral.png"),
       OP.PanelType.CRUISE: PanelInfo(tr_noop("Cruise"), CruiseLayout(), icon="icons/speed_limit.png"),
-      OP.PanelType.VISUALS: PanelInfo(tr_noop("Visuals"), VisualsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_visuals.png"),
-      OP.PanelType.DISPLAY: PanelInfo(tr_noop("Display"), DisplayLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_display.png"),
-      OP.PanelType.OSM: PanelInfo(tr_noop("OSM"), OSMLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
-      # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
-      OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_trips.png"),
-      OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_vehicle.png"),
+      OP.PanelType.VISUALS: PanelInfo(tr_noop("Visuals"), VisualsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_visuals.png"),
+      OP.PanelType.DISPLAY: PanelInfo(tr_noop("Display"), DisplayLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_display.png"),
+      OP.PanelType.OSM: PanelInfo(tr_noop("OSM"), OSMLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_map.png"),
+      # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_map.png"),
+      OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_trips.png"),
+      OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../sunnypilot/selfdrive/assets/offroad/icon_vehicle.png"),
       OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/shell.png"),
     }
 
@@ -167,9 +164,7 @@ class SettingsLayoutSP(OP.SettingsLayout):
         nav_button.rect.width = rect.width - 100  # Full width minus padding
         nav_button.rect.height = OP.NAV_BTN_HEIGHT
         self._nav_items.append(nav_button)
-        self._nav_buttons[panel_type] = nav_button
         self._sidebar_scroller.add_widget(nav_button)
-      self._sync_stable_visibility()
 
     # Draw navigation section with scroller
     nav_rect = rl.Rectangle(
@@ -182,18 +177,6 @@ class SettingsLayoutSP(OP.SettingsLayout):
     if self._nav_items:
       self._sidebar_scroller.render(nav_rect)
       return
-
-  def _sync_stable_visibility(self):
-    paired = ui_state.prime_state.is_paired()
-    stable_btn = self._nav_buttons.get(OP.PanelType.STABLE)
-    if stable_btn is not None:
-      stable_btn.set_visible(paired)
-    if not paired and self._current_panel == OP.PanelType.STABLE:
-      self.set_current_panel(OP.PanelType.DEVICE)
-
-  def _update_state(self):
-    super()._update_state()
-    self._sync_stable_visibility()
 
   def _handle_mouse_release(self, mouse_pos: MousePos) -> bool:
     # Check close button
