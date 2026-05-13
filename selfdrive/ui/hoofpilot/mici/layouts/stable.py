@@ -21,8 +21,8 @@ from openpilot.selfdrive.ui.mici.widgets.dialog import BigDialog, BigInputDialog
 
 
 class DangerBigButton(BigButton):
-  def __init__(self, text: str, value: str = "", icon: str = "", icon_size: tuple[int, int] = (64, 64), scroll: bool = False):
-    super().__init__(text, value, icon, icon_size=icon_size, scroll=scroll)
+  def __init__(self, text: str, value: str = "", icon: str = "", scroll: bool = False):
+    super().__init__(text, value, icon, scroll=scroll)
     self._tint = rl.Color(190, 40, 40, 255)
 
   def _render(self, _):
@@ -68,12 +68,13 @@ class StableLayoutMici(NavWidget):
     self._reset_pin_btn.set_click_callback(self._on_reset_pin_pressed)
     self._reset_pin_btn.set_enabled(lambda: ui_state.is_offroad() and self._remote_pin_is_set())
 
-    self._scroller = Scroller([
+    self._scroller = Scroller(horizontal=True, snap_items=False, line_separator=False, spacing=20, pad_start=20, pad_end=20, scroll_indicator=True)
+    self._scroller._scroller.add_widgets([
       self._pin_btn,
       self._live_view_toggle,
       self._remote_ssh_toggle,
       self._reset_pin_btn,
-    ], horizontal=True, snap_items=False, line_separator=False, spacing=20, pad_start=20, pad_end=20, scroll_indicator=True)
+    ])
 
   def show_event(self):
     super().show_event()

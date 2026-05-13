@@ -1,7 +1,6 @@
 import re
 import logging
 import os
-import re
 import socket
 import time
 from hashlib import md5
