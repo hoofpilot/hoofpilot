@@ -20,4 +20,20 @@ third_party/**/*.dylib filter=lfs diff=lfs merge=lfs -text
 third_party/acados/*/t_renderer filter=lfs diff=lfs merge=lfs -text
 third_party/qt5/larch64/bin/lrelease filter=lfs diff=lfs merge=lfs -text
 third_party/qt5/larch64/bin/lupdate filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.a filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.so filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.so.* filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.dylib filter=lfs diff=lfs merge=lfs -text
+third_party/acados/*/t_renderer filter=lfs diff=lfs merge=lfs -text
+third_party/qt5/larch64/bin/lrelease filter=lfs diff=lfs merge=lfs -text
+third_party/qt5/larch64/bin/lupdate filter=lfs diff=lfs merge=lfs -text
 third_party/catch2/include/catch2/catch.hpp filter=lfs diff=lfs merge=lfs -text
+
+
+# symlinks — must not be tracked by LFS
+third_party/acados/x86_64/lib/libqpOASES_e.so !filter !diff !merge text
+third_party/acados/larch64/lib/libqpOASES_e.so !filter !diff !merge text
+third_party/acados/Darwin/lib/libqpOASES_e.dylib !filter !diff !merge text
+selfdrive/modeld/models/big_driving_policy.onnx !filter !diff !merge text
+selfdrive/modeld/models/big_driving_vision.onnx !filter !diff !merge text
+docs/assets/comma-logo.png !filter !diff !merge text
