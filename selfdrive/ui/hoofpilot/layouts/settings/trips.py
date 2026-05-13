@@ -117,7 +117,7 @@ class TripsLayout(Widget):
       # Icon
       icon_x = int(center_x - (icon.width / 2))
       icon_y = int(content_y + 60)
-      rl.draw_texture(icon, icon_x, icon_y, rl.WHITE)
+      rl.draw_texture_ex(icon, rl.Vector2(icon_x, icon_y), 0.0, 1.0, rl.WHITE)
 
       # Value
       val_size = measure_text_cached(number_font, value, number_base_size)

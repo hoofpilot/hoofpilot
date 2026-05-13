@@ -112,7 +112,11 @@ class SettingsLayoutSP(OP.SettingsLayout):
 
     self._panels = {
       OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_home.png"),
-      OP.PanelType.STABLE: PanelInfo(tr_noop("Stable"), StableLayoutMici(back_callback=lambda: self.set_current_panel(OP.PanelType.DEVICE)), icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png"),
+      OP.PanelType.STABLE: PanelInfo(
+        tr_noop("Stable"),
+        StableLayoutMici(back_callback=lambda: self.set_current_panel(OP.PanelType.DEVICE)),
+        icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png",
+      ),
       OP.PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUISP(wifi_manager), icon="icons/network.png"),
       OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_toggle.png"),
       OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),

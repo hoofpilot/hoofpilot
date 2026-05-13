@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from cereal import car, log
@@ -67,8 +66,9 @@ class TestMonitoring:
   def test_fully_distracted_driver(self):
     events, d_status = self._run_seq(always_distracted, always_false, always_true, always_false)
     assert len(events[int((d_status.settings._DISTRACTED_TIME - d_status.settings._DISTRACTED_PRE_TIME_TILL_TERMINAL) / 2 / DT_DMON)]) == 0
-    assert events[int((d_status.settings._DISTRACTED_TIME - d_status.settings._DISTRACTED_PRE_TIME_TILL_TERMINAL +
-                    ((d_status.settings._DISTRACTED_PRE_TIME_TILL_TERMINAL - d_status.settings._DISTRACTED_PROMPT_TIME_TILL_TERMINAL) / 2)) / DT_DMON)].names[0] == EventName.driverDistracted1
+    idx1 = int((d_status.settings._DISTRACTED_TIME - d_status.settings._DISTRACTED_PRE_TIME_TILL_TERMINAL +
+                ((d_status.settings._DISTRACTED_PRE_TIME_TILL_TERMINAL - d_status.settings._DISTRACTED_PROMPT_TIME_TILL_TERMINAL) / 2)) / DT_DMON)
+    assert events[idx1].names[0] == EventName.driverDistracted1
     assert events[int((d_status.settings._DISTRACTED_TIME - d_status.settings._DISTRACTED_PROMPT_TIME_TILL_TERMINAL +
                     ((d_status.settings._DISTRACTED_PROMPT_TIME_TILL_TERMINAL) / 2)) / DT_DMON)].names[0] == EventName.driverDistracted2
     assert events[int((d_status.settings._DISTRACTED_TIME +
@@ -78,8 +78,9 @@ class TestMonitoring:
   def test_fully_invisible_driver(self):
     events, d_status = self._run_seq(always_no_face, always_false, always_true, always_false)
     assert len(events[int((d_status.settings._AWARENESS_TIME - d_status.settings._AWARENESS_PRE_TIME_TILL_TERMINAL) / 2 / DT_DMON)]) == 0
-    assert events[int((d_status.settings._AWARENESS_TIME - d_status.settings._AWARENESS_PRE_TIME_TILL_TERMINAL +
-                      ((d_status.settings._AWARENESS_PRE_TIME_TILL_TERMINAL - d_status.settings._AWARENESS_PROMPT_TIME_TILL_TERMINAL) / 2)) / DT_DMON)].names[0] == EventName.driverUnresponsive1
+    idx1 = int((d_status.settings._AWARENESS_TIME - d_status.settings._AWARENESS_PRE_TIME_TILL_TERMINAL +
+               ((d_status.settings._AWARENESS_PRE_TIME_TILL_TERMINAL - d_status.settings._AWARENESS_PROMPT_TIME_TILL_TERMINAL) / 2)) / DT_DMON)
+    assert events[idx1].names[0] == EventName.driverUnresponsive1
     assert events[int((d_status.settings._AWARENESS_TIME - d_status.settings._AWARENESS_PROMPT_TIME_TILL_TERMINAL +
                       ((d_status.settings._AWARENESS_PROMPT_TIME_TILL_TERMINAL) / 2)) / DT_DMON)].names[0] == EventName.driverUnresponsive2
     assert events[int((d_status.settings._AWARENESS_TIME +

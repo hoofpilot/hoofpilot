@@ -5,10 +5,7 @@ This file is part of hoofpilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
 import pyray as rl
-import time
 from dataclasses import dataclass
-from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.system.ui.lib.multilang import tr_noop
 
 
 PING_TIMEOUT_NS = 80_000_000_000  # 80 seconds in nanoseconds
