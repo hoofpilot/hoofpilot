@@ -4,14 +4,13 @@ from cereal import car, log
 from opendbc.car.car_helpers import interfaces
 from opendbc.car.toyota.values import CAR as TOYOTA
 from opendbc.car.vehicle_model import VehicleModel
-from openpilot.common.mock.generators import generate_livePose
 from openpilot.common.realtime import DT_CTRL
-from openpilot.selfdrive.car.helpers import convert_to_capnp
 from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque, LAT_ACCEL_REQUEST_BUFFER_SECONDS
+
+from openpilot.selfdrive.car.helpers import convert_to_capnp
 from openpilot.selfdrive.locationd.helpers import Pose
-
+from openpilot.common.mock.generators import generate_livePose
 from hoofpilot.selfdrive.car import interfaces as sunnypilot_interfaces
-
 
 def get_controller(car_name):
   CarInterface = interfaces[car_name]
@@ -23,7 +22,6 @@ def get_controller(car_name):
   VM = VehicleModel(CP)
   controller = LatControlTorque(CP.as_reader(), CP_SP.as_reader(), CI, DT_CTRL)
   return controller, VM
-
 
 class TestLatControlTorqueBuffer:
 

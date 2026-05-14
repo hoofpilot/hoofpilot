@@ -15,7 +15,7 @@ from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from openpilot.selfdrive.locationd.helpers import Pose
 from openpilot.common.mock.generators import generate_livePose
 from hoofpilot.selfdrive.car import interfaces as sunnypilot_interfaces
-from hoofpilot.modeld_v2.constants import ModelConstants
+from openpilot.selfdrive.modeld.constants import ModelConstants
 
 
 def generate_modelV2():

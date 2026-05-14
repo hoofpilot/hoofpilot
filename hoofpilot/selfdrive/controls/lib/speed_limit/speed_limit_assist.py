@@ -11,7 +11,7 @@ from openpilot.common.params import Params
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
-from hoofpilot.modeld_v2.constants import ModelConstants
+from openpilot.selfdrive.modeld.constants import ModelConstants
 from hoofpilot import PARAMS_UPDATE_PERIOD
 from hoofpilot.selfdrive.selfdrived.events import EventsSP
 from hoofpilot.selfdrive.controls.lib.speed_limit import PCM_LONG_REQUIRED_MAX_SET_SPEED, CONFIRM_SPEED_THRESHOLD
@@ -412,4 +412,3 @@ class SpeedLimitAssist:
     self.output_a_target = self.get_a_target_from_control()
 
     self.frame += 1
-
