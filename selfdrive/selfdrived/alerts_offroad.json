@@ -26,11 +26,7 @@
     "severity": 0
   },
   "Offroad_IsViewingLive": {
-    "text": "Live View is active. System won't start until session is closed.",
-    "severity": 0
-  },
-  "Offroad_IsRemoteSshActive": {
-    "text": "There is an active Remote SSH session.",
+    "text": "There is a Live View session active.",
     "severity": 0
   },
   "Offroad_NeosUpdate": {
@@ -38,7 +34,7 @@
     "severity": 0
   },
   "Offroad_UnregisteredHardware": {
-    "text": "Failed to register with konik.ai backend. It will not connect or upload to konik.ai servers.",
+    "text": "Failed to register with Konik.ai backend. It will not connect or upload to Konik.ai servers.",
     "severity": 1
   },
   "Offroad_CarUnrecognized": {

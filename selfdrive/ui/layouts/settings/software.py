@@ -11,7 +11,7 @@ from openpilot.system.ui.widgets.list_view import button_item, text_item, ListIt
 from openpilot.system.ui.widgets.option_dialog import MultiOptionDialog
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 
-if gui_app.sunnypilot_ui():
+if gui_app.hoofpilot_ui():
   from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp as button_item
 
 # TODO: remove this. updater fails to respond on startup if time is not correct

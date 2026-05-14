@@ -26,7 +26,7 @@ from openpilot.system.ui.hoofpilot.widgets.list_view import ListItemSP, toggle_i
 from openpilot.system.ui.hoofpilot.widgets.progress_bar import progress_item
 from openpilot.system.ui.hoofpilot.widgets.tree_dialog import TreeOptionDialog, TreeNode, TreeFolder
 
-if gui_app.sunnypilot_ui():
+if gui_app.hoofpilot_ui():
   from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp as button_item
 
 

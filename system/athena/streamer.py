@@ -186,12 +186,14 @@ class Streamer:
         if data:
           msg_type = data.get("type")
           if msg_type == "start":
+            if self.onroad:
+              self.sdp_send_queue.put_nowait(json.dumps({"error": "Live View unavailable while onroad"}))
+              continue
             if not self.params.get_bool("LiveViewEnabled"):
               self.sdp_send_queue.put_nowait(json.dumps({"error": "Live View disabled"}))
               continue
             await self.build()
-            if not self.onroad:
-              self.params.put_bool("LiveView", True)
+            self.params.put_bool("LiveView", True)
           elif msg_type == "answer":
             await self._set_answer(data)
           elif msg_type == "candidate" and "candidate" in data:
@@ -202,6 +204,9 @@ class Streamer:
           await asyncio.sleep(0.1 if self.pc else 1.0)
 
         if self.pc:
+          if self.onroad:
+            await self.stop()
+            continue
           transceivers = self.pc.getTransceivers()
           dtls_state = transceivers[0].receiver.transport.state if transceivers else None
           if self.pc.connectionState in stop_states or dtls_state in stop_states:

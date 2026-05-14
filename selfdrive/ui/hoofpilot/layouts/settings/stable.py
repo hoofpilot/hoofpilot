@@ -20,7 +20,6 @@ class StableLayout(Widget):
     if not self._remote_pin_is_set():
       # Enforce "PIN first": keep remote access features off until a PIN is configured.
       ui_state.params.put_bool("LiveViewEnabled", False)
-      ui_state.params.put_bool("RemoteSshEnabled", False)
       ui_state.params.put_bool("LiveView", False)
 
     self._reset_pin_buttons = dual_button_item_sp(
@@ -39,7 +38,7 @@ class StableLayout(Widget):
       title=lambda: tr("PIN"),
       button_text=self._remote_pin_button_text,
       description=lambda: (
-        tr("Set or change the PIN required to use Remote SSH and Live View from Konik Stable.") + " " +
+        tr("Set or change the PIN required to use Live View from Konik Stable.") + " " +
         (f"<b>{tr('The PIN is currently configured.')}</b>"
          if self._remote_pin_is_set()
          else f"<b>{tr('The PIN is not currently configured.')}</b>")
@@ -57,16 +56,8 @@ class StableLayout(Widget):
       enabled=lambda: self._remote_pin_is_set(),
     )
 
-    self._remote_ssh_toggle = toggle_item_sp(
-      title=lambda: tr("Remote SSH"),
-      description=lambda: tr("Allow full remote terminal access from Konik Stable."),
-      initial_state=ui_state.params.get_bool("RemoteSshEnabled"),
-      param="RemoteSshEnabled",
-      enabled=lambda: self._remote_pin_is_set(),
-    )
-
     # Put destructive reset at the bottom like other device controls.
-    self._scroller = Scroller([self._remote_pin_button, self._live_view_toggle, self._remote_ssh_toggle, Spacer(10), self._reset_pin_buttons],
+    self._scroller = Scroller([self._remote_pin_button, self._live_view_toggle, Spacer(10), self._reset_pin_buttons],
                               line_separator=True, spacing=0)
 
   @staticmethod
@@ -78,7 +69,6 @@ class StableLayout(Widget):
     params.put("RemoteAccessPinIterations", 150000)
     # Factory state for remote access features.
     params.put_bool("LiveViewEnabled", False)
-    params.put_bool("RemoteSshEnabled", False)
     params.put_bool("LiveView", False)
 
   @staticmethod
@@ -127,8 +117,7 @@ class StableLayout(Widget):
   def _show_alert(msg: str) -> None:
     from openpilot.system.ui.lib.application import gui_app
 
-    dlg = alert_dialog(msg)
-    gui_app.set_modal_overlay(dlg, lambda _res: None)
+    gui_app.push_widget(alert_dialog(msg))
 
   def _on_remote_pin_pressed(self) -> None:
     # Flow:
@@ -194,14 +183,12 @@ class StableLayout(Widget):
       return
     from openpilot.system.ui.lib.application import gui_app
 
-    dlg = ConfirmDialog(tr("Reset PIN?"), tr("Reset"), tr("Cancel"))
-
     def cb(res: DialogResult):
       if res == DialogResult.CONFIRM:
         self._remote_pin_clear()
         self._show_alert(tr("PIN reset."))
 
-    gui_app.set_modal_overlay(dlg, cb)
+    gui_app.push_widget(ConfirmDialog(tr("Reset PIN?"), tr("Reset"), tr("Cancel"), callback=cb))
 
   def _render(self, rect):
     self._scroller.render(rect)

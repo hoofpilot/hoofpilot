@@ -14,7 +14,7 @@ from openpilot.system.ui.lib.application import gui_app
 from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCameraConfig, view_frame_from_device_frame
 from openpilot.common.transformations.orientation import rot_from_euler
 
-if gui_app.sunnypilot_ui():
+if gui_app.hoofpilot_ui():
   from openpilot.selfdrive.ui.hoofpilot.onroad.alert_renderer import AlertRendererSP as AlertRenderer
   from openpilot.selfdrive.ui.hoofpilot.onroad.augmented_road_view import BORDER_COLORS_SP, AugmentedRoadViewSP
   from openpilot.selfdrive.ui.hoofpilot.onroad.driver_state import DriverStateRendererSP as DriverStateRenderer
@@ -228,11 +228,11 @@ class AugmentedRoadView(CameraView, AugmentedRoadViewSP):
     return self._cached_matrix
 
   def show_event(self):
-    if gui_app.sunnypilot_ui():
+    if gui_app.hoofpilot_ui():
       ui_state.reset_onroad_sleep_timer(OnroadTimerStatus.RESUME)
 
   def hide_event(self):
-    if gui_app.sunnypilot_ui():
+    if gui_app.hoofpilot_ui():
       ui_state.reset_onroad_sleep_timer(OnroadTimerStatus.PAUSE)
 
 

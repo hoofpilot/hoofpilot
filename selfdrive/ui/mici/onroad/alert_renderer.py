@@ -230,7 +230,7 @@ class AlertRenderer(Widget, SpeedLimitAlertRenderer):
     self._alert_y_filter.update(self._rect.y - 50 if alert is None else self._rect.y)
     self._alpha_filter.update(0 if alert is None else 1)
 
-    if gui_app.sunnypilot_ui():
+    if gui_app.hoofpilot_ui():
       ui_state.onroad_brightness_handle_alerts(ui_state, alert)
 
     if alert is None:

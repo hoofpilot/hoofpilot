@@ -25,6 +25,8 @@ from openpilot.common.realtime import Ratekeeper
 from openpilot.system.ui.hoofpilot.lib.application import GuiApplicationExt
 
 _DEFAULT_FPS = int(os.getenv("FPS", {'tizi': 20}.get(HARDWARE.get_device_type(), 60)))
+OFFROAD_FPS = int(os.getenv("OFFROAD_FPS", "59"))
+ONROAD_FPS = int(os.getenv("ONROAD_FPS", "20"))
 FPS_LOG_INTERVAL = 5  # Seconds between logging FPS drops
 FPS_DROP_THRESHOLD = 0.9  # FPS drop threshold for triggering a warning
 FPS_CRITICAL_THRESHOLD = 0.5  # Critical threshold for triggering strict actions
