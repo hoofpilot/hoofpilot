@@ -1,4 +1,4 @@
-import numpy as np
+import random
 import pytest
 
 from cereal import log, car
@@ -137,7 +137,7 @@ class TestMonitoring:
   # engaged, invisible driver, down to orange, driver touches wheel; then down to orange again, driver appears
   #  - both actions should clear the alert, but momentary appearance should not
   def test_sometimes_transparent_commuter(self):
-    _visible_time = np.random.choice([0.5, 10])
+    _visible_time = random.choice([0.5, 10])
     ds_vector = always_no_face[:]*2
     interaction_vector = always_false[:]*2
     ds_vector[int((2*INVISIBLE_SECONDS_TO_ORANGE+1)/DT_DMON):int((2*INVISIBLE_SECONDS_TO_ORANGE+1+_visible_time)/DT_DMON)] = \
