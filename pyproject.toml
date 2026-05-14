@@ -251,6 +251,8 @@ unsupported-operator = "ignore"
 # Ignore not-subscriptable - false positives from dynamic types
 not-subscriptable = "ignore"
 # not-iterable errors are now fixed
+# Ignore possibly-missing-submodule - SCons and av.video.format are dynamically loaded
+possibly-missing-submodule = "ignore"
 
 [tool.uv]
 python-preference = "only-managed"
