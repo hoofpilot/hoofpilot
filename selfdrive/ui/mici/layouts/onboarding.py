@@ -324,9 +324,9 @@ class TermsPage(Scroller):
 
     self._scroller.add_widgets([
       self._terms_header,
-      GreyBigButton("swipe for QR code", "or go to https://sunnypilot.ai/terms",
+      GreyBigButton("swipe for QR code", "or go to https://comma.ai/terms",
                     gui_app.texture("icons_mici/setup/small_slider/slider_arrow.png", 64, 56, flip_x=True)),
-      QRCodeWidget("https://sunnypilot.ai/terms"),
+      QRCodeWidget("https://comma.ai/terms"),
       self._must_accept_card,
       self._accept_button,
       self._decline_button,
@@ -344,7 +344,6 @@ class OnboardingWindow(Widget):
     self._accepted_terms: bool = (ui_state.params.get("HasAcceptedTerms") == terms_version and
                                   ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp)
     self._training_done: bool = ui_state.params.get("CompletedTrainingVersion") == training_version
-
     self.set_rect(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
 
     # Windows — all pushed onto nav stack, _terms is always rendered as base layer

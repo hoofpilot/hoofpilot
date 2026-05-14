@@ -16,6 +16,7 @@ from hoofpilot import PARAMS_UPDATE_PERIOD
 from hoofpilot.livedelay.helpers import get_lat_delay
 from hoofpilot.modeld_v2.modeld_base import ModelStateBase
 from hoofpilot.selfdrive.controls.lib.blinker_pause_lateral import BlinkerPauseLateral
+from hoofpilot.selfdrive.controls.lib.latcontrol_torque_v0 import LatControlTorque as LatControlTorqueV0
 
 
 class ControlsExt(ModelStateBase):
@@ -32,6 +33,19 @@ class ControlsExt(ModelStateBase):
 
     self.sm_services_ext = ['radarState', 'selfdriveStateSP']
     self.pm_services_ext = ['carControlSP']
+
+  def initialize_lateral_control(self, lac, CI, dt):
+    enforce_torque_control = self.params.get_bool("EnforceTorqueControl")
+    torque_versions = self.params.get("TorqueControlTune")
+    if not enforce_torque_control:
+      if self.CP.lateralTuning.which() == 'torque':
+        return LatControlTorqueV0(self.CP, self.CP_SP, CI, dt)  # FIXME-SP: revert when upstream fixes tuning issues with v1
+      return lac
+
+    if torque_versions == 0.0:  # v0
+      return LatControlTorqueV0(self.CP, self.CP_SP, CI, dt)
+    else:
+      return lac
 
   def get_params_sp(self, sm: messaging.SubMaster) -> None:
     if time.monotonic() - self._param_update_time > PARAMS_UPDATE_PERIOD:
@@ -97,4 +111,3 @@ class ControlsExt(ModelStateBase):
   def run_ext(self, sm: messaging.SubMaster, pm: messaging.PubMaster) -> None:
     CC_SP = self.state_control_ext(sm)
     self.publish_ext(CC_SP, sm, pm)
-
