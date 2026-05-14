@@ -19,7 +19,7 @@ from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCamera
 from openpilot.common.transformations.orientation import rot_from_euler
 from enum import IntEnum
 
-if gui_app.sunnypilot_ui():
+if gui_app.hoofpilot_ui():
   from openpilot.selfdrive.ui.hoofpilot.mici.onroad.hud_renderer import HudRendererSP as HudRenderer
   from openpilot.selfdrive.ui.hoofpilot.ui_state import OnroadTimerStatus
 
@@ -358,11 +358,11 @@ class AugmentedRoadView(CameraView):
     return self._cached_matrix
 
   def show_event(self):
-    if gui_app.sunnypilot_ui():
+    if gui_app.hoofpilot_ui():
       ui_state.reset_onroad_sleep_timer(OnroadTimerStatus.RESUME)
 
   def hide_event(self):
-    if gui_app.sunnypilot_ui():
+    if gui_app.hoofpilot_ui():
       ui_state.reset_onroad_sleep_timer(OnroadTimerStatus.PAUSE)
 
 

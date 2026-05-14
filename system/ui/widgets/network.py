@@ -15,7 +15,7 @@ from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.widgets.scroller_tici import Scroller
 from openpilot.system.ui.widgets.list_view import ButtonAction, ListItem, MultipleButtonAction, ToggleAction, button_item, text_item
 
-if gui_app.sunnypilot_ui():
+if gui_app.hoofpilot_ui():
   from openpilot.system.ui.hoofpilot.widgets.list_view import button_item_sp as button_item
   from openpilot.system.ui.hoofpilot.widgets.list_view import ListItemSP as ListItem
   from openpilot.system.ui.hoofpilot.widgets.list_view import ToggleActionSP as ToggleAction

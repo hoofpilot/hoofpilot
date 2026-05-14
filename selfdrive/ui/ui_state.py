@@ -221,7 +221,7 @@ class Device(DeviceSP):
     if self._override_interactive_timeout is not None:
       return self._override_interactive_timeout
 
-    if gui_app.sunnypilot_ui() and ui_state.custom_interactive_timeout != 0:
+    if gui_app.hoofpilot_ui() and ui_state.custom_interactive_timeout != 0:
       return ui_state.custom_interactive_timeout
 
     ignition_timeout = 10 if gui_app.big_ui() else 5
@@ -259,14 +259,14 @@ class Device(DeviceSP):
         clipped_brightness = ((clipped_brightness + 16.0) / 116.0) ** 3.0
 
       min_brightness = 30
-      if gui_app.sunnypilot_ui():
+      if gui_app.hoofpilot_ui():
         min_brightness = DeviceSP.set_min_onroad_brightness(ui_state, min_brightness)
 
       clipped_brightness = float(np.interp(clipped_brightness, [0, 1], [min_brightness, 100]))
 
     brightness = round(self._brightness_filter.update(clipped_brightness))
 
-    if gui_app.sunnypilot_ui():
+    if gui_app.hoofpilot_ui():
       brightness = DeviceSP.set_onroad_brightness(ui_state, self._awake, brightness)
 
     if not self._awake:
@@ -284,7 +284,7 @@ class Device(DeviceSP):
     self._ignition = ui_state.ignition
 
     if ignition_just_turned_off or any(ev.left_down for ev in gui_app.mouse_events):
-      if gui_app.sunnypilot_ui():
+      if gui_app.hoofpilot_ui():
         DeviceSP.wake_from_dimmed_onroad_brightness(ui_state, gui_app.mouse_events)
 
       self._reset_interactive_timeout()

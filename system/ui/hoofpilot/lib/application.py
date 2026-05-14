@@ -9,7 +9,7 @@ import os
 import pyray as rl
 
 SHOW_MOUSE_COORDS = os.getenv("SHOW_MOUSE_COORDS") == "1"
-SUNNYPILOT_UI = os.getenv("SUNNYPILOT_UI", "1") == "1"
+HOOFPILOT_UI = os.getenv("HOOFPILOT_UI", "1") == "1"
 
 
 class GuiApplicationExt:
@@ -17,8 +17,8 @@ class GuiApplicationExt:
     self._show_mouse_coords = SHOW_MOUSE_COORDS
 
   @staticmethod
-  def sunnypilot_ui() -> bool:
-    return SUNNYPILOT_UI
+  def hoofpilot_ui() -> bool:
+    return HOOFPILOT_UI
 
   def _draw_mouse_coordinates(self, font):
     coords_text = f"X:{int(rl.get_mouse_x())}, Y:{int(rl.get_mouse_y())}"

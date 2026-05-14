@@ -113,8 +113,8 @@ class TermsPage(Widget):
     self._on_accept = on_accept
     self._on_decline = on_decline
 
-    self._title = Label(tr("Welcome to sunnypilot"), font_size=90, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
-    self._desc = Label(tr("You must accept the Terms of Service to use sunnypilot. Read the latest terms at https://sunnypilot.ai/terms before continuing."),
+    self._title = Label(tr("Welcome to hoofpilot!"), font_size=90, font_weight=FontWeight.BOLD, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
+    self._desc = Label(tr("You must accept the Terms of Service to use hoofpilot. Read the latest terms at https://comma.ai/terms before continuing."),
                        font_size=90, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
 
     self._decline_btn = Button(tr("Decline"), click_callback=on_decline)
@@ -147,10 +147,10 @@ class TermsPage(Widget):
 class DeclinePage(Widget):
   def __init__(self, back_callback=None):
     super().__init__()
-    self._text = Label(tr("You must accept the Terms of Service in order to use sunnypilot."),
+    self._text = Label(tr("You must accept the Terms of Service in order to use hoofpilot."),
                        font_size=90, font_weight=FontWeight.MEDIUM, text_alignment=rl.GuiTextAlignment.TEXT_ALIGN_LEFT)
     self._back_btn = Button(tr("Back"), click_callback=back_callback)
-    self._uninstall_btn = Button(tr("Decline, uninstall sunnypilot"), button_style=ButtonStyle.DANGER,
+    self._uninstall_btn = Button(tr("Decline, uninstall hoofpilot"), button_style=ButtonStyle.DANGER,
                                  click_callback=self._on_uninstall_clicked)
 
   def _on_uninstall_clicked(self):
