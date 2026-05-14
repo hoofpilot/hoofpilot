@@ -117,8 +117,7 @@ class StableLayout(Widget):
   def _show_alert(msg: str) -> None:
     from openpilot.system.ui.lib.application import gui_app
 
-    dlg = alert_dialog(msg)
-    gui_app.set_modal_overlay(dlg, lambda _res: None)
+    gui_app.push_widget(alert_dialog(msg))
 
   def _on_remote_pin_pressed(self) -> None:
     # Flow:
