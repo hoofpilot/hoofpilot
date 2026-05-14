@@ -38,16 +38,16 @@ class SettingsLayoutSP(OP.SettingsLayout):
     # onroad: enable button sits at the front (left of toggles)
     self._enable_offroad_btn_onroad = BigCircleButton(self.icon_offroad_enable, red=True)
     self._enable_offroad_btn_onroad.set_click_callback(lambda: self._handle_always_offroad(True))
-    self._enable_offroad_btn_onroad.set_visible(lambda: ui_state.started and not ui_state.always_offroad)
+    self._enable_offroad_btn_onroad.set_visible(lambda: ui_state.started and not ui_state.params.get_bool("OffroadMode"))
 
     # offroad: enable button sits at the end (right of developer)
     self._enable_offroad_btn_offroad = BigCircleButton(self.icon_offroad_enable, red=True)
     self._enable_offroad_btn_offroad.set_click_callback(lambda: self._handle_always_offroad(True))
-    self._enable_offroad_btn_offroad.set_visible(lambda: not ui_state.started and not ui_state.always_offroad)
+    self._enable_offroad_btn_offroad.set_visible(lambda: not ui_state.started and not ui_state.params.get_bool("OffroadMode"))
 
     self._disable_offroad_btn = BigCircleButton(self.icon_offroad_disable, red=False)
     self._disable_offroad_btn.set_click_callback(lambda: self._handle_always_offroad(False))
-    self._disable_offroad_btn.set_visible(lambda: ui_state.always_offroad)
+    self._disable_offroad_btn.set_visible(lambda: ui_state.params.get_bool("OffroadMode"))
 
     items = self._scroller._items.copy()
 
@@ -71,7 +71,6 @@ class SettingsLayoutSP(OP.SettingsLayout):
     def _set_offroad_status(status: bool):
       if not ui_state.engaged:
         ui_state.params.put_bool("OffroadMode", status)
-        ui_state.always_offroad = status
 
     if not enable:
       dlg = BigConfirmationDialog(tr("slide to exit always offroad"), self.icon_offroad_slider, red=False,
