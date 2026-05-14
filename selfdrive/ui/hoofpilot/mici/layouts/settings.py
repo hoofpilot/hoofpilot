@@ -4,217 +4,83 @@ Copyright (c) 2021-, Haibin Wen, sunnypilot, and a number of other contributors.
 This file is part of sunnypilot and is licensed under the MIT License.
 See the LICENSE.md file in the root directory for more details.
 """
-from dataclasses import dataclass
-from enum import IntEnum
-
-import pyray as rl
-from openpilot.selfdrive.ui.layouts.settings import settings as OP
-from openpilot.selfdrive.ui.layouts.settings.toggles import TogglesLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.cruise import CruiseLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.developer import DeveloperLayoutSP
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.device import DeviceLayoutSP
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.display import DisplayLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.models import ModelsLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.network import NetworkUISP
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.osm import OSMLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.software import SoftwareLayoutSP
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.stable import StableLayoutMici
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.steering import SteeringLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.trips import TripsLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.vehicle import VehicleLayout
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.visuals import VisualsLayout
+from openpilot.selfdrive.ui.mici.layouts.settings import settings as OP
+from openpilot.selfdrive.ui.mici.layouts.settings.settings import SettingsBigButton
+from openpilot.selfdrive.ui.mici.layouts.settings.device import DeviceLayoutMici
+from openpilot.selfdrive.ui.mici.widgets.button import BigCircleButton
+from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationDialog, BigDialog
+from openpilot.selfdrive.ui.hoofpilot.mici.layouts.models import ModelsLayoutMici
 from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.system.ui.lib.application import gui_app, MousePos
-from openpilot.system.ui.lib.multilang import tr_noop
-from openpilot.system.ui.lib.text_measure import measure_text_cached
-from openpilot.system.ui.lib.wifi_manager import WifiManager
-from openpilot.system.ui.hoofpilot.lib.styles import style
-from openpilot.system.ui.widgets import Widget
-from openpilot.system.ui.widgets.scroller_tici import Scroller
+from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.lib.multilang import tr
 
-# from openpilot.selfdrive.ui.hoofpilot.mici.layouts.navigation import NavigationLayout
-
-OP.PANEL_COLOR = rl.Color(10, 10, 10, 255)
 ICON_SIZE = 70
-
-_existing_panel_names = {es.name for es in OP.PanelType}
-OP.PanelType = IntEnum(
-  "PanelType",
-  [es.name for es in OP.PanelType] + [n for n in [
-    "STABLE",
-    "MODELS",
-    "STEERING",
-    "CRUISE",
-    "VISUALS",
-    "DISPLAY",
-    "OSM",
-    "NAVIGATION",
-    "TRIPS",
-    "VEHICLE",
-  ] if n not in _existing_panel_names],
-  start=0,
-)
-
-
-@dataclass
-class PanelInfo(OP.PanelInfo):
-  icon: str = ""
-
-
-class NavButton(Widget):
-  def __init__(self, parent, p_type, p_info):
-    super().__init__()
-    self.parent = parent
-    self.panel_type = p_type
-    self.panel_info = p_info
-
-  def _render(self, rect):
-    is_selected = self.panel_type == self.parent._current_panel
-    text_color = OP.TEXT_SELECTED if is_selected else OP.TEXT_NORMAL
-    content_x = rect.x + 90
-    text_size = measure_text_cached(self.parent._font_medium, self.panel_info.name, 65)
-
-    # Draw background if selected
-    if is_selected:
-      self.container_rect = rl.Rectangle(
-        content_x - 50, rect.y, OP.SIDEBAR_WIDTH - 50, OP.NAV_BTN_HEIGHT
-      )
-      rl.draw_rectangle_rounded(self.container_rect, 0.2, 5, OP.CLOSE_BTN_COLOR)
-
-    if self.panel_info.icon:
-      icon_texture = gui_app.texture(self.panel_info.icon, ICON_SIZE, ICON_SIZE, keep_aspect_ratio=True)
-      rl.draw_texture_ex(icon_texture, rl.Vector2(content_x, rect.y + (OP.NAV_BTN_HEIGHT - icon_texture.height) / 2), 0.0, 1.0, rl.WHITE)
-      content_x += ICON_SIZE + 20
-
-    # Draw button text (right-aligned)
-    text_pos = rl.Vector2(
-      content_x,
-      rect.y + (OP.NAV_BTN_HEIGHT - text_size.y) / 2
-    )
-    rl.draw_text_ex(self.parent._font_medium, self.panel_info.name, text_pos, 55, 0, text_color)
-
-    # Store button rect for click detection
-    self.panel_info.button_rect = rect
+BIG_ICON_SIZE = 110
 
 
 class SettingsLayoutSP(OP.SettingsLayout):
   def __init__(self):
     OP.SettingsLayout.__init__(self)
-    self._nav_items: list[Widget] = []
-    self._nav_buttons: dict[IntEnum, NavButton] = {}
 
-    # Create sidebar scroller
-    self._sidebar_scroller = Scroller([], spacing=0, line_separator=False, pad_end=False)
+    device_panel = DeviceLayoutMici()
+    self._scroller._items[2].set_click_callback(lambda: gui_app.push_widget(device_panel))
 
-    # Panel configuration
-    wifi_manager = WifiManager()
-    wifi_manager.set_active(False)
+    self.icon_offroad_enable = gui_app.texture("../../hoofpilot/selfdrive/assets/icons_mici/always_offroad.png", BIG_ICON_SIZE,
+                                               BIG_ICON_SIZE)
+    self.icon_offroad_disable = gui_app.texture("../../hoofpilot/selfdrive/assets/icons_mici/disable_offroad.png", BIG_ICON_SIZE,
+                                                BIG_ICON_SIZE)
+    self.icon_offroad_slider = gui_app.texture("icons_mici/settings/device/lkas.png", BIG_ICON_SIZE, BIG_ICON_SIZE)
 
-    self._panels = {
-      OP.PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_home.png"),
-      OP.PanelType.STABLE: PanelInfo(
-        tr_noop("Stable"),
-        StableLayoutMici(back_callback=lambda: self.set_current_panel(OP.PanelType.DEVICE)),
-        icon="../../hoofpilot/selfdrive/assets/offroad/icon_konik.png",
-      ),
-      OP.PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUISP(wifi_manager), icon="icons/network.png"),
-      OP.PanelType.TOGGLES: PanelInfo(tr_noop("Toggles"), TogglesLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_toggle.png"),
-      OP.PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayoutSP(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_software.png"),
-      OP.PanelType.MODELS: PanelInfo(tr_noop("Models"), ModelsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_models.png"),
-      OP.PanelType.STEERING: PanelInfo(tr_noop("Steering"), SteeringLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_lateral.png"),
-      OP.PanelType.CRUISE: PanelInfo(tr_noop("Cruise"), CruiseLayout(), icon="icons/speed_limit.png"),
-      OP.PanelType.VISUALS: PanelInfo(tr_noop("Visuals"), VisualsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_visuals.png"),
-      OP.PanelType.DISPLAY: PanelInfo(tr_noop("Display"), DisplayLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_display.png"),
-      OP.PanelType.OSM: PanelInfo(tr_noop("OSM"), OSMLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
-      # OP.PanelType.NAVIGATION: PanelInfo(tr_noop("Navigation"), NavigationLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_map.png"),
-      OP.PanelType.TRIPS: PanelInfo(tr_noop("Trips"), TripsLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_trips.png"),
-      OP.PanelType.VEHICLE: PanelInfo(tr_noop("Vehicle"), VehicleLayout(), icon="../../hoofpilot/selfdrive/assets/offroad/icon_vehicle.png"),
-      OP.PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayoutSP(), icon="icons/shell.png"),
-    }
+    models_panel = ModelsLayoutMici(back_callback=gui_app.pop_widget)
+    models_btn = SettingsBigButton(tr("models"), "", gui_app.texture("../../hoofpilot/selfdrive/assets/offroad/icon_models.png", ICON_SIZE, ICON_SIZE))
+    models_btn.set_click_callback(lambda: gui_app.push_widget(models_panel))
 
-  def _draw_sidebar(self, rect: rl.Rectangle):
-    rl.draw_rectangle_rec(rect, OP.SIDEBAR_COLOR)
+    # onroad: enable button sits at the front (left of toggles)
+    self._enable_offroad_btn_onroad = BigCircleButton(self.icon_offroad_enable, red=True)
+    self._enable_offroad_btn_onroad.set_click_callback(lambda: self._handle_always_offroad(True))
+    self._enable_offroad_btn_onroad.set_visible(lambda: ui_state.started and not ui_state.always_offroad)
 
-    # Close button
-    close_btn_rect = rl.Rectangle(
-      rect.x + style.ITEM_PADDING * 3, rect.y + style.ITEM_PADDING * 2, style.CLOSE_BTN_SIZE, style.CLOSE_BTN_SIZE
-    )
+    # offroad: enable button sits at the end (right of developer)
+    self._enable_offroad_btn_offroad = BigCircleButton(self.icon_offroad_enable, red=True)
+    self._enable_offroad_btn_offroad.set_click_callback(lambda: self._handle_always_offroad(True))
+    self._enable_offroad_btn_offroad.set_visible(lambda: not ui_state.started and not ui_state.always_offroad)
 
-    pressed = (rl.is_mouse_button_down(rl.MouseButton.MOUSE_BUTTON_LEFT) and
-               rl.check_collision_point_rec(rl.get_mouse_position(), close_btn_rect))
-    close_color = OP.CLOSE_BTN_PRESSED if pressed else OP.CLOSE_BTN_COLOR
-    rl.draw_rectangle_rounded(close_btn_rect, 1.0, 20, close_color)
+    self._disable_offroad_btn = BigCircleButton(self.icon_offroad_disable, red=False)
+    self._disable_offroad_btn.set_click_callback(lambda: self._handle_always_offroad(False))
+    self._disable_offroad_btn.set_visible(lambda: ui_state.always_offroad)
 
-    icon_color = rl.Color(255, 255, 255, 255) if not pressed else rl.Color(220, 220, 220, 255)
-    icon_dest = rl.Rectangle(
-      close_btn_rect.x + (close_btn_rect.width - self._close_icon.width) / 2,
-      close_btn_rect.y + (close_btn_rect.height - self._close_icon.height) / 2,
-      self._close_icon.width,
-      self._close_icon.height,
-    )
-    rl.draw_texture_pro(
-      self._close_icon,
-      rl.Rectangle(0, 0, self._close_icon.width, self._close_icon.height),
-      icon_dest,
-      rl.Vector2(0, 0),
-      0,
-      icon_color,
-    )
+    items = self._scroller._items.copy()
 
-    # Store close button rect for click detection
-    self._close_btn_rect = close_btn_rect
+    items.insert(1, models_btn)
 
-    # Navigation buttons with scroller
-    if not self._nav_items:
-      for panel_type, panel_info in self._panels.items():
-        nav_button = NavButton(self, panel_type, panel_info)
-        nav_button.rect.width = rect.width - 100  # Full width minus padding
-        nav_button.rect.height = OP.NAV_BTN_HEIGHT
-        self._nav_items.append(nav_button)
-        self._nav_buttons[panel_type] = nav_button
-        self._sidebar_scroller.add_widget(nav_button)
-      self._sync_stable_visibility()
+    # front slots (only one ever visible at a time): exit-always-offroad, then enable-onroad
+    items.insert(0, self._enable_offroad_btn_onroad)
+    items.insert(0, self._disable_offroad_btn)
+    # end slot: enable-offroad (right of developer)
+    items.append(self._enable_offroad_btn_offroad)
 
-    # Draw navigation section with scroller
-    nav_rect = rl.Rectangle(
-      rect.x,
-      self._close_btn_rect.height + style.ITEM_PADDING * 4,  # Starting Y position for nav items
-      rect.width,
-      rect.height - 300  # Remaining height after close button
-    )
-
-    if self._nav_items:
-      self._sidebar_scroller.render(nav_rect)
-      return
-
-  def _sync_stable_visibility(self):
-    paired = ui_state.prime_state.is_paired()
-    stable_btn = self._nav_buttons.get(OP.PanelType.STABLE)
-    if stable_btn is not None:
-      stable_btn.set_visible(paired)
-    if not paired and self._current_panel == OP.PanelType.STABLE:
-      self.set_current_panel(OP.PanelType.DEVICE)
+    self._scroller._items.clear()
+    for item in items:
+      self._scroller.add_widget(item)
 
   def _update_state(self):
     super()._update_state()
-    self._sync_stable_visibility()
 
-  def _handle_mouse_release(self, mouse_pos: MousePos) -> bool:
-    # Check close button
-    if rl.check_collision_point_rec(mouse_pos, self._close_btn_rect):
-      if self._close_callback:
-        self._close_callback()
-      return True
+  def _handle_always_offroad(self, enable: bool):
 
-    # Check navigation buttons
-    for panel_type, panel_info in self._panels.items():
-      if rl.check_collision_point_rec(mouse_pos, panel_info.button_rect) and self._sidebar_scroller.scroll_panel.is_touch_valid():
-        self.set_current_panel(panel_type)
-        return True
+    def _set_offroad_status(status: bool):
+      if not ui_state.engaged:
+        ui_state.params.put_bool("OffroadMode", status)
+        ui_state.always_offroad = status
 
-    return False
+    if not enable:
+      dlg = BigConfirmationDialog(tr("slide to exit always offroad"), self.icon_offroad_slider, red=False,
+                                  confirm_callback=lambda: _set_offroad_status(False))
+    else:
+      if ui_state.engaged:
+        gui_app.push_widget(BigDialog(tr("disengage to enable always offroad"), "", ))
+        return
 
-  def show_event(self):
-    super().show_event()
-    self._panels[self._current_panel].instance.show_event()
-    self._sidebar_scroller.show_event()
+      dlg = BigConfirmationDialog(tr("slide to force offroad"), self.icon_offroad_slider, red=True,
+                                  confirm_callback=lambda: _set_offroad_status(True))
+    gui_app.push_widget(dlg)

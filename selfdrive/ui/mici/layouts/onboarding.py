@@ -13,12 +13,10 @@ from openpilot.system.ui.mici_setup import GreyBigButton, BigPillButton
 from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.version import terms_version, training_version, terms_version_sp
-from openpilot.system.version import sunnylink_consent_version, sunnylink_consent_declined
 from openpilot.selfdrive.ui.ui_state import ui_state, device
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
 from openpilot.selfdrive.ui.mici.onroad.driver_state import DriverStateRenderer
 from openpilot.selfdrive.ui.mici.onroad.driver_camera_dialog import BaseDriverCameraDialog
-from openpilot.selfdrive.ui.hoofpilot.mici.layouts.onboarding import SunnylinkConsentPage
 
 
 class DriverCameraSetupDialog(BaseDriverCameraDialog):
@@ -346,20 +344,11 @@ class OnboardingWindow(Widget):
     self._accepted_terms: bool = (ui_state.params.get("HasAcceptedTerms") == terms_version and
                                   ui_state.params.get("HasAcceptedTermsSP") == terms_version_sp)
     self._training_done: bool = ui_state.params.get("CompletedTrainingVersion") == training_version
-    self._sunnylink_consent_done: bool = ui_state.params.get("CompletedSunnylinkConsentVersion") in {
-      sunnylink_consent_version, sunnylink_consent_declined
-    }
-
     self.set_rect(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
 
     # Windows — all pushed onto nav stack, _terms is always rendered as base layer
     self._terms = TermsPage(on_accept=self._on_terms_accepted, on_decline=self._on_uninstall)
     self._terms.set_enabled(lambda: self.enabled)  # for nav stack
-
-    self._sunnylink_consent = SunnylinkConsentPage(
-      on_accept=self._on_sunnylink_accepted,
-      on_decline=self._on_sunnylink_declined,
-    )
 
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._training_guide.set_enabled(lambda: self.enabled)  # for nav stack
@@ -383,7 +372,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._sunnylink_consent_done and self._training_done
+    return self._accepted_terms and self._training_done
 
   def close(self):
     ui_state.params.put_bool_nonblocking("IsDriverViewEnabled", False)
@@ -393,26 +382,6 @@ class OnboardingWindow(Widget):
     ui_state.params.put("HasAcceptedTerms", terms_version)
     ui_state.params.put("HasAcceptedTermsSP", terms_version_sp)
     self._accepted_terms = True
-    if not self._sunnylink_consent_done:
-      gui_app.push_widget(self._sunnylink_consent)
-    elif not self._training_done:
-      gui_app.push_widget(self._training_guide)
-    else:
-      self.close()
-
-  def _on_sunnylink_accepted(self):
-    ui_state.params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_version)
-    ui_state.params.put_bool("SunnylinkEnabled", True)
-    self._sunnylink_consent_done = True
-    if not self._training_done:
-      gui_app.push_widget(self._training_guide)
-    else:
-      self.close()
-
-  def _on_sunnylink_declined(self):
-    ui_state.params.put("CompletedSunnylinkConsentVersion", sunnylink_consent_declined)
-    ui_state.params.put_bool("SunnylinkEnabled", False)
-    self._sunnylink_consent_done = True
     if not self._training_done:
       gui_app.push_widget(self._training_guide)
     else:
@@ -429,9 +398,7 @@ class OnboardingWindow(Widget):
     # Deferred from show_event to avoid nested push_widget re-enable bug
     if self._needs_initial_push:
       self._needs_initial_push = False
-      if self._accepted_terms and not self._sunnylink_consent_done:
-        gui_app.push_widget(self._sunnylink_consent)
-      elif self._accepted_terms and self._sunnylink_consent_done and not self._training_done:
+      if self._accepted_terms and not self._training_done:
         gui_app.push_widget(self._training_guide)
 
     self._terms.render(self._rect)
