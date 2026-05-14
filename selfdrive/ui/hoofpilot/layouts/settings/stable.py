@@ -194,14 +194,12 @@ class StableLayout(Widget):
       return
     from openpilot.system.ui.lib.application import gui_app
 
-    dlg = ConfirmDialog(tr("Reset PIN?"), tr("Reset"), tr("Cancel"))
-
     def cb(res: DialogResult):
       if res == DialogResult.CONFIRM:
         self._remote_pin_clear()
         self._show_alert(tr("PIN reset."))
 
-    gui_app.set_modal_overlay(dlg, cb)
+    gui_app.push_widget(ConfirmDialog(tr("Reset PIN?"), tr("Reset"), tr("Cancel"), callback=cb))
 
   def _render(self, rect):
     self._scroller.render(rect)
