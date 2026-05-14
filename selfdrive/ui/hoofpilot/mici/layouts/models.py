@@ -8,7 +8,7 @@ from collections.abc import Callable
 import pyray as rl
 
 from cereal import custom
-from openpilot.hoofpilot.models.default_model import DEFAULT_MODEL
+from hoofpilot.models.default_model import DEFAULT_MODEL
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton
 from openpilot.selfdrive.ui.hoofpilot.layouts.settings.models import ModelsLayout
 from openpilot.selfdrive.ui.ui_state import ui_state, device
