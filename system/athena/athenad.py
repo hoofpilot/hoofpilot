@@ -372,13 +372,13 @@ def rtc_handler(exit_event: threading.Event | None, sdp_send_queue: queue.Queue,
 
 
 @dispatcher.add_method
-def setSdpAnswer(answer, authToken: str | None = None):
+def liveViewSetSdpAnswer(answer, authToken: str | None = None):
   _remote_pin_require_auth(authToken)
   sdp_recv_queue.put_nowait(answer)
 
 
 @dispatcher.add_method
-def getSdp(authToken: str | None = None):
+def liveViewGetSdp(authToken: str | None = None):
   _remote_pin_require_auth(authToken)
   start_time = time.time()  # noqa: TID251
   timeout = 10
@@ -393,7 +393,7 @@ def getSdp(authToken: str | None = None):
 
 
 @dispatcher.add_method
-def getIce(authToken: str | None = None):
+def liveViewGetIce(authToken: str | None = None):
   _remote_pin_require_auth(authToken)
   candidates = []
   while not ice_send_queue.empty():
