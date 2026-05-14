@@ -1,4 +1,4 @@
-from openpilot.common.api.comma_connect import CommaConnectApi
+from openpilot.common.api.konik_stable import CommaConnectApi
 
 
 class Api:
