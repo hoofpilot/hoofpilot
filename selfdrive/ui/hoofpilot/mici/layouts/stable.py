@@ -1,7 +1,7 @@
 """
 Sunnypilot mici Stable panel.
 
-This is the mici implementation of the "Stable" settings menu (PIN, Live View, Remote SSH, Reset PIN).
+This is the mici implementation of the "Stable" settings menu (PIN, Live View, Reset PIN).
 """
 
 import hashlib
@@ -58,11 +58,9 @@ class StableLayoutMici(NavWidget):
     self._pin_btn.set_enabled(lambda: ui_state.is_offroad())
 
     self._live_view_toggle = BigParamControl("live view", "LiveViewEnabled", toggle_callback=self._on_live_view_toggled)
-    self._remote_ssh_toggle = BigParamControl("remote ssh", "RemoteSshEnabled")
 
-    # Disable toggles until PIN is set.
+    # Disable toggle until PIN is set.
     self._live_view_toggle.set_enabled(lambda: self._remote_pin_is_set())
-    self._remote_ssh_toggle.set_enabled(lambda: self._remote_pin_is_set())
 
     self._reset_pin_btn = DangerBigButton("reset PIN", "")
     self._reset_pin_btn.set_click_callback(self._on_reset_pin_pressed)
@@ -72,7 +70,6 @@ class StableLayoutMici(NavWidget):
     self._scroller._scroller.add_widgets([
       self._pin_btn,
       self._live_view_toggle,
-      self._remote_ssh_toggle,
       self._reset_pin_btn,
     ])
 
@@ -90,7 +87,6 @@ class StableLayoutMici(NavWidget):
     # Keep UI in sync with params that can change from elsewhere.
     self._pin_btn.set_value(self._pin_btn_value())
     self._live_view_toggle.refresh()
-    self._remote_ssh_toggle.refresh()
 
   @staticmethod
   def _remote_pin_clear() -> None:
@@ -101,7 +97,6 @@ class StableLayoutMici(NavWidget):
     params.put("RemoteAccessPinIterations", 150000)
     # Factory state for remote access features.
     params.put_bool("LiveViewEnabled", False)
-    params.put_bool("RemoteSshEnabled", False)
     params.put_bool("LiveView", False)
 
   @staticmethod
@@ -145,7 +140,6 @@ class StableLayoutMici(NavWidget):
   def _enforce_pin_first(self):
     if not self._remote_pin_is_set():
       ui_state.params.put_bool("LiveViewEnabled", False)
-      ui_state.params.put_bool("RemoteSshEnabled", False)
       ui_state.params.put_bool("LiveView", False)
 
   def _pin_btn_value(self) -> str:

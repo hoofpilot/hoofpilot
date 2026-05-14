@@ -2,26 +2,21 @@
 from __future__ import annotations
 
 import base64
-import fcntl
 import hashlib
 import hmac
 import io
 import json
 import os
-import pty
 import queue
 import random
 import select
 import socket
-import struct
-import subprocess
 import sys
 import tempfile
 import threading
 import time
 import gzip
 import asyncio
-import termios
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime
 from functools import partial, total_ordering
@@ -64,8 +59,6 @@ MAX_AGE = 31 * 24 * 3600  # seconds
 WS_FRAME_SIZE = 4096
 DEVICE_STATE_UPDATE_INTERVAL = 1.0  # in seconds
 DEFAULT_UPLOAD_PRIORITY = 99  # higher number = lower priority
-REMOTE_SSH_IDLE_TIMEOUT_S = 10 * 60
-REMOTE_SSH_MAX_READ_BYTES = 1024 * 1024
 REMOTE_PIN_TOKEN_TTL_S = 5 * 60
 REMOTE_PIN_LOCKOUT_S = 30
 REMOTE_PIN_MAX_FAILS = 5
@@ -147,9 +140,6 @@ cancelled_uploads: set[str] = set()
 sdp_recv_queue: Queue[dict] = queue.Queue()
 sdp_send_queue: Queue[str] = queue.Queue()
 ice_send_queue: Queue[str] = queue.Queue()
-remote_ssh_sessions: dict[str, dict] = {}
-remote_ssh_sessions_lock = threading.RLock()
-remote_ssh_active_prev = False
 remote_pin_tokens: dict[str, float] = {}
 remote_pin_lock = threading.RLock()
 remote_pin_fails = 0
@@ -190,72 +180,6 @@ class UploadQueueCache:
     except Exception:
       cloudlog.exception("athena.UploadQueueCache.cache.exception")
 
-
-def _is_remote_ssh_enabled() -> bool:
-  return Params().get_bool("RemoteSshEnabled")
-
-
-def _set_remote_ssh_active_param_locked(active: bool) -> None:
-  # Best-effort: used to drive an offroad alert via hardwared.
-  global remote_ssh_active_prev
-  if active == remote_ssh_active_prev:
-    return
-  remote_ssh_active_prev = active
-  try:
-    Params().put_bool("RemoteSsh", active)
-  except Exception:
-    pass
-
-
-def _close_remote_ssh_session_locked(session_id: str) -> None:
-  session = remote_ssh_sessions.pop(session_id, None)
-  if session is None:
-    return
-
-  master_fd = session["master_fd"]
-  proc = session["proc"]
-
-  try:
-    os.close(master_fd)
-  except OSError:
-    pass
-
-  if proc.poll() is None:
-    proc.terminate()
-    try:
-      proc.wait(timeout=1.0)
-    except subprocess.TimeoutExpired:
-      proc.kill()
-      try:
-        proc.wait(timeout=1.0)
-      except subprocess.TimeoutExpired:
-        pass
-
-  _set_remote_ssh_active_param_locked(bool(remote_ssh_sessions))
-
-
-def _close_all_remote_ssh_sessions() -> None:
-  with remote_ssh_sessions_lock:
-    for session_id in list(remote_ssh_sessions.keys()):
-      _close_remote_ssh_session_locked(session_id)
-    _set_remote_ssh_active_param_locked(False)
-
-
-def _cleanup_remote_ssh_sessions() -> None:
-  now = time.monotonic()
-  with remote_ssh_sessions_lock:
-    for session_id, session in list(remote_ssh_sessions.items()):
-      proc = session["proc"]
-      last_activity = session["last_activity"]
-      if proc.poll() is not None or (now - last_activity) > REMOTE_SSH_IDLE_TIMEOUT_S:
-        _close_remote_ssh_session_locked(session_id)
-    _set_remote_ssh_active_param_locked(bool(remote_ssh_sessions))
-
-
-def _assert_remote_ssh_enabled() -> None:
-  if not _is_remote_ssh_enabled():
-    _close_all_remote_ssh_sessions()
-    raise Exception("Remote SSH is disabled")
 
 
 def _remote_pin_is_set() -> bool:
@@ -354,7 +278,6 @@ def handle_long_poll(ws: WebSocket, exit_event: threading.Event | None) -> None:
     end_event.set()
     raise
   finally:
-    _close_all_remote_ssh_sessions()
     for thread in threads:
       cloudlog.debug(f"athena.joining {thread.name}")
       thread.join()
@@ -508,163 +431,6 @@ def remotePinClear(force: bool = False, pin: str | None = None) -> dict[str, boo
     remote_pin_tokens.clear()
     return {"success": True}
 
-
-@dispatcher.add_method
-def remoteSshStart(cols: int = 120, rows: int = 32, authToken: str | None = None) -> dict[str, str | bool]:
-  _remote_pin_require_auth(authToken)
-  if not _is_remote_ssh_enabled():
-    _close_all_remote_ssh_sessions()
-    return {"success": False, "error": "Remote SSH disabled"}
-  _cleanup_remote_ssh_sessions()
-
-  cols = max(10, min(cols, 500))
-  rows = max(5, min(rows, 300))
-
-  master_fd, slave_fd = pty.openpty()
-  fcntl.ioctl(slave_fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
-
-  try:
-    proc = subprocess.Popen(
-      ["/bin/bash", "-l"],
-      stdin=slave_fd,
-      stdout=slave_fd,
-      stderr=slave_fd,
-      close_fds=True,
-      start_new_session=True,
-    )
-  finally:
-    os.close(slave_fd)
-
-  flags = fcntl.fcntl(master_fd, fcntl.F_GETFL)
-  fcntl.fcntl(master_fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-
-  session_id = base64.urlsafe_b64encode(os.urandom(16)).decode("utf-8").rstrip("=")
-  with remote_ssh_sessions_lock:
-    remote_ssh_sessions[session_id] = {
-      "master_fd": master_fd,
-      "proc": proc,
-      "last_activity": time.monotonic(),
-    }
-    _set_remote_ssh_active_param_locked(True)
-
-  return {"success": True, "sessionId": session_id}
-
-
-@dispatcher.add_method
-def remoteSshWrite(sessionId: str, data: str, authToken: str | None = None) -> dict[str, bool | int | str]:
-  _remote_pin_require_auth(authToken)
-  if not _is_remote_ssh_enabled():
-    _close_all_remote_ssh_sessions()
-    return {"success": False, "error": "Remote SSH disabled"}
-  _cleanup_remote_ssh_sessions()
-
-  if not isinstance(data, str):
-    raise Exception("data must be a string")
-
-  payload = data.encode("utf-8")
-  with remote_ssh_sessions_lock:
-    session = remote_ssh_sessions.get(sessionId)
-    if session is None:
-      raise Exception("session not found")
-
-    proc = session["proc"]
-    if proc.poll() is not None:
-      _close_remote_ssh_session_locked(sessionId)
-      return {"success": False, "written": 0}
-
-    written = 0
-    while written < len(payload):
-      try:
-        n = os.write(session["master_fd"], payload[written:])
-      except BlockingIOError:
-        break
-      written += n
-
-    session["last_activity"] = time.monotonic()
-    return {"success": True, "written": written}
-
-
-@dispatcher.add_method
-def remoteSshRead(sessionId: str, maxBytes: int = 65536, authToken: str | None = None) -> dict[str, bool | int | str | None]:
-  _remote_pin_require_auth(authToken)
-  if not _is_remote_ssh_enabled():
-    _close_all_remote_ssh_sessions()
-    return {"success": False, "error": "Remote SSH disabled", "data": "", "closed": True, "exitCode": None}
-  _cleanup_remote_ssh_sessions()
-
-  if maxBytes <= 0:
-    maxBytes = 1
-  maxBytes = min(maxBytes, REMOTE_SSH_MAX_READ_BYTES)
-
-  with remote_ssh_sessions_lock:
-    session = remote_ssh_sessions.get(sessionId)
-    if session is None:
-      raise Exception("session not found")
-
-    output = bytearray()
-    while len(output) < maxBytes:
-      remaining = maxBytes - len(output)
-      try:
-        chunk = os.read(session["master_fd"], min(4096, remaining))
-      except BlockingIOError:
-        break
-      except OSError:
-        break
-
-      if not chunk:
-        break
-      output.extend(chunk)
-
-    if output:
-      session["last_activity"] = time.monotonic()
-
-    proc = session["proc"]
-    exit_code = proc.poll()
-    closed = exit_code is not None
-    if closed:
-      _close_remote_ssh_session_locked(sessionId)
-
-    return {
-      "success": True,
-      "data": base64.b64encode(bytes(output)).decode("utf-8"),
-      "closed": closed,
-      "exitCode": exit_code,
-    }
-
-
-@dispatcher.add_method
-def remoteSshResize(sessionId: str, cols: int = 120, rows: int = 32, authToken: str | None = None) -> dict[str, bool | str]:
-  _remote_pin_require_auth(authToken)
-  if not _is_remote_ssh_enabled():
-    _close_all_remote_ssh_sessions()
-    return {"success": False, "error": "Remote SSH disabled"}
-  _cleanup_remote_ssh_sessions()
-
-  cols = max(10, min(cols, 500))
-  rows = max(5, min(rows, 300))
-
-  with remote_ssh_sessions_lock:
-    session = remote_ssh_sessions.get(sessionId)
-    if session is None:
-      raise Exception("session not found")
-
-    fcntl.ioctl(session["master_fd"], termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
-    session["last_activity"] = time.monotonic()
-
-  return {"success": True}
-
-
-@dispatcher.add_method
-def remoteSshStop(sessionId: str, authToken: str | None = None) -> dict[str, bool | str]:
-  _remote_pin_require_auth(authToken)
-  if not _is_remote_ssh_enabled():
-    _close_all_remote_ssh_sessions()
-    return {"success": False, "error": "Remote SSH disabled"}
-  with remote_ssh_sessions_lock:
-    if sessionId not in remote_ssh_sessions:
-      return {"success": False}
-    _close_remote_ssh_session_locked(sessionId)
-  return {"success": True}
 
 
 def jsonrpc_handler(end_event: threading.Event, localProxyHandler = None) -> None:
