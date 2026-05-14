@@ -268,6 +268,10 @@ class GuiApplication(GuiApplicationExt):
   def target_fps(self):
     return self._target_fps
 
+  def set_fps(self, fps: int) -> None:
+    self._target_fps = fps
+    rl.set_target_fps(0 if OFFSCREEN else fps)
+
   def request_close(self):
     self._window_close_requested = True
 
